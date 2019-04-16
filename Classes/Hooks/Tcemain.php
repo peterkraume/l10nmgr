@@ -108,7 +108,7 @@ class Tcemain
      */
     function stat($p, $pObj)
     {
-        if (strcmp($this->getBackendUser()->groupData['allowed_languages'], '')) {
+        if (!empty($this->getBackendUser()->groupData['allowed_languages']) || $this->getBackendUser()->isAdmin()) {
             return $this->calcStat($p,
                 $this->getDatabaseConnection()->cleanIntList($this->getBackendUser()->groupData['allowed_languages']));
         } else {
@@ -128,14 +128,14 @@ class Tcemain
     function calcStat($p, $languageList, $noLink = false)
     {
         $output = '';
-//
+
         if ($p[0] != 'pages') {
             $records = $this->getDatabaseConnection()->exec_SELECTgetRows('*', 'tx_l10nmgr_index',
                 'tablename=' . $this->getDatabaseConnection()->fullQuoteStr($p[0],
-                    'tx_l10nmgr_index') . ' AND recuid=' . (int)$p[1] . ' AND translation_lang IN (' . $languageList . ')' . ' AND workspace=' . (int)$this->getBackendUser()->workspace);
+                    'tx_l10nmgr_index') . ' AND recuid=' . (int)$p[1] . ' AND (translation_lang IN (' . $languageList . ') OR ' . $languageList . ' = 0)' . ' AND workspace=' . (int)$this->getBackendUser()->workspace);
         } else {
             $records = $this->getDatabaseConnection()->exec_SELECTgetRows('*', 'tx_l10nmgr_index',
-                'recpid=' . (int)$p[1] . ' AND translation_lang IN (' . $languageList . ')' . ' AND workspace=' . (int)$this->getBackendUser()->workspace);
+                'recpid=' . (int)$p[1] . ' AND (translation_lang IN (' . $languageList . ') OR ' . $languageList . ' = 0)' . ' AND workspace=' . (int)$this->getBackendUser()->workspace);
         }
         $flags = array();
         foreach ($records as $r) {
@@ -149,7 +149,7 @@ class Tcemain
             $msg = '';
             if ($flags['new'] && !$flags['unknown'] && !$flags['noChange'] && !$flags['update']) {
                 $msg .= 'None of ' . $flags['new'] . ' elements are translated.';
-                $output = '<img src="' . $GLOBALS['BACK_PATH'] . ExtensionManagementUtility::siteRelPath('l10nmgr') . 'flags_new.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
+                $output = '<img src="../' . ExtensionManagementUtility::siteRelPath('l10nmgr') . 'Resources/Public/Images/flags_new.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
             } elseif ($flags['new'] || $flags['update']) {
                 if ($flags['update']) {
                     $msg .= $flags['update'] . ' elements to update. ';
@@ -157,17 +157,17 @@ class Tcemain
                 if ($flags['new']) {
                     $msg .= $flags['new'] . ' new elements found. ';
                 }
-                $output = '<img src="' . $GLOBALS['BACK_PATH'] . ExtensionManagementUtility::siteRelPath('l10nmgr') . 'flags_update.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
+                $output = '<img src="../' . ExtensionManagementUtility::siteRelPath('l10nmgr') . 'Resources/Public/Images/flags_update.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
             } elseif ($flags['unknown']) {
                 $msg .= 'Translation status is unknown for ' . $flags['unknown'] . ' elements. Please check and update. ';
-                $output = '<img src="' . $GLOBALS['BACK_PATH'] . ExtensionManagementUtility::siteRelPath('l10nmgr') . 'flags_unknown.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
+                $output = '<img src="../' . ExtensionManagementUtility::siteRelPath('l10nmgr') . 'Resources/Public/Images/flags_unknown.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
             } elseif ($flags['noChange']) {
                 $msg .= 'All ' . $flags['noChange'] . ' translations OK';
-                $output = '<img src="' . $GLOBALS['BACK_PATH'] . ExtensionManagementUtility::siteRelPath('l10nmgr') . 'flags_ok.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
+                $output = '<img src="../' . ExtensionManagementUtility::siteRelPath('l10nmgr') . 'Resources/Public/Images/flags_ok.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
             } else {
                 $msg .= 'Nothing to do. ';
                 $msg .= '[n/?/u/ok=' . implode('/', $flags) . ']';
-                $output = '<img src="' . $GLOBALS['BACK_PATH'] . ExtensionManagementUtility::siteRelPath('l10nmgr') . 'flags_none.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
+                $output = '<img src="../' . ExtensionManagementUtility::siteRelPath('l10nmgr') . 'Resources/Public/Images/flags_none.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
             }
             $output = !$noLink ? '<a href="#" onclick="' . htmlspecialchars('parent.list_frame.location.href="' . $GLOBALS['BACK_PATH'] . ExtensionManagementUtility::siteRelPath('l10nmgr') . 'cm2/index.php?table=' . $p[0] . '&uid=' . $p[1] . '&languageList=' . rawurlencode($languageList) . '"; return false;') . '" target="listframe">' . $output . '</a>' : $output;
         }
