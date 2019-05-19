@@ -79,72 +79,74 @@ class CatXmlView extends AbstractExportView
             $output[] = "\t" . '<pageGrp id="' . $pId . '" sourceUrl="' . GeneralUtility::getIndpEnv("TYPO3_SITE_URL") . 'index.php?id=' . $pId . '">' . "\n";
             foreach ($accum[$pId]['items'] as $table => $elements) {
                 foreach ($elements as $elementUid => $data) {
-                    $targetIso = '';
-                    if (!empty($data['ISOcode'])) {
-                        $targetIso = $data['ISOcode'];
-                    }
-                    if (is_array($data['fields'])) {
-                        foreach ($data['fields'] as $key => $tData) {
-                            if (is_array($tData)) {
-                                $noChangeFlag = !strcmp(trim($tData['diffDefaultValue']), trim($tData['defaultValue']));
-                                if (!$this->modeOnlyChanged || !$noChangeFlag) {
-                                    // @DP: Why this check?
-                                    if (($this->forcedSourceLanguage && isset($tData['previewLanguageValues'][$this->forcedSourceLanguage])) || $this->forcedSourceLanguage === false) {
-                                        if ($this->forcedSourceLanguage) {
-                                            $dataForTranslation = $tData['previewLanguageValues'][$this->forcedSourceLanguage];
-                                        } else {
-                                            $dataForTranslation = $tData['defaultValue'];
-                                        }
-                                        $_isTranformedXML = false;
-                                        // Following checks are not enough! Fields that could be transformed to be XML conform are not transformed! textpic fields are not isRTE=1!!! No idea why...
-                                        //DZ 2010-09-08
-                                        // > if > else loop instead of ||
-                                        // Test re-import of XML! RTE-Back transformation
-                                        //echo $tData['fieldType'];
-                                        //if (preg_match('/templavoila_flex/',$key)) { echo "1 -"; }
-                                        //echo $key."\n";
-                                        if ($tData['fieldType'] == 'text' && $tData['isRTE'] || (preg_match('/templavoila_flex/',
-                                                $key))
-                                        ) {
-                                            $dataForTranslationTranformed = $xmlTool->RTE2XML($dataForTranslation);
-                                            if ($dataForTranslationTranformed !== false) {
-                                                $_isTranformedXML = true;
-                                                $dataForTranslation = $dataForTranslationTranformed;
-                                            }
-                                        }
-                                        if ($_isTranformedXML) {
-                                            $output[] = "\t\t" . '<data table="' . $table . '" elementUid="' . $elementUid . '" key="' . $key . '" transformations="1">' . $dataForTranslation . '</data>' . "\n";
-                                        } else {
-                                            // Substitute HTML entities with actual characters (we use UTF-8 anyway:-) but leave quotes untouched
-                                            $dataForTranslation = html_entity_decode($dataForTranslation, ENT_NOQUOTES,
-                                                'UTF-8');
-                                            //Substitute & with &amp; in non-RTE fields
-                                            $dataForTranslation = preg_replace('/&(?!(amp|nbsp|quot|apos|lt|gt);)/',
-                                                '&amp;', $dataForTranslation);
-                                            //Substitute > and < in non-RTE fields
-                                            $dataForTranslation = str_replace(' < ', ' &lt; ', $dataForTranslation);
-                                            $dataForTranslation = str_replace(' > ', ' &gt; ', $dataForTranslation);
-                                            $dataForTranslation = str_replace('<br>', '<br />', $dataForTranslation);
-                                            $dataForTranslation = str_replace('<hr>', '<hr />', $dataForTranslation);
-                                            $params = $this->getBackendUser()->getModuleData('l10nmgr/cm1/prefs',
-                                                'prefs');
-                                            if ($params['utf8'] == '1') {
-                                                $dataForTranslation = Utf8Tools::utf8_bad_strip($dataForTranslation);
-                                            }
-                                            if ($xmlTool->isValidXMLString($dataForTranslation)) {
-                                                $output[] = "\t\t" . '<data table="' . $table . '" elementUid="' . $elementUid . '" key="' . $key . '">' . $dataForTranslation . '</data>' . "\n";
+                    if (!$this->modeOnlyNew || empty($data['translationInfo']['translations'])) {
+                        $targetIso = '';
+                        if (!empty($data['ISOcode'])) {
+                            $targetIso = $data['ISOcode'];
+                        }
+                        if (is_array($data['fields'])) {
+                            foreach ($data['fields'] as $key => $tData) {
+                                if (is_array($tData)) {
+                                    $noChangeFlag = !strcmp(trim($tData['diffDefaultValue']), trim($tData['defaultValue']));
+                                    if (!$this->modeOnlyChanged || !$noChangeFlag) {
+                                        // @DP: Why this check?
+                                        if (($this->forcedSourceLanguage && isset($tData['previewLanguageValues'][$this->forcedSourceLanguage])) || $this->forcedSourceLanguage === false) {
+                                            if ($this->forcedSourceLanguage) {
+                                                $dataForTranslation = $tData['previewLanguageValues'][$this->forcedSourceLanguage];
                                             } else {
-                                                if ($params['noxmlcheck'] == '1') {
-                                                    $output[] = "\t\t" . '<data table="' . $table . '" elementUid="' . $elementUid . '" key="' . $key . '"><![CDATA[' . $dataForTranslation . ']]></data>' . "\n";
-                                                } else {
-                                                    $this->setInternalMessage($this->getLanguageService()->getLL('export.process.error.invalid.message'),
-                                                        $elementUid . '/' . $table . '/' . $key);
+                                                $dataForTranslation = $tData['defaultValue'];
+                                            }
+                                            $_isTranformedXML = false;
+                                            // Following checks are not enough! Fields that could be transformed to be XML conform are not transformed! textpic fields are not isRTE=1!!! No idea why...
+                                            //DZ 2010-09-08
+                                            // > if > else loop instead of ||
+                                            // Test re-import of XML! RTE-Back transformation
+                                            //echo $tData['fieldType'];
+                                            //if (preg_match('/templavoila_flex/',$key)) { echo "1 -"; }
+                                            //echo $key."\n";
+                                            if ($tData['fieldType'] == 'text' && $tData['isRTE'] || (preg_match('/templavoila_flex/',
+                                                    $key))
+                                            ) {
+                                                $dataForTranslationTranformed = $xmlTool->RTE2XML($dataForTranslation);
+                                                if ($dataForTranslationTranformed !== false) {
+                                                    $_isTranformedXML = true;
+                                                    $dataForTranslation = $dataForTranslationTranformed;
                                                 }
                                             }
+                                            if ($_isTranformedXML) {
+                                                $output[] = "\t\t" . '<data table="' . $table . '" elementUid="' . $elementUid . '" key="' . $key . '" transformations="1">' . $dataForTranslation . '</data>' . "\n";
+                                            } else {
+                                                // Substitute HTML entities with actual characters (we use UTF-8 anyway:-) but leave quotes untouched
+                                                $dataForTranslation = html_entity_decode($dataForTranslation, ENT_NOQUOTES,
+                                                    'UTF-8');
+                                                //Substitute & with &amp; in non-RTE fields
+                                                $dataForTranslation = preg_replace('/&(?!(amp|nbsp|quot|apos|lt|gt);)/',
+                                                    '&amp;', $dataForTranslation);
+                                                //Substitute > and < in non-RTE fields
+                                                $dataForTranslation = str_replace(' < ', ' &lt; ', $dataForTranslation);
+                                                $dataForTranslation = str_replace(' > ', ' &gt; ', $dataForTranslation);
+                                                $dataForTranslation = str_replace('<br>', '<br />', $dataForTranslation);
+                                                $dataForTranslation = str_replace('<hr>', '<hr />', $dataForTranslation);
+                                                $params = $this->getBackendUser()->getModuleData('l10nmgr/cm1/prefs',
+                                                    'prefs');
+                                                if ($params['utf8'] == '1') {
+                                                    $dataForTranslation = Utf8Tools::utf8_bad_strip($dataForTranslation);
+                                                }
+                                                if ($xmlTool->isValidXMLString($dataForTranslation)) {
+                                                    $output[] = "\t\t" . '<data table="' . $table . '" elementUid="' . $elementUid . '" key="' . $key . '">' . $dataForTranslation . '</data>' . "\n";
+                                                } else {
+                                                    if ($params['noxmlcheck'] !== '0') {
+                                                        $output[] = "\t\t" . '<data table="' . $table . '" elementUid="' . $elementUid . '" key="' . $key . '"><![CDATA[' . $dataForTranslation . ']]></data>' . "\n";
+                                                    } else {
+                                                        $this->setInternalMessage($this->getLanguageService()->getLL('export.process.error.invalid.message'),
+                                                            $elementUid . '/' . $table . '/' . $key);
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            $this->setInternalMessage($this->getLanguageService()->getLL('export.process.error.empty.message'),
+                                                $elementUid . '/' . $table . '/' . $key);
                                         }
-                                    } else {
-                                        $this->setInternalMessage($this->getLanguageService()->getLL('export.process.error.empty.message'),
-                                            $elementUid . '/' . $table . '/' . $key);
                                     }
                                 }
                             }

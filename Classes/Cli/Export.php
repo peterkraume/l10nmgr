@@ -80,8 +80,13 @@ class Export extends CommandLineController
         );
         $this->cli_options[] = array(
             '--updated',
-            'Export only new/updated contents',
-            "The values can be: \n TRUE = Only new/updated content is exported\n FALSE = All content is exported (default)\n"
+            'Export only updated contents',
+            "The values can be: \n TRUE = Only updated content is exported\n FALSE = All content is exported (default)\n"
+        );
+        $this->cli_options[] = array(
+            '--new',
+            'Export only new contents',
+            "The values can be: \n TRUE = Only new content is exported\n FALSE = All content is exported (default)\n"
         );
         $this->cli_options[] = array(
             '--check-exports',
@@ -269,6 +274,10 @@ class Export extends CommandLineController
             $onlyChanged = isset($this->cli_args['--updated']) ? $this->cli_args['--updated'][0] : 'FALSE';
             if ($onlyChanged === 'TRUE') {
                 $l10nmgrGetXML->setModeOnlyChanged();
+            }
+            $onlyNew = isset($this->cli_args['--new']) ? $this->cli_args['--new'][0] : 'FALSE';
+            if ($onlyNew === 'TRUE') {
+                $l10nmgrGetXML->setModeOnlyNew();
             }
             $hidden = isset($this->cli_args['--hidden']) ? $this->cli_args['--hidden'][0] : 'FALSE';
             if ($hidden === 'TRUE') {
