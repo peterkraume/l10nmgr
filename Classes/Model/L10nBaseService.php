@@ -29,8 +29,11 @@ use TYPO3\CMS\Core\Database\Query\Restriction\BackendWorkspaceRestriction;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Database\RelationHandler;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
+use TYPO3\CMS\Core\DataHandling\Model\RecordStateFactory;
+use TYPO3\CMS\Core\DataHandling\SlugHelper;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\MathUtility;
 
 /**
  * baseService class for offering common services like saving translation etc...
@@ -122,6 +125,29 @@ class L10nBaseService implements LoggerAwareInterface
         );
         if ($flexFormDiffArray !== false) {
             $l10ncfgObj->updateFlexFormDiff($sysLang, $flexFormDiffArray);
+        }
+        $translationData = $translationObj->getTranslationData();
+        if (isset($translationData['pages'])) {
+            $newPageString = 'pages:NEW/' . $sysLang . '/';
+            foreach ($translationData['pages'] as $pageFields) {
+                foreach ($pageFields as $key => $value) {
+                    if (strpos($key, ':title') === false) {
+                        continue;
+                    }
+                    if (strpos($key, $newPageString) === false) {
+                        continue;
+                    }
+                    // If we get here we have something like "pages:/NEW/$lang/$pageId:title"
+                    // Remove pages:/NEW/$lang/ from the beginning of the key
+                    $lastKeyPart = substr($key, strlen($newPageString));
+                    // Remove ":title" from the end of the key
+                    $pageId = substr($lastKeyPart, 0, -6);
+                    if (!MathUtility::canBeInterpretedAsInteger($pageId)) {
+                        continue;
+                    }
+                    $this->updatePageSlug((int)$pageId, (int)$sysLang);
+                }
+            }
         }
         // Provide a hook for specific manipulations after saving
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['savePostProcess'])) {
@@ -920,5 +946,53 @@ class L10nBaseService implements LoggerAwareInterface
             return $rows;
         }
         return [];
+    }
+
+    /**
+     * @param $pageId
+     * @param $sysLang
+     * @return void
+     */
+    protected function updatePageSlug(int $pageId, int $sysLang)
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
+        $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+        $recordData = $queryBuilder->select('*')
+            ->from('pages')
+            ->where(
+                $queryBuilder->expr()->eq('l10n_parent', $queryBuilder->createNamedParameter($pageId, \PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('sys_language_uid', $queryBuilder->createNamedParameter($sysLang, \PDO::PARAM_INT)),
+                $queryBuilder->expr()->neq('pid', $queryBuilder->createNamedParameter(-1, \PDO::PARAM_INT))
+            )
+            ->execute()
+            ->fetch();
+
+        if (empty($recordData)) {
+            return;
+        }
+
+        if (!empty($recordData['is_siteroot'])) {
+            return;
+        }
+
+        $slug = GeneralUtility::makeInstance(
+            SlugHelper::class,
+            'pages',
+            'slug',
+            $GLOBALS['TCA']['pages']['columns']['slug']['config'] ?? []
+        );
+
+        $proposal = $slug->generate($recordData, $recordData['pid']);
+        $state = RecordStateFactory::forName('pages')->fromArray($recordData, $recordData['pid'], $recordData['uid']);
+        if (!$slug->isUniqueInSite($proposal, $state)) {
+            $proposal = $slug->buildSlugForUniqueInSite($proposal, $state);
+        }
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
+        $queryBuilder->update('pages')
+            ->set('slug', $proposal)
+            ->where(
+                $queryBuilder->expr()->eq('uid', $recordData['uid'])
+            )
+            ->execute();
     }
 }
