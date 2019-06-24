@@ -323,7 +323,7 @@ class L10nBaseService
                         }
                         if (is_array($data['fields'])) {
                             foreach ($data['fields'] as $key => $tData) {
-                                if (is_array($tData) && array_key_exists($key, $inputArray[$table][$elementUid])) {
+                                if (is_array($tData) && is_array($inputArray[$table]) && array_key_exists($key, $inputArray[$table][$elementUid])) {
                                     list($Ttable, $TuidString, $Tfield, $Tpath) = explode(':', $key);
                                     list($Tuid, $Tlang, $TdefRecord) = explode('/', $TuidString);
                                     if (!$this->createTranslationAlsoIfEmpty && $inputArray[$table][$elementUid][$key] == '' && $Tuid == 'NEW' && $Tfield !== trim($TCA[$Ttable]['ctrl']['label'])) {
@@ -622,7 +622,9 @@ class L10nBaseService
         }
 
         $inputArray = $translationData->getTranslationData();
-        $pageUids = array_keys($inputArray['pages']);
+        if (isset($inputArray['pages']) && is_array($inputArray['pages'])) {
+            $pageUids = array_keys($inputArray['pages']);
+        }
         foreach ($pageUids as $pageUid) {
             $this->translateContentOnPage($pageUid, (int)$translationData->getLanguage());
         }
