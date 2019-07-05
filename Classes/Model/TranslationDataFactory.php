@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\Model;
 
 /***************************************************************
@@ -18,6 +19,7 @@ namespace Localizationteam\L10nmgr\Model;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use Localizationteam\L10nmgr\Model\Tools\XmlTools;
 use TYPO3\CMS\Core\Html\RteHtmlParser;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -67,7 +69,7 @@ class TranslationDataFactory
         /** @var XmlTools $xmlTool */
         $xmlTool = GeneralUtility::makeInstance(XmlTools::class);
 //print_r($xmlNodes); exit;
-        $translation = array();
+        $translation = [];
 // OK, this method of parsing the XML really sucks, but it was 4:04 in the night and ... I have no clue to make it better on PHP4. Anyway, this will work for now. But is probably unstable in case a user puts formatting in the content of the translation! (since only the first CData chunk will be found!)
         if (is_array($xmlNodes['TYPO3L10N'][0]['ch']['pageGrp'])) {
             foreach ($xmlNodes['TYPO3L10N'][0]['ch']['pageGrp'] as $pageGrp) {
@@ -181,7 +183,7 @@ class TranslationDataFactory
         // Check if &nbsp; has to be substituted -> DOCTYPE -> entity?
         $xmlNodes = GeneralUtility::xml2tree(str_replace('&nbsp;', '&#160;',
             $fileContent)); // For some reason PHP chokes on incoming &nbsp; in XML!
-        $translation = array();
+        $translation = [];
         if (!is_array($xmlNodes)) {
             $this->_errorMsg .= $xmlNodes;
             return false;
@@ -251,7 +253,7 @@ class TranslationDataFactory
             $this->_errorMsg .= $xmlNodes;
             return false;
         }
-        $translation = array();
+        $translation = [];
         // OK, this method of parsing the XML really sucks, but it was 4:04 in the night and ... I have no clue to make it better on PHP4. Anyway, this will work for now. But is probably unstable in case a user puts formatting in the content of the translation! (since only the first CData chunk will be found!)
         if (is_array($xmlNodes['TYPO3L10N'][0]['ch']['Data'])) {
             foreach ($xmlNodes['TYPO3L10N'][0]['ch']['Data'] as $row) {
@@ -266,7 +268,7 @@ class TranslationDataFactory
                     $parseHTML->procOptions['dontConvBRtoParagraph'] = true;
                     //$parseHTML->procOptions['preserveTags'].=',br';
                     if (!is_array($parseHTML->procOptions['HTMLparser_db.'])) {
-                        $parseHTML->procOptions['HTMLparser_db.'] = array();
+                        $parseHTML->procOptions['HTMLparser_db.'] = [];
                     }
                     $parseHTML->procOptions['HTMLparser_db.']['xhtml_cleaning'] = true;
                     //trick to preserve strongtags

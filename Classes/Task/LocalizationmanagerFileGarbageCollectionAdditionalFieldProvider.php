@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\Task;
 
 /***************************************************************
@@ -18,6 +19,7 @@ namespace Localizationteam\L10nmgr\Task;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -80,23 +82,23 @@ class LocalizationmanagerFileGarbageCollectionAdditionalFieldProvider implements
         $fieldId = 'task_fileGarbageCollection_age';
         $fieldValue = (int)$taskInfo['l10nmgr_fileGarbageCollection_age'];
         $fieldHtml = '<input type="text" name="' . $fieldName . '" id="' . $fieldId . '" value="' . htmlspecialchars($fieldValue) . '" size="10" />';
-        $additionalFields[$fieldId] = array(
-            'code' => $fieldHtml,
-            'label' => 'LLL:EXT:l10nmgr/tasks/locallang.xml:fileGarbageCollection.age',
-            'cshKey' => '_tasks_txl10nmgr',
+        $additionalFields[$fieldId] = [
+            'code'     => $fieldHtml,
+            'label'    => 'LLL:EXT:l10nmgr/tasks/locallang.xml:fileGarbageCollection.age',
+            'cshKey'   => '_tasks_txl10nmgr',
             'cshLabel' => $fieldId,
-        );
+        ];
         // Add field with pattern for excluding files
         $fieldName = 'tx_scheduler[l10nmgr_fileGarbageCollection_excludePattern]';
         $fieldId = 'task_fileGarbageCollection_excludePattern';
         $fieldValue = $taskInfo['l10nmgr_fileGarbageCollection_excludePattern'];
         $fieldHtml = '<input type="text" name="' . $fieldName . '" id="' . $fieldId . '" value="' . htmlspecialchars($fieldValue) . '" size="30" />';
-        $additionalFields[$fieldId] = array(
-            'code' => $fieldHtml,
-            'label' => 'LLL:EXT:l10nmgr/tasks/locallang.xml:fileGarbageCollection.excludePattern',
-            'cshKey' => '_tasks_txl10nmgr',
+        $additionalFields[$fieldId] = [
+            'code'     => $fieldHtml,
+            'label'    => 'LLL:EXT:l10nmgr/tasks/locallang.xml:fileGarbageCollection.excludePattern',
+            'cshKey'   => '_tasks_txl10nmgr',
             'cshLabel' => $fieldId,
-        );
+        ];
         return $additionalFields;
     }
 

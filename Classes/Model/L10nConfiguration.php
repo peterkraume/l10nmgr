@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\Model;
 
 /***************************************************************
@@ -18,6 +19,7 @@ namespace Localizationteam\L10nmgr\Model;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
@@ -108,17 +110,17 @@ class L10nConfiguration
     {
         $l10ncfg = $this->l10ncfg;
         $depth = (int)$l10ncfg['depth'];
-        $treeStartingRecords = array();
+        $treeStartingRecords = [];
         // Showing the tree:
         // Initialize starting point of page tree:
         if ($depth === -1) {
             $sourcePid = (int)$this->sourcePid ? (int)$this->sourcePid : (int)GeneralUtility::_GET('srcPID');
-            $treeStartingPoints = array($sourcePid);
+            $treeStartingPoints = [$sourcePid];
         } else {
             if ($depth === -2 && !empty($l10ncfg['pages'])) {
                 $treeStartingPoints = GeneralUtility::intExplode(',', $l10ncfg['pages']);
             } else {
-                $treeStartingPoints = array((int)$l10ncfg['pid']);
+                $treeStartingPoints = [(int)$l10ncfg['pid']];
             }
         }
         /** @var $tree PageTreeView */
@@ -134,10 +136,10 @@ class L10nConfiguration
             $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
             $page = array_shift($treeStartingRecords);
             $HTML = $iconFactory->getIconForRecord('pages', $page, Icon::SIZE_SMALL)->render();
-            $tree->tree[] = array(
-                'row' => $page,
-                'HTML' => $HTML
-            );
+            $tree->tree[] = [
+                'row'  => $page,
+                'HTML' => $HTML,
+            ];
             // Create the tree from starting point or page list:
             if ($depth > 0) {
                 $tree->getTree($page['uid'], $depth, '');
@@ -145,10 +147,10 @@ class L10nConfiguration
                 if (!empty($treeStartingRecords)) {
                     foreach ($treeStartingRecords as $page) {
                         $HTML = $iconFactory->getIconForRecord('pages', $page, Icon::SIZE_SMALL)->render();
-                        $tree->tree[] = array(
-                            'row' => $page,
-                            'HTML' => $HTML
-                        );
+                        $tree->tree[] = [
+                            'row'  => $page,
+                            'HTML' => $HTML,
+                        ];
                     }
                 }
             }
@@ -179,7 +181,7 @@ class L10nConfiguration
         // First, unserialize/initialize:
         $flexFormDiffForAllLanguages = unserialize($l10ncfg['flexformdiff']);
         if (!is_array($flexFormDiffForAllLanguages)) {
-            $flexFormDiffForAllLanguages = array();
+            $flexFormDiffForAllLanguages = [];
         }
         // Set the data (
         $flexFormDiffForAllLanguages[$sysLang] = array_merge((array)$flexFormDiffForAllLanguages[$sysLang],
@@ -187,7 +189,7 @@ class L10nConfiguration
         // Serialize back and save it to record:
         $l10ncfg['flexformdiff'] = serialize($flexFormDiffForAllLanguages);
         $this->getDatabaseConnection()->exec_UPDATEquery('tx_l10nmgr_cfg', 'uid=' . (int)$l10ncfg['uid'],
-            array('flexformdiff' => $l10ncfg['flexformdiff']));
+            ['flexformdiff' => $l10ncfg['flexformdiff']]);
     }
 
     /**

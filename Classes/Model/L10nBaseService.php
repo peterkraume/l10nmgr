@@ -19,6 +19,7 @@ namespace Localizationteam\L10nmgr\Model;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools;
 use TYPO3\CMS\Core\Database\RelationHandler;
@@ -471,7 +472,8 @@ class L10nBaseService
                         }
                         if (is_array($data['fields'])) {
                             foreach ($data['fields'] as $key => $tData) {
-                                if (is_array($tData) && is_array($inputArray[$table][$elementUid]) && array_key_exists($key, $inputArray[$table][$elementUid])) {
+                                if (is_array($tData) && is_array($inputArray[$table][$elementUid]) && array_key_exists($key,
+                                        $inputArray[$table][$elementUid])) {
                                     list($Ttable, $TuidString, $Tfield, $Tpath) = explode(':', $key);
                                     list($Tuid, $Tlang, $TdefRecord) = explode('/', $TuidString);
                                     if (!$this->createTranslationAlsoIfEmpty && $inputArray[$table][$elementUid][$key] == '' && $Tuid == 'NEW' && $Tfield !== trim($TCA[$Ttable]['ctrl']['label'])) {
@@ -534,7 +536,8 @@ class L10nBaseService
                                                 $configuration = $TCA[$table]['columns'][$key]['config'];
                                                 if ($configuration['foreign_table']) {
                                                     $relationHandler = GeneralUtility::makeInstance(RelationHandler::class);
-                                                    $relationHandler->start($element[$key], $configuration['foreign_table'],
+                                                    $relationHandler->start($element[$key],
+                                                        $configuration['foreign_table'],
                                                         $configuration['MM'], $elementUid, $table, $configuration);
                                                     $relationHandler->processDeletePlaceholder();
                                                     $referenceUids = $relationHandler->tableArray[$configuration['foreign_table']];
@@ -642,26 +645,28 @@ class L10nBaseService
                         if ($tce->copyMappingArray_merged[$table][$TdefRecord]) {
                             $TCEmain_data[$table][BackendUtility::wsMapId($table,
                                 $tce->copyMappingArray_merged[$table][$TdefRecord])] = $fields;
-                        } else if ($this->childMappingArray[$table][$TdefRecord]) {
-                            if ($this->childMappingArray[$table][$TdefRecord] === true) {
-                                $translatedRecordRaw = BackendUtility::getRecordRaw($table,
-                                    $TCA[$table]['ctrl']['transOrigPointerField'] . ' = ' . (int)$TdefRecord . ' AND deleted = 0 AND sys_language_uid = ' . (int)$Tlang);
-                                if ($translatedRecordRaw['uid']) {
-                                    $this->childMappingArray[$table][$TdefRecord] = $translatedRecordRaw['uid'];
-                                }
-                            }
-                            if ($this->childMappingArray[$table][$TdefRecord]) {
-                                if ($this->extensionConfiguration['enable_neverHideAtCopy'] == 1 &&
-                                    $TCA[$table]['ctrl']['enablecolumns'] &&
-                                    $TCA[$table]['ctrl']['enablecolumns']['disabled']) {
-                                    $fields[$TCA[$table]['ctrl']['enablecolumns']['disabled']] = 0;
-                                }
-                                $TCEmain_data[$table][BackendUtility::wsMapId($table,
-                                    $this->childMappingArray[$table][$TdefRecord])] = $fields;
-                            }
                         } else {
-                            GeneralUtility::sysLog(__FILE__ . ': ' . __LINE__ . ': Record "' . $table . ':' . $TdefRecord . '" was NOT localized as it should have been!',
-                                'l10nmgr');
+                            if ($this->childMappingArray[$table][$TdefRecord]) {
+                                if ($this->childMappingArray[$table][$TdefRecord] === true) {
+                                    $translatedRecordRaw = BackendUtility::getRecordRaw($table,
+                                        $TCA[$table]['ctrl']['transOrigPointerField'] . ' = ' . (int)$TdefRecord . ' AND deleted = 0 AND sys_language_uid = ' . (int)$Tlang);
+                                    if ($translatedRecordRaw['uid']) {
+                                        $this->childMappingArray[$table][$TdefRecord] = $translatedRecordRaw['uid'];
+                                    }
+                                }
+                                if ($this->childMappingArray[$table][$TdefRecord]) {
+                                    if ($this->extensionConfiguration['enable_neverHideAtCopy'] == 1 &&
+                                        $TCA[$table]['ctrl']['enablecolumns'] &&
+                                        $TCA[$table]['ctrl']['enablecolumns']['disabled']) {
+                                        $fields[$TCA[$table]['ctrl']['enablecolumns']['disabled']] = 0;
+                                    }
+                                    $TCEmain_data[$table][BackendUtility::wsMapId($table,
+                                        $this->childMappingArray[$table][$TdefRecord])] = $fields;
+                                }
+                            } else {
+                                GeneralUtility::sysLog(__FILE__ . ': ' . __LINE__ . ': Record "' . $table . ':' . $TdefRecord . '" was NOT localized as it should have been!',
+                                    'l10nmgr');
+                            }
                         }
                         unset($TCEmain_data[$table][$TuidString]);
                     }

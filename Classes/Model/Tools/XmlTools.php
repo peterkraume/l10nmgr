@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\Model\Tools;
 
 /***************************************************************
@@ -18,12 +19,14 @@ namespace Localizationteam\L10nmgr\Model\Tools;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 /**
  * Contains xml tools
  * $Id$
  *
  * @author Daniel Pötzinger <development@aoemedia.de>
  */
+
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Html\RteHtmlParser;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -65,7 +68,7 @@ class XmlTools
         $content = str_replace(CR, '', $content);
         $pageTsConf = BackendUtility::getPagesTSconfig(0);
         $rteConfiguration = $pageTsConf['RTE.']['default.'];
-        $content = $this->parseHTML->RTE_transform($content, array(), 'rte', $rteConfiguration);
+        $content = $this->parseHTML->RTE_transform($content, [], 'rte', $rteConfiguration);
         //substitute & with &amp;
         //$content=str_replace('&','&amp;',$content); Changed by DZ 2011-05-11
         $content = str_replace('<hr>', '<hr />', $content);
@@ -97,8 +100,8 @@ class XmlTools
     protected function isValidXML($xml)
     {
         $parser = xml_parser_create();
-        $vals = array();
-        $index = array();
+        $vals = [];
+        $index = [];
         xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
         xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 0);
         xml_parse_into_struct($parser, $xml, $vals, $index);
@@ -131,7 +134,7 @@ class XmlTools
         }
         $pageTsConf = BackendUtility::getPagesTSconfig(0);
         $rteConf = $pageTsConf['RTE.']['default.'];
-        $content = $this->parseHTML->RTE_transform($xmlstring, array(), 'db', $rteConf);
+        $content = $this->parseHTML->RTE_transform($xmlstring, [], 'db', $rteConf);
         // Last call special transformations (registered using hooks)
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'] as $classReference) {

@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr;
 
 /***************************************************************
@@ -20,6 +21,7 @@ namespace Localizationteam\L10nmgr;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 /**
  * Cleaner module: Building index for translation
  * User function called from tx_lowlevel_cleaner_core configured in ext_localconf.php
@@ -27,6 +29,7 @@ namespace Localizationteam\L10nmgr;
  *
  * @author Kasper Skårhøj <kasperYYYY@typo3.com>
  */
+
 use Localizationteam\L10nmgr\Model\Tools\Tools;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
@@ -46,7 +49,7 @@ class Index extends CleanerCommand
     /**
      * @var array List of not allowed doktypes
      */
-    protected $disallowDoktypes = array('--div--', '255');
+    protected $disallowDoktypes = ['--div--', '255'];
     /**
      * @var bool Check reference index
      */
@@ -62,7 +65,7 @@ class Index extends CleanerCommand
     /**
      * @var array Extension's configuration as from the EM
      */
-    protected $extensionConfiguration = array();
+    protected $extensionConfiguration = [];
     /**
      * @var array
      */
@@ -80,30 +83,30 @@ class Index extends CleanerCommand
         $this->disallowDoktypes = GeneralUtility::trimExplode(',', $this->extensionConfiguration['disallowDoktypes']);
         parent::__construct();
         // Setting up help:
-        $this->cli_options[] = array(
+        $this->cli_options[] = [
             '--echotree level',
-            'When "level" is set to 1 or higher you will see the page of the page tree outputted as it is traversed. A value of 2 for "level" will show even more information.'
-        );
-        $this->cli_options[] = array(
+            'When "level" is set to 1 or higher you will see the page of the page tree outputted as it is traversed. A value of 2 for "level" will show even more information.',
+        ];
+        $this->cli_options[] = [
             '--pid id_list',
-            'Setting start page in page tree. Default is the page tree root, 0 (zero). You can specify a list of ids, eg "22,7,3" if you like. If you specify a negative id (eg. -1) nothing is index, but the index table is just flushed.'
-        );
-        $this->cli_options[] = array(
+            'Setting start page in page tree. Default is the page tree root, 0 (zero). You can specify a list of ids, eg "22,7,3" if you like. If you specify a negative id (eg. -1) nothing is index, but the index table is just flushed.',
+        ];
+        $this->cli_options[] = [
             '--workspace id',
-            'Setting workspace uid for the session. Default is "0" for live workspace. The translation index depends on the workspace.'
-        );
-        $this->cli_options[] = array(
+            'Setting workspace uid for the session. Default is "0" for live workspace. The translation index depends on the workspace.',
+        ];
+        $this->cli_options[] = [
             '--depth int',
-            'Setting traversal depth. 0 (zero) will only analyse start page (see --pid), 1 will traverse one level of subpages etc.'
-        );
-        $this->cli_options[] = array(
+            'Setting traversal depth. 0 (zero) will only analyse start page (see --pid), 1 will traverse one level of subpages etc.',
+        ];
+        $this->cli_options[] = [
             '--noFlush',
-            'If set, the index for the workspace will not be flushed. Normally you want to flush the index as a part of the process to make sure the rebuild of the index is empty before building it. But in cases you build individual parts of the tree you may like to use this option.'
-        );
-        $this->cli_options[] = array(
+            'If set, the index for the workspace will not be flushed. Normally you want to flush the index as a part of the process to make sure the rebuild of the index is empty before building it. But in cases you build individual parts of the tree you may like to use this option.',
+        ];
+        $this->cli_options[] = [
             '--bypassFilter',
-            'If set, the external filter will not be called. The external filter allows other extensions to block certain records from getting processed. For instance TemplaVoila provides such a filter than will make sure records which are not used on a page are not indexed.'
-        );
+            'If set, the external filter will not be called. The external filter allows other extensions to block certain records from getting processed. For instance TemplaVoila provides such a filter than will make sure records which are not used on a page are not indexed.',
+        ];
         $this->cli_help['name'] = 'tx_l10nmgr_index -- Building translation index';
         $this->cli_help['description'] = trim('
 Traversing page tree and building an index of translation needs
@@ -117,13 +120,13 @@ Traversing page tree and building an index of translation needs
     public function main()
     {
         // Initialize result array:
-        $resultArray = array(
+        $resultArray = [
             'message' => $this->cli_help['name'] . chr(10) . chr(10) . $this->cli_help['description'],
-            'headers' => array(
-                'index' => array('Full index of translation', 'NEEDS MUCH MORE WORK....', 1),
-            ),
-            'index' => array(),
-        );
+            'headers' => [
+                'index' => ['Full index of translation', 'NEEDS MUCH MORE WORK....', 1],
+            ],
+            'index'   => [],
+        ];
         $startingPoints = GeneralUtility::intExplode(',', $this->cli_argValue('--pid'));
         $workspaceID = $this->cli_isArg('--workspace') ? MathUtility::forceIntegerInRange($this->cli_argValue('--workspace'),
             -1) : 0;
@@ -168,7 +171,7 @@ Traversing page tree and building an index of translation needs
     {
         if ($tableName == 'pages' && $uid > 0) {
             $pageId = $uid;
-            $excludeIndex = array();
+            $excludeIndex = [];
             if (!$versionSwapmode) {
                 // Init:
                 /** @var Tools $t8Tools */

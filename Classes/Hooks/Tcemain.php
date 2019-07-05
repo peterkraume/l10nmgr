@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\Hooks;
 
 /***************************************************************
@@ -20,11 +21,13 @@ namespace Localizationteam\L10nmgr\Hooks;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 /**
  * Updating translation index - hook for tcemain
  *
  * @author Kasper Skårhøj <kasperYYYY@typo3.com>
  */
+
 use Localizationteam\L10nmgr\Model\L10nBaseService;
 use Localizationteam\L10nmgr\Model\Tools\Tools;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
@@ -137,7 +140,7 @@ class Tcemain
             $records = $this->getDatabaseConnection()->exec_SELECTgetRows('*', 'tx_l10nmgr_index',
                 'recpid=' . (int)$p[1] . ' AND (translation_lang IN (' . $languageList . ') OR ' . $languageList . ' = 0)' . ' AND workspace=' . (int)$this->getBackendUser()->workspace);
         }
-        $flags = array();
+        $flags = [];
         foreach ($records as $r) {
             $flags['new'] += $r['flag_new'];
             $flags['unknown'] += $r['flag_unknown'];

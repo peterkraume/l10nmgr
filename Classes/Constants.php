@@ -5,7 +5,6 @@ namespace Localizationteam\L10nmgr;
 /**
  * Constants for the L10nmgr
  */
-
 class Constants
 {
     const L10NMGR_CONFIGURATION_DEFAULT = 0;

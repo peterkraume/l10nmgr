@@ -17,11 +17,13 @@ namespace Localizationteam\L10nmgr\Controller;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 /**
  * Module 'Workspace Tasks' for the 'l10nmgr' extension.
  *
  * @author Kasper Skårhøj <kasperYYYY@typo3.com>
  */
+
 use Localizationteam\L10nmgr\Hooks\Tcemain;
 use Localizationteam\L10nmgr\Model\Tools\Tools;
 use TYPO3\CMS\Backend\Module\BaseScriptClass;
@@ -111,7 +113,7 @@ class TranslationTasks extends BaseScriptClass
         // Selecting priorities:
         $priorities = $this->getDatabaseConnection()->exec_SELECTgetRows('*', 'tx_l10nmgr_priorities',
             '1=1' . BackendUtility::deleteClause('tx_l10nmgr_priorities'), '', 'sorting');
-        $tRows = array();
+        $tRows = [];
         $c = 0;
         foreach ($priorities as $priorityRecord) {
             if ($lTable = $this->languageRows($priorityRecord['languages'], $priorityRecord['element'])) {
@@ -147,7 +149,7 @@ class TranslationTasks extends BaseScriptClass
         $this->sysLanguages = $this->l10nMgrTools->t8Tools->getSystemLanguages($firstEl[0] == 'pages' ? $firstEl[1] : $inputRecord['pid']);
         $languages = $this->getLanguages($languageList, $this->sysLanguages);
         if (count($languages)) {
-            $tRows = array();
+            $tRows = [];
             // Header:
             $cells = '<td class="bgColor2 tableheader">Element:</td>';
             foreach ($languages as $l) {
@@ -158,7 +160,7 @@ class TranslationTasks extends BaseScriptClass
             }
             $tRows[] = $cells;
             foreach ($elements as $el) {
-                $rec_on = array();
+                $rec_on = [];
                 // Get CURRENT online record and icon based on "t3ver_oid":
                 if ($el[0] !== '' && $el[1] > 0) {
                     $rec_on = BackendUtility::getRecord($el[0], $el[1]);
@@ -182,7 +184,7 @@ class TranslationTasks extends BaseScriptClass
                 $cells = '<td>' . $icon . $linkToIt . $pmLink . '</td>';
                 foreach ($languages as $l) {
                     if ($l >= 1) {
-                        $cells .= '<td align="center">' . $hookObj->calcStat(array($el[0], $el[1]), $l) . '</td>';
+                        $cells .= '<td align="center">' . $hookObj->calcStat([$el[0], $el[1]], $l) . '</td>';
                     }
                 }
                 $tRows[] = $cells;

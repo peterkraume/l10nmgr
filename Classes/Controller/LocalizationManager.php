@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\Controller;
 
 /***************************************************************
@@ -18,6 +19,7 @@ namespace Localizationteam\L10nmgr\Controller;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use Exception;
 use Localizationteam\L10nmgr\Model\CatXmlImportManager;
 use Localizationteam\L10nmgr\Model\L10nBaseService;
@@ -75,7 +77,7 @@ class LocalizationManager extends BaseScriptClass
     /**
      * @var array
      */
-    protected $flexFormDiffArray = array(); // Internal
+    protected $flexFormDiffArray = []; // Internal
     /**
      * @var int Default language to export
      */
@@ -87,7 +89,7 @@ class LocalizationManager extends BaseScriptClass
     /**
      * @var array Extension configuration
      */
-    protected $lConf = array();
+    protected $lConf = [];
     /**
      * ModuleTemplate Container
      *
@@ -117,9 +119,9 @@ class LocalizationManager extends BaseScriptClass
         $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         $this->moduleTemplate = GeneralUtility::makeInstance(ModuleTemplate::class);
         $this->getLanguageService()->includeLLFile('EXT:l10nmgr/Resources/Private/Language/Modules/LocalizationManager/locallang.xlf');
-        $this->MCONF = array(
+        $this->MCONF = [
             'name' => $this->moduleName,
-        );
+        ];
     }
 
     /**
@@ -274,7 +276,7 @@ return false;
             return '';
         }
         $scriptUrl = self::buildScriptUrl($mainParams, $addParams, $script);
-        $options = array();
+        $options = [];
         foreach ($menuItems as $value => $text) {
             $options[] = '<option value="' . htmlspecialchars($value) . '"' . ((string)$currentValue === (string)$value ? ' selected="selected"' : '') . '>' . htmlspecialchars($text,
                     ENT_COMPAT, 'UTF-8', false) . '</option>';
@@ -309,7 +311,7 @@ return false;
     protected static function buildScriptUrl($mainParams, $addParams, $script = '')
     {
         if (!is_array($mainParams)) {
-            $mainParams = array('id' => $mainParams);
+            $mainParams = ['id' => $mainParams];
         }
         if (!$script) {
             $script = basename(PATH_thisScript);
@@ -461,7 +463,7 @@ return false;
             $service->setImportAsDefaultLanguage(true);
         }
         // Buttons:
-        $_selectOptions = array('0' => '-default-');
+        $_selectOptions = ['0' => '-default-'];
         $_selectOptions = $_selectOptions + $this->MOD_MENU["lang"];
         $info = '<div class="form-section">' .
             $this->getFuncCheck(
@@ -578,7 +580,7 @@ return false;
      */
     protected function _getSelectField($elementName, $currentValue, $menuItems)
     {
-        $options = array();
+        $options = [];
         foreach ($menuItems as $value => $label) {
             $options[] = '<option value="' . htmlspecialchars($value) . '"' . (!strcmp($currentValue,
                     $value) ? ' selected="selected"' : '') . '>' . htmlspecialchars($label, ENT_COMPAT, 'UTF-8',
@@ -619,24 +621,24 @@ return false;
     {
         /** @var L10nBaseService $service */
         $service = GeneralUtility::makeInstance(L10nBaseService::class);
-        $menuItems = array(
-            '0' => array(
-                'label' => $this->getLanguageService()->getLL('export.xml.headline.title'),
-                'content' => $this->getTabContentXmlExport()
-            ),
-            '1' => array(
-                'label' => $this->getLanguageService()->getLL('import.xml.headline.title'),
-                'content' => $this->getTabContentXmlImport()
-            ),
-            '2' => array(
-                'label' => $this->getLanguageService()->getLL('file.settings.downloads.title'),
-                'content' => $this->getTabContentXmlDownloads()
-            ),
-            '3' => array(
-                'label' => $this->getLanguageService()->getLL('l10nmgr.documentation.title'),
-                'content' => '<a class="btn btn-success" href="/' . ExtensionManagementUtility::siteRelPath('l10nmgr') . 'Documentation/manual.sxw" target="_new">Download</a>'
-            )
-        );
+        $menuItems = [
+            '0' => [
+                'label'   => $this->getLanguageService()->getLL('export.xml.headline.title'),
+                'content' => $this->getTabContentXmlExport(),
+            ],
+            '1' => [
+                'label'   => $this->getLanguageService()->getLL('import.xml.headline.title'),
+                'content' => $this->getTabContentXmlImport(),
+            ],
+            '2' => [
+                'label'   => $this->getLanguageService()->getLL('file.settings.downloads.title'),
+                'content' => $this->getTabContentXmlDownloads(),
+            ],
+            '3' => [
+                'label'   => $this->getLanguageService()->getLL('l10nmgr.documentation.title'),
+                'content' => '<a class="btn btn-success" href="/' . ExtensionManagementUtility::siteRelPath('l10nmgr') . 'Documentation/manual.sxw" target="_new">Download</a>',
+            ],
+        ];
         $info = $this->moduleTemplate->getDynamicTabMenu($menuItems, 'ddtabs');
         $actionInfo = '';
         // Read uploaded file:
@@ -817,7 +819,7 @@ return false;
      */
     protected function getTabContentXmlExport()
     {
-        $_selectOptions = array('0' => '-default-');
+        $_selectOptions = ['0' => '-default-'];
         $_selectOptions = $_selectOptions + $this->MOD_MENU["lang"];
         $tabContentXmlExport = '<div class="form-section">' .
             '<div class="form-group"><div class="checkbox"><label>' .
@@ -875,17 +877,17 @@ return false;
     protected function getTabContentXmlDownloads()
     {
         global $BACK_PATH;
-        $allowedSettingFiles = array(
-            'across' => 'acrossL10nmgrConfig.dst',
-            'dejaVu' => 'dejaVuL10nmgrConfig.dvflt',
-            'memoq' => 'memoQ.mqres',
-            'memoq2013-2014' => 'XMLConverter_TYPO3_l10nmgr_v3.6.mqres',
-            'transit' => 'StarTransit_XML_UTF_TYPO3.FFD',
-            'sdltrados2007' => 'SDLTradosTagEditor.ini',
-            'sdltrados2009' => 'TYPO3_l10nmgr.sdlfiletype',
+        $allowedSettingFiles = [
+            'across'             => 'acrossL10nmgrConfig.dst',
+            'dejaVu'             => 'dejaVuL10nmgrConfig.dvflt',
+            'memoq'              => 'memoQ.mqres',
+            'memoq2013-2014'     => 'XMLConverter_TYPO3_l10nmgr_v3.6.mqres',
+            'transit'            => 'StarTransit_XML_UTF_TYPO3.FFD',
+            'sdltrados2007'      => 'SDLTradosTagEditor.ini',
+            'sdltrados2009'      => 'TYPO3_l10nmgr.sdlfiletype',
             'sdltrados2011-2014' => 'TYPO3_ConfigurationManager_v3.6.free.sdlftsettings',
-            'sdlpassolo' => 'SDLPassolo.xfg',
-        );
+            'sdlpassolo'         => 'SDLPassolo.xfg',
+        ];
         $tabContentXmlDownloads = '<h4>' . $this->getLanguageService()->getLL('file.settings.available.title') . '</h4><ul>';
         foreach ($allowedSettingFiles as $settingId => $settingFileName) {
             $absoluteFileName = GeneralUtility::getFileAbsFileName('EXT:l10nmgr/Configuration/Settings/' . $settingFileName);
@@ -968,21 +970,21 @@ return false;
             $subject = sprintf($this->getLanguageService()->getLL('email.suject.msg'), $sourceLang, $targetLang,
                 $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
             // Assemble message body
-            $message = array(
-                'msg1' => $this->getLanguageService()->getLL('email.greeting.msg'),
-                'msg2' => '',
-                'msg3' => sprintf($this->getLanguageService()->getLL('email.new_translation_job.msg'), $sourceLang,
+            $message = [
+                'msg1'  => $this->getLanguageService()->getLL('email.greeting.msg'),
+                'msg2'  => '',
+                'msg3'  => sprintf($this->getLanguageService()->getLL('email.new_translation_job.msg'), $sourceLang,
                     $targetLang,
                     $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']),
-                'msg4' => $this->getLanguageService()->getLL('email.info.msg'),
-                'msg5' => $this->getLanguageService()->getLL('email.info.import.msg'),
-                'msg6' => '',
-                'msg7' => $this->getLanguageService()->getLL('email.goodbye.msg'),
-                'msg8' => $fromName,
-                'msg9' => '--',
+                'msg4'  => $this->getLanguageService()->getLL('email.info.msg'),
+                'msg5'  => $this->getLanguageService()->getLL('email.info.import.msg'),
+                'msg6'  => '',
+                'msg7'  => $this->getLanguageService()->getLL('email.goodbye.msg'),
+                'msg8'  => $fromName,
+                'msg9'  => '--',
                 'msg10' => $this->getLanguageService()->getLL('email.info.exportef_file.msg'),
                 'msg11' => $xmlFileName,
-            );
+            ];
             if ($this->lConf['email_attachment']) {
                 $message['msg3'] = sprintf($this->getLanguageService()->getLL('email.new_translation_job_attached.msg'),
                     $sourceLang, $targetLang, $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
@@ -991,7 +993,7 @@ return false;
             // Instantiate the mail object, set all necessary properties and send the mail
             /** @var MailMessage $mailObject */
             $mailObject = GeneralUtility::makeInstance(MailMessage::class);
-            $mailObject->setFrom(array($fromMail => $fromName));
+            $mailObject->setFrom([$fromMail => $fromName]);
             $mailObject->setTo($recipients);
             $mailObject->setSubject($subject);
             $mailObject->setFormat('text/plain');
@@ -1012,19 +1014,19 @@ return false;
     public function menuConfig()
     {
         $this->loadExtConf();
-        $this->MOD_MENU = Array(
-            'action' => array(
-                '' => $this->getLanguageService()->getLL('general.action.blank.title'),
-                'link' => $this->getLanguageService()->getLL('general.action.edit.link.title'),
-                'inlineEdit' => $this->getLanguageService()->getLL('general.action.edit.inline.title'),
+        $this->MOD_MENU = [
+            'action'             => [
+                ''             => $this->getLanguageService()->getLL('general.action.blank.title'),
+                'link'         => $this->getLanguageService()->getLL('general.action.edit.link.title'),
+                'inlineEdit'   => $this->getLanguageService()->getLL('general.action.edit.inline.title'),
                 'export_excel' => $this->getLanguageService()->getLL('general.action.export.excel.title'),
-                'export_xml' => $this->getLanguageService()->getLL('general.action.export.xml.title'),
-            ),
-            'lang' => array(),
+                'export_xml'   => $this->getLanguageService()->getLL('general.action.export.xml.title'),
+            ],
+            'lang'               => [],
             'onlyChangedContent' => '',
-            'check_exports' => 1,
-            'noHidden' => ''
-        );
+            'check_exports'      => 1,
+            'noHidden'           => '',
+        ];
         // Load system languages into menu:
         /** @var TranslationConfigurationProvider $t8Tools */
         $t8Tools = GeneralUtility::makeInstance(TranslationConfigurationProvider::class);

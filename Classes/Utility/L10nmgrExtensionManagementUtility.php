@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\Utility;
 
 /*
@@ -16,6 +17,8 @@ namespace Localizationteam\L10nmgr\Utility;
 
 use Localizationteam\L10nmgr\Constants;
 use Localizationteam\L10nmgr\LanguageRestriction\LanguageRestrictionRegistry;
+use TYPO3\CMS\Core\Log\Logger;
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -36,14 +39,20 @@ class L10nmgrExtensionManagementUtility
      * @see addTCAcolumns
      * @see addToAllTCAtypes
      */
-    public static function makeTranslationsRestrictable($extensionKey, $tableName, $fieldName = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME, array $options = [], $override = true)
-    {
+    public static function makeTranslationsRestrictable(
+        $extensionKey,
+        $tableName,
+        $fieldName = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME,
+        array $options = [],
+        $override = true
+    ) {
         // Update the category registry
-        $result = LanguageRestrictionRegistry::getInstance()->add($extensionKey, $tableName, $fieldName, $options, $override);
+        $result = LanguageRestrictionRegistry::getInstance()->add($extensionKey, $tableName, $fieldName, $options,
+            $override);
         if ($result === false) {
             $message = LanguageRestrictionRegistry::class . ': no category registered for table "%s". Key was already registered.';
-            /** @var $logger \TYPO3\CMS\Core\Log\Logger */
-            $logger = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Log\LogManager::class)->getLogger(__CLASS__);
+            /** @var $logger Logger */
+            $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
             $logger->warning(
                 sprintf($message, $tableName)
             );

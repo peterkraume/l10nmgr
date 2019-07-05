@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\Controller;
 
 /***************************************************************
@@ -18,11 +19,13 @@ namespace Localizationteam\L10nmgr\Controller;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 /**
  * Module 'Workspace Tasks' for the 'l10nmgr' extension.
  *
  * @author Kasper Skårhøj <kasperYYYY@typo3.com>
  */
+
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 
 /**

@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\Model\Tools;
 
 /**
@@ -91,7 +92,7 @@ class Utf8Tools
             '|\xF4[\x80-\x8F][\x80-\xBF]{2}' .# plane 16
             '|(.{1}))';# invalid byte
         $pos = 0;
-        $badList = array();
+        $badList = [];
         while (preg_match('/' . $UTF8_BAD . '/S', $str, $matches)) {
             $bytes = strlen($matches[0]);
             if (isset($matches[2])) {
@@ -205,11 +206,11 @@ class Utf8Tools
      * Unicode standard
      * Note: this function has been modified to simple return true or false
      *
-     * @author <hsivonen@iki.fi>
-     *
      * @param string $str UTF-8 encoded string
      *
      * @return boolean true if valid
+     * @author <hsivonen@iki.fi>
+     *
      * @see http://hsivonen.iki.fi/php-utf8/
      * @see utf8_compliant
      * @package utf8
@@ -335,12 +336,12 @@ class Utf8Tools
      * may or may not be a significant risk, depending on what you are
      * are doing)
      *
-     * @see utf8_is_valid
-     * @see http://www.php.net/manual/en/reference.pcre.pattern.modifiers.php#54805
-     *
      * @param string $str UTF-8 string to check
      *
      * @return boolean TRUE if string is valid UTF-8
+     * @see utf8_is_valid
+     * @see http://www.php.net/manual/en/reference.pcre.pattern.modifiers.php#54805
+     *
      * @package utf8
      * @subpackage validation
      */

@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\Cli;
 
 /***************************************************************
@@ -9,6 +10,7 @@ namespace Localizationteam\L10nmgr\Cli;
  * All rights reserved
  * [...]
  */
+
 use Localizationteam\L10nmgr\Model\L10nConfiguration;
 use Localizationteam\L10nmgr\View\CatXmlView;
 use Localizationteam\L10nmgr\View\ExcelXmlView;
@@ -43,58 +45,58 @@ class Export extends CommandLineController
         // Running parent class constructor
         parent::__construct();
         // Adding options to help archive:
-        $this->cli_options[] = array(
+        $this->cli_options[] = [
             '--format',
             'Format for export of translatable data',
-            "The value can be:\n CATXML = XML for translation tools (default)\n EXCEL = Microsoft XML format \n"
-        );
-        $this->cli_options[] = array(
+            "The value can be:\n CATXML = XML for translation tools (default)\n EXCEL = Microsoft XML format \n",
+        ];
+        $this->cli_options[] = [
             '--config',
             'Localization Manager configurations',
-            "UIDs of the localization manager configurations to be used for export. Comma seperated values, no spaces.\nDefault is EXTCONF which means values are taken from extension configuration.\n"
-        );
-        $this->cli_options[] = array(
+            "UIDs of the localization manager configurations to be used for export. Comma seperated values, no spaces.\nDefault is EXTCONF which means values are taken from extension configuration.\n",
+        ];
+        $this->cli_options[] = [
             '--target',
             'Target languages',
-            "UIDs for the target languages used during export. Comma seperated values, no spaces. Default is 0. In that case UIDs are taken from extension configuration.\n"
-        );
-        $this->cli_options[] = array(
+            "UIDs for the target languages used during export. Comma seperated values, no spaces. Default is 0. In that case UIDs are taken from extension configuration.\n",
+        ];
+        $this->cli_options[] = [
             '--workspace',
             'Workspace ID',
-            "UID of the workspace used during export. Default = 0\n"
-        );
-        $this->cli_options[] = array(
+            "UID of the workspace used during export. Default = 0\n",
+        ];
+        $this->cli_options[] = [
             '--srcPID',
             'Source page ID',
-            "UID of the page used during export. Needs configuration depth to be set to \"current page\" Default = 0\n"
-        );
-        $this->cli_options[] = array(
+            "UID of the page used during export. Needs configuration depth to be set to \"current page\" Default = 0\n",
+        ];
+        $this->cli_options[] = [
             '--forcedSourceLanguage',
             'Forced Source Language ID',
-            "UID of the already translated language used as overlaid source language during export."
-        );
-        $this->cli_options[] = array(
+            "UID of the already translated language used as overlaid source language during export.",
+        ];
+        $this->cli_options[] = [
             '--hidden',
             'Do not export hidden contents',
-            "The values can be: \n TRUE = Hidden content is skipped\n FALSE = Hidden content is exported. Default is FALSE.\n"
-        );
-        $this->cli_options[] = array(
+            "The values can be: \n TRUE = Hidden content is skipped\n FALSE = Hidden content is exported. Default is FALSE.\n",
+        ];
+        $this->cli_options[] = [
             '--updated',
             'Export only updated contents',
-            "The values can be: \n TRUE = Only updated content is exported\n FALSE = All content is exported (default)\n"
-        );
-        $this->cli_options[] = array(
+            "The values can be: \n TRUE = Only updated content is exported\n FALSE = All content is exported (default)\n",
+        ];
+        $this->cli_options[] = [
             '--new',
             'Export only new contents',
-            "The values can be: \n TRUE = Only new content is exported\n FALSE = All content is exported (default)\n"
-        );
-        $this->cli_options[] = array(
+            "The values can be: \n TRUE = Only new content is exported\n FALSE = All content is exported (default)\n",
+        ];
+        $this->cli_options[] = [
             '--check-exports',
             'Check for already exported content',
-            "The values can be: \n TRUE = Check if content has already been exported\n FALSE = Don't check, just create a new export (default)\n"
-        );
-        $this->cli_options[] = array('--help', 'Show help', "");
-        $this->cli_options[] = array('-h', 'Same as --help', "");
+            "The values can be: \n TRUE = Check if content has already been exported\n FALSE = Don't check, just create a new export (default)\n",
+        ];
+        $this->cli_options[] = ['--help', 'Show help', ""];
+        $this->cli_options[] = ['-h', 'Same as --help', ""];
         // Setting help texts:
         $this->cli_help['name'] = 'Localization Manager exporter';
         $this->cli_help['synopsis'] = '###OPTIONS###';
@@ -479,21 +481,21 @@ class Export extends CommandLineController
             $email->replyto_name = $this->getBackendUser()->user['realName'];
         }
         $email->organisation = $this->lConf['email_sender_organisation'];
-        $message = array(
-            'msg1' => $this->getLanguageService()->getLL('email.greeting.msg'),
-            'msg2' => '',
-            'msg3' => sprintf($this->getLanguageService()->getLL('email.new_translation_job.msg'), $sourceLang,
+        $message = [
+            'msg1'  => $this->getLanguageService()->getLL('email.greeting.msg'),
+            'msg2'  => '',
+            'msg3'  => sprintf($this->getLanguageService()->getLL('email.new_translation_job.msg'), $sourceLang,
                 $targetLang,
                 $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']),
-            'msg4' => $this->getLanguageService()->getLL('email.info.msg'),
-            'msg5' => $this->getLanguageService()->getLL('email.info.import.msg'),
-            'msg6' => '',
-            'msg7' => $this->getLanguageService()->getLL('email.goodbye.msg'),
-            'msg8' => $email->from_name,
-            'msg9' => '--',
+            'msg4'  => $this->getLanguageService()->getLL('email.info.msg'),
+            'msg5'  => $this->getLanguageService()->getLL('email.info.import.msg'),
+            'msg6'  => '',
+            'msg7'  => $this->getLanguageService()->getLL('email.goodbye.msg'),
+            'msg8'  => $email->from_name,
+            'msg9'  => '--',
             'msg10' => $this->getLanguageService()->getLL('email.info.exportef_file.msg'),
             'msg11' => $xmlFileName,
-        );
+        ];
         if ($this->lConf['email_attachment']) {
             $message['msg3'] = sprintf($this->getLanguageService()->getLL('email.new_translation_job_attached.msg'),
                 $sourceLang, $targetLang,

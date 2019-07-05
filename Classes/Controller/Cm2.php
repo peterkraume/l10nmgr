@@ -17,11 +17,13 @@ namespace Localizationteam\L10nmgr\Controller;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 /**
  * l10nmgr module cm2
  *
  * @author Kasper Skårhøj <kasperYYYY@typo3.com>
  */
+
 use Localizationteam\L10nmgr\Model\Tools\Tools;
 use TYPO3\CMS\Backend\Module\BaseScriptClass;
 use TYPO3\CMS\Backend\Template\DocumentTemplate;
@@ -144,7 +146,7 @@ class Cm2 extends BaseScriptClass
                     '', 'translation_lang, tablename, recuid');
             }
             //	\TYPO3\CMS\Core\Utility\GeneralUtility::debugRows($records,'Index entries for '.$table.':'.$uid);
-            $tRows = array();
+            $tRows = [];
             $tRows[] = '<tr class="bgColor2 tableheader">
 	<td colspan="2">Base element:</td>
 	<td colspan="2">Translation:</td>

@@ -8,7 +8,9 @@
 
 namespace Localizationteam\L10nmgr\LanguageRestriction;
 
+use InvalidArgumentException;
 use Localizationteam\L10nmgr\Constants;
+use RuntimeException;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -95,6 +97,18 @@ class LanguageRestrictionRegistry implements SingletonInterface
     }
 
     /**
+     * Tells whether a table has a language restriction configuration in the registry.
+     *
+     * @param string $tableName Name of the table to be looked up
+     * @param string $fieldName Name of the field to be looked up
+     * @return bool
+     */
+    public function isRegistered($tableName, $fieldName = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME)
+    {
+        return isset($this->registry[$tableName][$fieldName]);
+    }
+
+    /**
      * Adds a new language restriction configuration to this registry.
      * TCA changes are directly applied
      *
@@ -109,8 +123,8 @@ class LanguageRestrictionRegistry implements SingletonInterface
      *              + fieldConfiguration: TCA field config array to override defaults
      * @param bool $override If FALSE, any language restriction configuration for the same table / field is kept as is even though the new configuration is added
      * @return bool
-     * @throws \InvalidArgumentException
-     * @throws \RuntimeException
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
      */
     public function add(
         $extensionKey,
@@ -121,10 +135,10 @@ class LanguageRestrictionRegistry implements SingletonInterface
     ) {
         $didRegister = false;
         if (empty($tableName) || !is_string($tableName)) {
-            throw new \InvalidArgumentException('No or invalid table name "' . $tableName . '" given.', 1540460445);
+            throw new InvalidArgumentException('No or invalid table name "' . $tableName . '" given.', 1540460445);
         }
         if (empty($extensionKey) || !is_string($extensionKey)) {
-            throw new \InvalidArgumentException('No or invalid extension key "' . $extensionKey . '" given.',
+            throw new InvalidArgumentException('No or invalid extension key "' . $extensionKey . '" given.',
                 1540460446);
         }
 
@@ -168,18 +182,6 @@ class LanguageRestrictionRegistry implements SingletonInterface
             }
         }
 
-    }
-
-    /**
-     * Tells whether a table has a language restriction configuration in the registry.
-     *
-     * @param string $tableName Name of the table to be looked up
-     * @param string $fieldName Name of the field to be looked up
-     * @return bool
-     */
-    public function isRegistered($tableName, $fieldName = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME)
-    {
-        return isset($this->registry[$tableName][$fieldName]);
     }
 
     /**
@@ -285,7 +287,7 @@ class LanguageRestrictionRegistry implements SingletonInterface
                 'fieldname'  => $fieldName,
             ],
             'size'                => 10,
-            'maxitems'            => 9999
+            'maxitems'            => 9999,
         ];
 
         // Merge changes to TCA configuration

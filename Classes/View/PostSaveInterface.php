@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\View;
 
 /**

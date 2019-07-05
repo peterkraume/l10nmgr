@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\Model;
 
 /***************************************************************
@@ -18,6 +19,7 @@ namespace Localizationteam\L10nmgr\Model;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Workspaces\Hook\PreviewHook;
@@ -34,7 +36,7 @@ class MkPreviewLinkService
     /**
      * @var array
      */
-    protected $_errorMsg = array();
+    protected $_errorMsg = [];
     /**
      * @var PreviewHook
      */
@@ -105,7 +107,7 @@ class MkPreviewLinkService
      */
     public function mkPreviewLinks()
     {
-        $previewUrls = array();
+        $previewUrls = [];
         foreach ($this->pageIds as $pageId) {
             $ttlHours = (int)$this->getBackendUser()->getTSConfigVal('options.workspaces.previewLinkTTLHours');
             $ttlHours = ($ttlHours ? $ttlHours : 24 * 2);

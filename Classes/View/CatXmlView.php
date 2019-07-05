@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\View;
 
 /***************************************************************
@@ -18,6 +19,7 @@ namespace Localizationteam\L10nmgr\View;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use Localizationteam\L10nmgr\Model\L10nConfiguration;
 use Localizationteam\L10nmgr\Model\Tools\Utf8Tools;
 use Localizationteam\L10nmgr\Model\Tools\XmlTools;
@@ -72,7 +74,7 @@ class CatXmlView extends AbstractExportView
         $accum = $accumObj->getInfoArray();
         /** @var XmlTools $xmlTool */
         $xmlTool = GeneralUtility::makeInstance(XmlTools::class);
-        $output = array();
+        $output = [];
         $targetIso = '';
         // Traverse the structure and generate XML output:
         foreach ($accum as $pId => $page) {
@@ -87,7 +89,8 @@ class CatXmlView extends AbstractExportView
                         if (is_array($data['fields'])) {
                             foreach ($data['fields'] as $key => $tData) {
                                 if (is_array($tData)) {
-                                    $noChangeFlag = !strcmp(trim($tData['diffDefaultValue']), trim($tData['defaultValue']));
+                                    $noChangeFlag = !strcmp(trim($tData['diffDefaultValue']),
+                                        trim($tData['defaultValue']));
                                     if (!$this->modeOnlyChanged || !$noChangeFlag) {
                                         // @DP: Why this check?
                                         if (($this->forcedSourceLanguage && isset($tData['previewLanguageValues'][$this->forcedSourceLanguage])) || $this->forcedSourceLanguage === false) {
@@ -117,7 +120,8 @@ class CatXmlView extends AbstractExportView
                                                 $output[] = "\t\t" . '<data table="' . $table . '" elementUid="' . $elementUid . '" key="' . $key . '" transformations="1">' . $dataForTranslation . '</data>' . "\n";
                                             } else {
                                                 // Substitute HTML entities with actual characters (we use UTF-8 anyway:-) but leave quotes untouched
-                                                $dataForTranslation = html_entity_decode($dataForTranslation, ENT_NOQUOTES,
+                                                $dataForTranslation = html_entity_decode($dataForTranslation,
+                                                    ENT_NOQUOTES,
                                                     'UTF-8');
                                                 //Substitute & with &amp; in non-RTE fields
                                                 $dataForTranslation = preg_replace('/&(?!(amp|nbsp|quot|apos|lt|gt);)/',
@@ -125,8 +129,10 @@ class CatXmlView extends AbstractExportView
                                                 //Substitute > and < in non-RTE fields
                                                 $dataForTranslation = str_replace(' < ', ' &lt; ', $dataForTranslation);
                                                 $dataForTranslation = str_replace(' > ', ' &gt; ', $dataForTranslation);
-                                                $dataForTranslation = str_replace('<br>', '<br />', $dataForTranslation);
-                                                $dataForTranslation = str_replace('<hr>', '<hr />', $dataForTranslation);
+                                                $dataForTranslation = str_replace('<br>', '<br />',
+                                                    $dataForTranslation);
+                                                $dataForTranslation = str_replace('<hr>', '<hr />',
+                                                    $dataForTranslation);
                                                 $params = $this->getBackendUser()->getModuleData('l10nmgr/cm1/prefs',
                                                     'prefs');
                                                 if ($params['utf8'] == '1') {
@@ -164,7 +170,7 @@ class CatXmlView extends AbstractExportView
             }
         }
         // get ISO2L code for source language
-        $staticLangArr = array();
+        $staticLangArr = [];
         if ($this->l10ncfgObj->getData('sourceLangStaticId') && ExtensionManagementUtility::isLoaded('static_info_tables')) {
             $staticLangArr = BackendUtility::getRecord('static_languages',
                 $this->l10ncfgObj->getData('sourceLangStaticId'), 'lg_iso_2');
@@ -191,24 +197,6 @@ class CatXmlView extends AbstractExportView
     }
 
     /**
-     * Adds keys and values of the JSON encoded meta data field to the XML head section
-     *
-     * @return string The XML to add to the head section
-     */
-    protected function additionalHeaderData() {
-        $additionalHeaderData = '';
-        if (!empty($this->l10ncfgObj->getData('metadata'))) {
-            $additionalHeaderDataArray = json_decode($this->l10ncfgObj->getData('metadata'));
-            if (is_array($additionalHeaderDataArray) && !empty($additionalHeaderDataArray)) {
-                foreach ($additionalHeaderDataArray as $key => $value) {
-                    $additionalHeaderData .= "\t\t" . '<' . $key . '>' . (string)$value . '</' . $key . '>' . "\n";
-                }
-            }
-        }
-        return $additionalHeaderData;
-    }
-
-    /**
      * Renders the list of internal message as XML tags
      *
      * @return string The XML structure to output
@@ -223,6 +211,25 @@ class CatXmlView extends AbstractExportView
             $messages .= "\t\t" . '<t3_skippedItem>' . "\n\t\t\t\t" . '<t3_description>' . $messageInformation['message'] . '</t3_description>' . "\n\t\t\t\t" . '<t3_key>' . $messageInformation['key'] . '</t3_key>' . "\n\t\t\t" . '</t3_skippedItem>' . "\r";
         }
         return $messages;
+    }
+
+    /**
+     * Adds keys and values of the JSON encoded meta data field to the XML head section
+     *
+     * @return string The XML to add to the head section
+     */
+    protected function additionalHeaderData()
+    {
+        $additionalHeaderData = '';
+        if (!empty($this->l10ncfgObj->getData('metadata'))) {
+            $additionalHeaderDataArray = json_decode($this->l10ncfgObj->getData('metadata'));
+            if (is_array($additionalHeaderDataArray) && !empty($additionalHeaderDataArray)) {
+                foreach ($additionalHeaderDataArray as $key => $value) {
+                    $additionalHeaderData .= "\t\t" . '<' . $key . '>' . (string)$value . '</' . $key . '>' . "\n";
+                }
+            }
+        }
+        return $additionalHeaderData;
     }
 
     /**

@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\Model;
 
 /***************************************************************
@@ -18,6 +19,7 @@ namespace Localizationteam\L10nmgr\Model;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
@@ -36,7 +38,7 @@ class CatXmlImportManager
     /**
      * @var array $headerData headerData of the XML
      */
-    public $headerData = array();
+    public $headerData = [];
     /**
      * @var string $file filepath with XML
      */
@@ -56,7 +58,7 @@ class CatXmlImportManager
     /**
      * @var array $_errorMsg accumulated errormessages
      */
-    protected $_errorMsg = array();
+    protected $_errorMsg = [];
     /**
      * @var LanguageService
      */
@@ -135,7 +137,7 @@ class CatXmlImportManager
             if (is_array($v) && is_array($v[0]) && is_array($v[0]['values'])) {
                 $this->headerData[$k] = $v[0]['values'][0];
             }
-       }
+        }
     }
 
     /**
@@ -143,7 +145,7 @@ class CatXmlImportManager
      */
     protected function _isIncorrectXMLFile()
     {
-        $error = array();
+        $error = [];
         if (!isset($this->headerData['t3_formatVersion']) || $this->headerData['t3_formatVersion'] != L10NMGR_FILEVERSION) {
             $error[] = sprintf($this->getLanguageService()->getLL('import.manager.error.version.message'),
                 $this->headerData['t3_formatVersion'], L10NMGR_FILEVERSION);
@@ -195,7 +197,7 @@ class CatXmlImportManager
      */
     protected function _isIncorrectXMLString()
     {
-        $error = array();
+        $error = [];
         if (!isset($this->headerData['t3_formatVersion']) || $this->headerData['t3_formatVersion'] != L10NMGR_FILEVERSION) {
             $error[] = sprintf($this->getLanguageService()->getLL('import.manager.error.version.message'),
                 $this->headerData['t3_formatVersion'], L10NMGR_FILEVERSION);
@@ -243,7 +245,7 @@ class CatXmlImportManager
      */
     public function getPidsFromCATXMLNodes(&$xmlNodes)
     {
-        $pids = array();
+        $pids = [];
         if (is_array($xmlNodes['TYPO3L10N'][0]['ch']['pageGrp'])) {
             foreach ($xmlNodes['TYPO3L10N'][0]['ch']['pageGrp'] as $pageGrp) {
                 $pids[] = $pageGrp['attrs']['id'];
@@ -262,7 +264,7 @@ class CatXmlImportManager
     public function getDelL10NDataFromCATXMLNodes(&$xmlNodes)
     {
         //get L10Ns to be deleted before import
-        $delL10NUids = array();
+        $delL10NUids = [];
         if (is_array($xmlNodes['TYPO3L10N'][0]['ch']['pageGrp'])) {
             foreach ($xmlNodes['TYPO3L10N'][0]['ch']['pageGrp'] as $pageGrp) {
                 if (is_array($pageGrp['ch']['data'])) {
@@ -290,7 +292,7 @@ class CatXmlImportManager
         $cmdCount = 0;
         /** @var Datahandler $dataHandler */
         $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
-        $dataHandler->start(array(), array());
+        $dataHandler->start([], []);
         foreach ($delL10NData as $element) {
             list($table, $elementUid) = explode(':', $element);
             if ($table == 'pages') {

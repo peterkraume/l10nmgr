@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\View;
 
 /***************************************************************
@@ -20,7 +21,9 @@ namespace Localizationteam\L10nmgr\View;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use Localizationteam\L10nmgr\Model\L10nConfiguration;
+use mysqli_result;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
@@ -78,7 +81,7 @@ abstract class AbstractExportView
     /**
      * @var array List of messages issued during rendering
      */
-    protected $internalMessages = array();
+    protected $internalMessages = [];
     /**
      * @var int
      */
@@ -130,36 +133,36 @@ abstract class AbstractExportView
     /**
      * Saves the information of the export in the database table 'tx_l10nmgr_sava_data'
      *
-     * @return bool|\mysqli_result|object resource Handle to the database query
+     * @return bool|mysqli_result|object resource Handle to the database query
      */
     public function saveExportInformation()
     {
         // get current date
         $date = time();
         // query to insert the data in the database
-        $field_values = array(
-            'source_lang' => (int)$this->forcedSourceLanguage ? (int)$this->forcedSourceLanguage : 0,
+        $field_values = [
+            'source_lang'      => (int)$this->forcedSourceLanguage ? (int)$this->forcedSourceLanguage : 0,
             'translation_lang' => (int)$this->sysLang,
-            'crdate' => $date,
-            'tstamp' => $date,
-            'l10ncfg_id' => (int)$this->l10ncfgObj->getData('uid'),
-            'pid' => (int)$this->l10ncfgObj->getData('pid'),
-            'tablelist' => (string)$this->l10ncfgObj->getData('tablelist'),
-            'title' => (string)$this->l10ncfgObj->getData('title'),
-            'cruser_id' => (int)$this->l10ncfgObj->getData('cruser_id'),
-            'filename' => (string)$this->getFilename(),
-            'exportType' => (int)$this->exportType
-        );
+            'crdate'           => $date,
+            'tstamp'           => $date,
+            'l10ncfg_id'       => (int)$this->l10ncfgObj->getData('uid'),
+            'pid'              => (int)$this->l10ncfgObj->getData('pid'),
+            'tablelist'        => (string)$this->l10ncfgObj->getData('tablelist'),
+            'title'            => (string)$this->l10ncfgObj->getData('title'),
+            'cruser_id'        => (int)$this->l10ncfgObj->getData('cruser_id'),
+            'filename'         => (string)$this->getFilename(),
+            'exportType'       => (int)$this->exportType,
+        ];
         $res = $this->getDatabaseConnection()->exec_INSERTquery(
             'tx_l10nmgr_exportdata',
             $field_values,
-            array('source_lang', 'translation_lang', 'crdate', 'tstamp', 'l10ncfg_id', 'pid', 'cruser_id', 'exportType')
+            ['source_lang', 'translation_lang', 'crdate', 'tstamp', 'l10ncfg_id', 'pid', 'cruser_id', 'exportType']
         );
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['exportView'])) {
-            $params = array(
-                'uid' => $this->getDatabaseConnection()->sql_insert_id(),
-                'data' => $field_values
-            );
+            $params = [
+                'uid'  => $this->getDatabaseConnection()->sql_insert_id(),
+                'data' => $field_values,
+            ];
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['exportView'] as $classData) {
                 $postSaveProcessor = GeneralUtility::getUserObj($classData);
                 if ($postSaveProcessor instanceof PostSaveInterface) {
@@ -268,7 +271,7 @@ abstract class AbstractExportView
      */
     public function renderExports()
     {
-        $content = array();
+        $content = [];
         $exports = $this->fetchExports();
         foreach ($exports AS $export => $exportData) {
             $content[$export] = sprintf('
@@ -307,12 +310,12 @@ abstract class AbstractExportView
     /**
      * Fetches saved exports based on configuration, export format and target language.
      *
-     * @author Andreas Otto <andreas.otto@dkd.de>
      * @return array Information about exports.
+     * @author Andreas Otto <andreas.otto@dkd.de>
      */
     protected function fetchExports()
     {
-        $exports = array();
+        $exports = [];
         $res = $this->getDatabaseConnection()->exec_SELECTgetRows('crdate,l10ncfg_id,exportType,translation_lang,filename',
             'tx_l10nmgr_exportdata',
             'l10ncfg_id = ' . (int)$this->l10ncfgObj->getData('uid') . ' AND exportType = ' . $this->exportType . ' AND translation_lang = ' . $this->sysLang,
@@ -355,7 +358,7 @@ abstract class AbstractExportView
      */
     public function renderExportsCli()
     {
-        $content = array();
+        $content = [];
         $exports = $this->fetchExports();
         foreach ($exports AS $export => $exportData) {
             $content[$export] = sprintf('%-15s%-15s%-15s%-15s%s', BackendUtility::datetime($exportData['crdate']),
@@ -452,9 +455,9 @@ abstract class AbstractExportView
      */
     protected function setInternalMessage($message, $key)
     {
-        $this->internalMessages[] = array(
+        $this->internalMessages[] = [
             'message' => $message,
-            'key' => $key
-        );
+            'key'     => $key,
+        ];
     }
 }

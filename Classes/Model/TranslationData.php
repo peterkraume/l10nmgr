@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\Model;
 
 /***************************************************************
@@ -18,6 +19,7 @@ namespace Localizationteam\L10nmgr\Model;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 /**
  * translationData: encapsulates the data which are needed for saving a new translation.
  *
@@ -30,7 +32,7 @@ class TranslationData
     /**
      * @var array
      */
-    protected $data = array();
+    protected $data = [];
     /**
      * @var int
      */

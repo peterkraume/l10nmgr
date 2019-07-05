@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -24,13 +25,13 @@ class Zip
      *
      * @var array $datasec
      */
-    protected $datasec = array();
+    protected $datasec = [];
     /**
      * Central directory
      *
      * @var array $ctrl_dir
      */
-    protected $ctrl_dir = array();
+    protected $ctrl_dir = [];
     /**
      * End of central directory record
      *
@@ -183,7 +184,7 @@ class Zip
                 $cmd = str_replace('###ARCHIVENAME###', $file, $cmd);
                 $cmd = str_replace('###DIRECTORY###', $tempDir, $cmd);
                 exec($cmd);
-                $out['fileArr'] = $this->getAllFilesAndFoldersInPath(array(), $tempDir);
+                $out['fileArr'] = $this->getAllFilesAndFoldersInPath([], $tempDir);
                 $out['tempDir'] = $tempDir;
                 return $out;
             } else {

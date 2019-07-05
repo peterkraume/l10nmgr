@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\LanguageRestriction\Collection;
 
 /*
@@ -15,12 +16,16 @@ namespace Localizationteam\L10nmgr\LanguageRestriction\Collection;
  */
 
 use Localizationteam\L10nmgr\Constants;
+use PDO;
+use RuntimeException;
+use SplDoublyLinkedList;
 use TYPO3\CMS\Core\Collection\AbstractRecordCollection;
 use TYPO3\CMS\Core\Collection\CollectionInterface;
 use TYPO3\CMS\Core\Collection\EditableCollectionInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -47,7 +52,7 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
      *
      * @param string $tableName Name of the table to be working on
      * @param string $fieldName Name of the field where the language restriction relations are defined
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function __construct($tableName = null, $fieldName = null)
     {
@@ -55,34 +60,11 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
         if (!empty($tableName)) {
             $this->setItemTableName($tableName);
         } elseif (empty($this->itemTableName)) {
-            throw new \RuntimeException(self::class . ' needs a valid itemTableName.', 1341826168);
+            throw new RuntimeException(self::class . ' needs a valid itemTableName.', 1341826168);
         }
         if (!empty($fieldName)) {
             $this->setRelationFieldName($fieldName);
         }
-    }
-
-    /**
-     * Creates a new collection objects and reconstitutes the
-     * given database record to the new object.
-     *
-     * @param array $collectionRecord Database record
-     * @param bool $fillItems Populates the entries directly on load, might be bad for memory on large collections
-     * @return LanguageRestrictionCollection
-     */
-    public static function create(array $collectionRecord, $fillItems = false)
-    {
-        /** @var $collection LanguageRestrictionCollection */
-        $collection = GeneralUtility::makeInstance(
-            self::class,
-            $collectionRecord['table_name'],
-            $collectionRecord['field_name']
-        );
-        $collection->fromArray($collectionRecord);
-        if ($fillItems) {
-            $collection->loadContents();
-        }
-        return $collection;
     }
 
     /**
@@ -113,7 +95,7 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
         $collectionRecord = $queryBuilder->select('*')
             ->from(static::$storageTableName)
             ->where(
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($id, \PDO::PARAM_INT))
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($id, PDO::PARAM_INT))
             )
             ->setMaxResults(1)
             ->execute()
@@ -123,6 +105,66 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
         $collectionRecord['field_name'] = $fieldName;
 
         return self::create($collectionRecord, $fillItems);
+    }
+
+    /**
+     * Creates a new collection objects and reconstitutes the
+     * given database record to the new object.
+     *
+     * @param array $collectionRecord Database record
+     * @param bool $fillItems Populates the entries directly on load, might be bad for memory on large collections
+     * @return LanguageRestrictionCollection
+     */
+    public static function create(array $collectionRecord, $fillItems = false)
+    {
+        /** @var $collection LanguageRestrictionCollection */
+        $collection = GeneralUtility::makeInstance(
+            self::class,
+            $collectionRecord['table_name'],
+            $collectionRecord['field_name']
+        );
+        $collection->fromArray($collectionRecord);
+        if ($fillItems) {
+            $collection->loadContents();
+        }
+        return $collection;
+    }
+
+    /**
+     * Populates the content-entries of the storage
+     * Queries the underlying storage for entries of the collection
+     * and adds them to the collection data.
+     * If the content entries of the storage had not been loaded on creation
+     * ($fillItems = false) this function is to be used for loading the contents
+     * afterwards.
+     */
+    public function loadContents()
+    {
+        $entries = $this->getCollectedRecords();
+        $this->removeAll();
+        foreach ($entries as $entry) {
+            $this->add($entry);
+        }
+    }
+
+    /**
+     * Gets the collected records in this collection, by
+     * using <getCollectedRecordsQueryBuilder>.
+     *
+     * @return array
+     */
+    protected function getCollectedRecords()
+    {
+        $relatedRecords = [];
+
+        $queryBuilder = $this->getCollectedRecordsQueryBuilder();
+        $result = $queryBuilder->execute();
+
+        while ($record = $result->fetch()) {
+            $relatedRecords[] = $record;
+        }
+
+        return $relatedRecords;
     }
 
     /**
@@ -162,15 +204,15 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
             ->where(
                 $queryBuilder->expr()->eq(
                     static::$storageTableName . '.uid',
-                    $queryBuilder->createNamedParameter($this->getIdentifier(), \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($this->getIdentifier(), PDO::PARAM_INT)
                 ),
                 $queryBuilder->expr()->eq(
                     Constants::L10NMGR_LANGUAGE_RESTRICTION_MM_TABLENAME . '.tablenames',
-                    $queryBuilder->createNamedParameter($this->getItemTableName(), \PDO::PARAM_STR)
+                    $queryBuilder->createNamedParameter($this->getItemTableName(), PDO::PARAM_STR)
                 ),
                 $queryBuilder->expr()->eq(
                     Constants::L10NMGR_LANGUAGE_RESTRICTION_MM_TABLENAME . '.fieldname',
-                    $queryBuilder->createNamedParameter($this->getRelationFieldName(), \PDO::PARAM_STR)
+                    $queryBuilder->createNamedParameter($this->getRelationFieldName(), PDO::PARAM_STR)
                 )
             );
 
@@ -178,56 +220,32 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
     }
 
     /**
-     * Gets the collected records in this collection, by
-     * using <getCollectedRecordsQueryBuilder>.
+     * Gets the name of the language restrictions relation field
      *
-     * @return array
+     * @return string
      */
-    protected function getCollectedRecords()
+    public function getRelationFieldName()
     {
-        $relatedRecords = [];
-
-        $queryBuilder = $this->getCollectedRecordsQueryBuilder();
-        $result = $queryBuilder->execute();
-
-        while ($record = $result->fetch()) {
-            $relatedRecords[] = $record;
-        }
-
-        return $relatedRecords;
+        return $this->relationFieldName;
     }
 
     /**
-     * Populates the content-entries of the storage
-     * Queries the underlying storage for entries of the collection
-     * and adds them to the collection data.
-     * If the content entries of the storage had not been loaded on creation
-     * ($fillItems = false) this function is to be used for loading the contents
-     * afterwards.
+     * Sets the name of the language restrictions relation field
+     *
+     * @param string $field
      */
-    public function loadContents()
+    public function setRelationFieldName($field)
     {
-        $entries = $this->getCollectedRecords();
-        $this->removeAll();
-        foreach ($entries as $entry) {
-            $this->add($entry);
-        }
+        $this->relationFieldName = $field;
     }
 
     /**
-     * Returns an array of the persistable properties and contents
-     * which are processable by DataHandler.
-     * for internal usage in persist only.
-     *
-     * @return array
+     * Removes all entries from the collection
+     * collection will be empty afterwards
      */
-    protected function getPersistableDataArray()
+    public function removeAll()
     {
-        return [
-            'title' => $this->getTitle(),
-            'description' => $this->getDescription(),
-            'items' => $this->getItemUidList(true)
-        ];
+        $this->storage = new SplDoublyLinkedList();
     }
 
     /**
@@ -238,6 +256,26 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
     public function add($data)
     {
         $this->storage->push($data);
+    }
+
+    /**
+     * Getter for the storage table name
+     *
+     * @return string
+     */
+    public static function getStorageTableName()
+    {
+        return self::$storageTableName;
+    }
+
+    /**
+     * Getter for the storage items field
+     *
+     * @return string
+     */
+    public static function getStorageItemsField()
+    {
+        return self::$storageItemsField;
     }
 
     /**
@@ -271,15 +309,6 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
     }
 
     /**
-     * Removes all entries from the collection
-     * collection will be empty afterwards
-     */
-    public function removeAll()
-    {
-        $this->storage = new \SplDoublyLinkedList();
-    }
-
-    /**
      * Gets the current available items.
      *
      * @return array
@@ -287,7 +316,7 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
     public function getItems()
     {
         $itemArray = [];
-        /** @var $item \TYPO3\CMS\Core\Resource\File */
+        /** @var $item File */
         foreach ($this->storage as $item) {
             $itemArray[] = $item;
         }
@@ -295,42 +324,18 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
     }
 
     /**
-     * Sets the name of the language restrictions relation field
+     * Returns an array of the persistable properties and contents
+     * which are processable by DataHandler.
+     * for internal usage in persist only.
      *
-     * @param string $field
+     * @return array
      */
-    public function setRelationFieldName($field)
+    protected function getPersistableDataArray()
     {
-        $this->relationFieldName = $field;
-    }
-
-    /**
-     * Gets the name of the language restrictions relation field
-     *
-     * @return string
-     */
-    public function getRelationFieldName()
-    {
-        return $this->relationFieldName;
-    }
-
-    /**
-     * Getter for the storage table name
-     *
-     * @return string
-     */
-    public static function getStorageTableName()
-    {
-        return self::$storageTableName;
-    }
-
-    /**
-     * Getter for the storage items field
-     *
-     * @return string
-     */
-    public static function getStorageItemsField()
-    {
-        return self::$storageItemsField;
+        return [
+            'title'       => $this->getTitle(),
+            'description' => $this->getDescription(),
+            'items'       => $this->getItemUidList(true),
+        ];
     }
 }

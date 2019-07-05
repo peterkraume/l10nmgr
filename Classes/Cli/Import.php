@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\Cli;
 
 /***************************************************************
@@ -19,6 +20,7 @@ namespace Localizationteam\L10nmgr\Cli;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use Localizationteam\L10nmgr\Model\CatXmlImportManager;
 use Localizationteam\L10nmgr\Model\L10nBaseService;
 use Localizationteam\L10nmgr\Model\L10nConfiguration;
@@ -55,11 +57,11 @@ class Import extends CommandLineController
     /**
      * @var array Extension's configuration as from the EM
      */
-    protected $extensionConfiguration = array();
+    protected $extensionConfiguration = [];
     /**
      * @var array List of command-line arguments
      */
-    protected $callParameters = array();
+    protected $callParameters = [];
     /**
      * @var integer ID of the language being handled
      */
@@ -75,11 +77,11 @@ class Import extends CommandLineController
     /**
      * @var array List of files that were imported, with additional information, used for reporting after import
      */
-    protected $filesImported = array();
+    protected $filesImported = [];
     /**
      * @var array List of error messages
      */
-    protected $errors = array();
+    protected $errors = [];
 
     /**
      * Constructor
@@ -91,33 +93,33 @@ class Import extends CommandLineController
         // Load the extension's configuration
         $this->extensionConfiguration = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['l10nmgr']);
         // Adding specific CLI options
-        $this->cli_options[] = array(
+        $this->cli_options[] = [
             '--task',
             'The task to execute',
-            "The values can be:\n importString = Import a XML string\n importFile = Import a XML file\n preview = Generate a preview of the source from a XML string\n"
-        );
-        $this->cli_options[] = array(
+            "The values can be:\n importString = Import a XML string\n importFile = Import a XML file\n preview = Generate a preview of the source from a XML string\n",
+        ];
+        $this->cli_options[] = [
             '--preview',
             'Preview flag',
-            "Set to 1 in case of preview, 0 otherwise. Defaults to 0.\n"
-        );
-        $this->cli_options[] = array('--string', 'XML string', "XML string to import.\n");
-        $this->cli_options[] = array(
+            "Set to 1 in case of preview, 0 otherwise. Defaults to 0.\n",
+        ];
+        $this->cli_options[] = ['--string', 'XML string', "XML string to import.\n"];
+        $this->cli_options[] = [
             '--file',
             'Import file',
-            "Path to the file to import. Can be XML or ZIP archive. If both XML string and import file are not defined, will import from FTP server (if defined).\n"
-        );
-        $this->cli_options[] = array('--server', 'Server link', "Server link for the preview URL.\n");
-        $this->cli_options[] = array(
+            "Path to the file to import. Can be XML or ZIP archive. If both XML string and import file are not defined, will import from FTP server (if defined).\n",
+        ];
+        $this->cli_options[] = ['--server', 'Server link', "Server link for the preview URL.\n"];
+        $this->cli_options[] = [
             '--importAsDefaultLanguage',
             'Import as default language',
-            "If set this setting will overwrite the default language during the import.\nThe values can be: \n TRUE = Content will be imported as default language.\n FALSE = Content will be imported as translation (default).\n"
-        );
-        $this->cli_options[] = array(
+            "If set this setting will overwrite the default language during the import.\nThe values can be: \n TRUE = Content will be imported as default language.\n FALSE = Content will be imported as translation (default).\n",
+        ];
+        $this->cli_options[] = [
             '--srcPID',
             'Source page ID',
-            "UID of the page used during export. Needs configuration depth to be set to \"current page\" Default = 0\n"
-        );
+            "UID of the page used during export. Needs configuration depth to be set to \"current page\" Default = 0\n",
+        ];
         // Setting help texts
         $this->cli_help['name'] = 'Localization Manager importer';
         $this->cli_help['synopsis'] = '###OPTIONS###';
@@ -281,7 +283,7 @@ class Import extends CommandLineController
      * @param string $xml XML string to parse
      *
      * @return int ID of the workspace to import to
-     * @throws \TYPO3\CMS\Core\Exception
+     * @throws Exception
      */
     protected function getWsIdFromCATXML($xml)
     {
@@ -340,7 +342,7 @@ class Import extends CommandLineController
             $importManager->delL10N($importManager->getDelL10NDataFromCATXMLNodes($importManager->getXmlNodes()));
             //Make preview links
             if ($this->callParameters['preview']) {
-                $pageIds = array();
+                $pageIds = [];
                 if (empty($importManager->headerData['t3_previewId'])) {
                     $pageIds = $importManager->getPidsFromCATXMLNodes($importManager->getXmlNodes());
                 } else {
@@ -425,7 +427,7 @@ class Import extends CommandLineController
     protected function importXMLFile()
     {
         $out = '';
-        $xmlFilesArr = array();
+        $xmlFilesArr = [];
         try {
             $xmlFilesArr = $this->gatherAllFiles();
         } catch (Exception $e) {
@@ -470,7 +472,7 @@ class Import extends CommandLineController
                         $importManager->delL10N($importManager->getDelL10NDataFromCATXMLNodes($importManager->getXmlNodes()));
                         // Make preview links
                         if ($this->callParameters['preview']) {
-                            $pageIds = array();
+                            $pageIds = [];
                             if (empty($importManager->headerData['t3_previewId'])) {
                                 $pageIds = $importManager->getPidsFromCATXMLNodes($importManager->getXmlNodes());
                             } else {
@@ -492,11 +494,11 @@ class Import extends CommandLineController
                         $service->saveTranslation($l10ncfgObj, $translationData);
                         // Store some information about the imported file
                         // This is used later for reporting by mail
-                        $this->filesImported[$xmlFile] = array(
-                            'workspace' => $xmlFileHead['t3_workspaceId'][0]['XMLvalue'],
-                            'language' => $xmlFileHead['t3_targetLang'][0]['XMLvalue'],
-                            'configuration' => $xmlFileHead['t3_l10ncfg'][0]['XMLvalue']
-                        );
+                        $this->filesImported[$xmlFile] = [
+                            'workspace'     => $xmlFileHead['t3_workspaceId'][0]['XMLvalue'],
+                            'language'      => $xmlFileHead['t3_targetLang'][0]['XMLvalue'],
+                            'configuration' => $xmlFileHead['t3_l10ncfg'][0]['XMLvalue'],
+                        ];
                     }
                 } catch (Exception $e) {
                     if ($e->getCode() == 1390394945) {
@@ -506,9 +508,9 @@ class Import extends CommandLineController
                     }
                     $out .= "\n\n" . $xmlFile . ': ' . $errorMessage;
                     // Store the error message for later reporting by mail
-                    $this->filesImported[$xmlFile] = array(
-                        'error' => $errorMessage
-                    );
+                    $this->filesImported[$xmlFile] = [
+                        'error' => $errorMessage,
+                    ];
                 }
             }
         } else {
@@ -538,7 +540,7 @@ class Import extends CommandLineController
      */
     protected function gatherAllFiles()
     {
-        $files = array();
+        $files = [];
         // If no file path was given, try to gather files from FTP
         if (empty($this->callParameters['file'])) {
             if (!empty($this->extensionConfiguration['ftp_server'])) {
@@ -566,12 +568,12 @@ class Import extends CommandLineController
     /**
      * Gets all available XML or ZIP files from the FTP server
      *
-     * @throws Exception
      * @return array List of files, as local paths
+     * @throws Exception
      */
     protected function getFilesFromFtp()
     {
-        $files = array();
+        $files = [];
         // First try connecting and logging in
         $connection = ftp_connect($this->extensionConfiguration['ftp_server']);
         if ($connection === false) {
@@ -656,7 +658,7 @@ class Import extends CommandLineController
      */
     protected function checkFileType($files, $ext)
     {
-        $passed = array();
+        $passed = [];
         foreach ($files as $file) {
             if (preg_match('/' . $ext . '$/', $file)) {
                 $passed[] = $file;
@@ -671,11 +673,11 @@ class Import extends CommandLineController
      * @param string $filepath Path to the file
      *
      * @return bool
-     * @throws \TYPO3\CMS\Core\Exception
+     * @throws Exception
      */
     protected function getXMLFileHead($filepath)
     {
-        $getURLReport = array();
+        $getURLReport = [];
         $fileContent = GeneralUtility::getUrl($filepath, 0, false, $getURLReport);
         if ($getURLReport['error']) {
             throw new Exception("File or URL cannot be read.\n \\TYPO3\\CMS\\Core\\Utility\\GeneralUtility::getURL() error code: " . $getURLReport['error'] . "\n \\TYPO3\\CMS\\Core\\Utility\\GeneralUtility::getURL() message: “" . $getURLReport['message'] . '”',
@@ -787,7 +789,7 @@ class Import extends CommandLineController
                 // Instantiate the mail object, set all necessary properties and send the mail
                 /** @var MailMessage $mailObject */
                 $mailObject = GeneralUtility::makeInstance('\TYPO3\CMS\Core\Mail\MailMessage');
-                $mailObject->setFrom(array($this->extensionConfiguration['email_sender'] => $this->extensionConfiguration['email_sender_name']));
+                $mailObject->setFrom([$this->extensionConfiguration['email_sender'] => $this->extensionConfiguration['email_sender_name']]);
                 $mailObject->setTo($recipients);
                 $mailObject->setSubject($subject);
                 $mailObject->setFormat('text/plain');

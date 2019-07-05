@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\Task;
 
 /***************************************************************
@@ -18,6 +19,7 @@ namespace Localizationteam\L10nmgr\Task;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use DirectoryIterator;
 use Exception;
 use RuntimeException;
@@ -40,11 +42,11 @@ class LocalizationmanagerFileGarbageCollection extends AbstractTask
     /**
      * @var array List of directories in which files should be cleaned up
      */
-    protected static $targetDirectories = array(
+    protected static $targetDirectories = [
         'uploads/tx_l10nmgr/saved_files',
         'uploads/tx_l10nmgr/jobs/out',
-        'uploads/tx_l10nmgr/jobs/in'
-    );
+        'uploads/tx_l10nmgr/jobs/in',
+    ];
     /**
      * @var int Age of files to delete
      */
@@ -82,12 +84,12 @@ class LocalizationmanagerFileGarbageCollection extends AbstractTask
      * Gets a list of all files in a directory recursively and removes
      * old ones.
      *
-     * @throws RuntimeException If folders are not found or files can not be deleted
-     *
      * @param string $directory Path to the directory
      * @param integer $timestamp Timestamp of the last file modification
      *
      * @return boolean TRUE if success
+     * @throws RuntimeException If folders are not found or files can not be deleted
+     *
      */
     protected function cleanUpDirectory($directory, $timestamp)
     {

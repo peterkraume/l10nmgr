@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr\View;
 
 use TYPO3\CMS\Backend\Template\DocumentTemplate;
@@ -9,7 +10,7 @@ class Template
     /**
      * @var array $registryData Store all available data used by the template file
      */
-    protected $registryData = array();
+    protected $registryData = [];
     /**
      * @var string $templateFile Relative path to the template file
      */
@@ -32,7 +33,7 @@ class Template
      */
     public function Template($registryData, $templateFile)
     {
-        $this->registryData = (is_array($registryData)) ? $registryData : array();
+        $this->registryData = (is_array($registryData)) ? $registryData : [];
         $this->templateFile = $templateFile;
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace Localizationteam\L10nmgr;
 
 /***************************************************************
@@ -18,11 +19,13 @@ namespace Localizationteam\L10nmgr;
  * GNU General Public License for more details.
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 /**
  * Addition of an item to the clickmenu
  *
  * @author Kasper Skårhøj <kasperYYYY@typo3.com>
  */
+
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -59,7 +62,7 @@ class ClickMenu
      */
     public function main(&$backRef, $menuItems, $table, $uid)
     {
-        $localItems = Array();
+        $localItems = [];
         if (!$backRef->cmLevel) {
             // Returns directly, because the clicked item was not from the pages table
             if ($table == "tx_l10nmgr_cfg") {
@@ -69,11 +72,11 @@ class ClickMenu
                 // Remember to add entries in the localconf.php file for additional titles.
                 $url = BackendUtility::getModuleUrl(
                     'ConfigurationManager_LocalizationManager',
-                    array(
-                        'id' => $backRef->rec['pid'],
-                        'srcPID' => $backRef->rec['pid'],
+                    [
+                        'id'        => $backRef->rec['pid'],
+                        'srcPID'    => $backRef->rec['pid'],
                         'exportUID' => $uid,
-                    )
+                    ]
                 );
                 $localItems[] = $backRef->linkItem($this->getLanguageService()->getLLL("cm1_title", $LL),
                     $backRef->excludeIcon('<img src="' . ExtensionManagementUtility::siteRelPath("l10nmgr") . 'cm1/cm_icon.gif" width="15" height="12" border="0" align="top" />'),
@@ -88,10 +91,10 @@ class ClickMenu
             $menuItems = array_merge($menuItems, $localItems);
         } elseif (GeneralUtility::_GET('subname') == 'moreoptions_tx_l10nmgrXX_cm3') {
             $url = BackendUtility::getModuleUrl('LocalizationManager_TranslationTasks',
-                array(
-                    'id' => $backRef->rec['pid'],
+                [
+                    'id'    => $backRef->rec['pid'],
                     'table' => $table,
-                )
+                ]
             );
             $localItems[] = $backRef->linkItem('Create priority', '',
                 $backRef->urlRefForCM($url . '&cmd=createPriority'), 1);
