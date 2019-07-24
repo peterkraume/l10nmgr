@@ -21,8 +21,11 @@ namespace Localizationteam\L10nmgr\Model;
 use Localizationteam\L10nmgr\Model\Tools\XmlTools;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Html\RteHtmlParser;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\MathUtility;
 
 /**
  * Returns initialised TranslationData Objects
@@ -79,6 +82,24 @@ class TranslationDataFactory implements LoggerAwareInterface
                 if (is_array($pageGrp['ch']['data'])) {
                     foreach ($pageGrp['ch']['data'] as $row) {
                         $attrs = $row['attrs'];
+
+                        if (strpos($attrs['key'], 'pages_language_overlay:') === 0) {
+                            [, $pagesLanguageOverlayId, $fieldName] = explode(':', $attrs['key'], 3);
+                            // never change pathsegment, as this is now a slug field
+                            if ($fieldName === 'tx_realurl_pathsegment') {
+                                continue;
+                            }
+                            if (MathUtility::canBeInterpretedAsInteger($pagesLanguageOverlayId)) {
+                                $conn = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable('pages');
+                                $pagesLanguageOverlayId = (int)$conn->select(['uid'], 'pages', ['legacy_overlay_uid' => $pagesLanguageOverlayId])->fetchColumn();
+                                if ($pagesLanguageOverlayId === 0) {
+                                    $this->logger->warning('No translation for existing page translation ' . $attrs['key'] . ' found');
+                                    continue;
+                                }
+                            }
+                            $attrs['key'] = 'pages:' . $pagesLanguageOverlayId . ':' . $fieldName;
+                        }
+
                         if ($attrs['transformations'] == '1') {
                             $translationValue = $xmlTool->XML2RTE($row['XMLvalue']);
                             $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = $translationValue;
