@@ -126,7 +126,10 @@ class L10nConfiguration
         /** @var $tree PageTreeView */
         if (!empty($treeStartingPoints)) {
             foreach ($treeStartingPoints as $treeStartingPoint) {
-                $treeStartingRecords[] = BackendUtility::getRecordWSOL('pages', $treeStartingPoint);
+                $treeStartingPointPage = BackendUtility::getRecordWSOL('pages', $treeStartingPoint);
+                if (is_array($treeStartingPointPage)) {
+                    $treeStartingRecords[] = $treeStartingPointPage;
+                }
             }
             // Initialize tree object:
             $tree = GeneralUtility::makeInstance(PageTreeView::class);
