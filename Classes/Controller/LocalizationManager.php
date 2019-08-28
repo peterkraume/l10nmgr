@@ -674,7 +674,7 @@ return false;
                         $actionInfo .= sprintf($this->getLanguageService()->getLL('import.xml.delL10N.count.message'),
                                 $delCount) . '<br /><br />';
                     }
-                    if (GeneralUtility::_POST('make_preview_link') == '1') {
+                    if (GeneralUtility::_POST('make_preview_link') == '1' && ExtensionManagementUtility::isLoaded('workspaces')) {
                         $pageIds = $importManager->getPidsFromCATXMLNodes($importManager->getXmlNodes());
                         $actionInfo .= '<b>' . $this->getLanguageService()->getLL('import.xml.preview_links.title') . '</b><br />';
                         /** @var MkPreviewLinkService $mkPreviewLinks */
@@ -852,9 +852,13 @@ return false;
     protected function getTabContentXmlImport()
     {
         $tabContentXmlImport = '<div class="form-section">' .
-            '<div class="form-group"><div class="checkbox"><label>' .
-            '<input type="checkbox" value="1" name="make_preview_link" /> ' . $this->getLanguageService()->getLL('import.xml.make_preview_link.title') .
-            '</label></div></div>' .
+            (
+                ExtensionManagementUtility::isLoaded('workspaces') ? (
+                    '<div class="form-group"><div class="checkbox"><label>' .
+                    '<input type="checkbox" value="1" name="make_preview_link" /> ' . $this->getLanguageService()->getLL('import.xml.make_preview_link.title') .
+                    '</label></div></div>'
+                ) : ''
+            ) .
             '<div class="form-group"><div class="checkbox"><label>' .
             '<input type="checkbox" value="1" name="import_delL10N" /> ' . $this->getLanguageService()->getLL('import.xml.delL10N.title') .
             '</label></div></div>' .
