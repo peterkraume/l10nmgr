@@ -34,6 +34,7 @@ use TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\DiffUtility;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
@@ -542,6 +543,7 @@ class Tools
         global $TCA;
         // Initialize:
         $tInfo = $this->translationInfo($table, $row['uid'], $sysLang, null, '', $previewLanguage);
+        $tvInstalled = ExtensionManagementUtility::isLoaded('templavoila');
         $this->detailsOutput = [];
         $this->flexFormDiff = $flexFormDiff;
         if (is_array($tInfo)) {
@@ -598,7 +600,11 @@ class Tools
                                 if ($cfg['config']['type'] == 'flex') {
                                     $dataStructArray = $this->_getFlexFormMetaDataForContentElement($table, $field,
                                         $row);
-                                    if ($dataStructArray['meta']['langDisable'] && $dataStructArray['meta']['langDatabaseOverlay'] == 1 || $table === 'tt_content' && $row['CType'] === 'fluidcontent_content') {
+                                    if (!$tvInstalled
+                                        ||
+                                        $dataStructArray['meta']['langDisable']
+                                        && $dataStructArray['meta']['langDatabaseOverlay'] == 1
+                                    ) {
                                         // Create and call iterator object:
                                         /** @var FlexFormTools $flexObj */
                                         $flexObj = GeneralUtility::makeInstance(FlexFormTools::class);
