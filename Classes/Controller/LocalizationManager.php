@@ -543,7 +543,7 @@ class LocalizationManager extends BaseScriptClass
                         $actionInfo .= sprintf($GLOBALS['LANG']->getLL('import.xml.delL10N.count.message'),
                                 $delCount) . '<br/><br/>';
                     }
-                    if (GeneralUtility::_POST('make_preview_link') == '1') {
+                    if (GeneralUtility::_POST('make_preview_link') == '1' && ExtensionManagementUtility::isLoaded('workspaces')) {
                         $pageIds = $importManager->getPidsFromCATXMLNodes($importManager->xmlNodes);
                         $actionInfo .= '<b>' . $GLOBALS['LANG']->getLL('import.xml.preview_links.title') . '</b><br/>';
                         /** @var $mkPreviewLinks MkPreviewLinkService */
@@ -683,9 +683,13 @@ class LocalizationManager extends BaseScriptClass
     function getTabContentXmlImport()
     {
         $tabContentXmlImport = '<div class="form-section">' .
-            '<div class="form-group"><div class="checkbox"><label>' .
-            '<input type="checkbox" value="1" name="make_preview_link" /> ' . $GLOBALS['LANG']->getLL('import.xml.make_preview_link.title') .
-            '</label></div></div><br />' .
+            (
+                ExtensionManagementUtility::isLoaded('workspaces') ? (
+                    '<div class="form-group"><div class="checkbox"><label>' .
+                    '<input type="checkbox" value="1" name="make_preview_link" /> ' . $GLOBALS['LANG']->getLL('import.xml.make_preview_link.title') .
+                    '</label></div></div><br />'
+                ) : ''
+            ) .
             '<div class="form-group"><div class="checkbox"><label>' .
             '<input type="checkbox" value="1" name="import_delL10N" /> ' . $GLOBALS['LANG']->getLL('import.xml.delL10N.title') .
             '</label></div></div><br />' .
