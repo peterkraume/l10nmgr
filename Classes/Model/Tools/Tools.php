@@ -61,7 +61,18 @@ class Tools
         'fieldTypes' => 'text,input',
         'noEmptyValues' => true,
         'noIntegers' => true,
-        'l10n_categories' => '' // could be "text,media" for instance.
+        'l10n_categories' => '', // could be "text,media" for instance.
+        // Never export those fields
+        'excludes' => [
+            'sys_file_reference' => [
+                'table_local',
+                'fieldname',
+                'tablenames'
+            ],
+            'pages' => [
+                'canonical_link'
+            ]
+        ]
     ];
     // Array of sys_language_uids, eg. array(1,2)
     /**
@@ -165,9 +176,9 @@ class Tools
                 );
             }
             $key = $ffKey = $PA['table'] . ':' . BackendUtility::wsMapId(
-                $PA['table'],
-                $PA['uid']
-            ) . ':' . $PA['field'] . ':' . $structurePath;
+                    $PA['table'],
+                    $PA['uid']
+                ) . ':' . $PA['field'] . ':' . $structurePath;
             $ffKeyOrig = $PA['table'] . ':' . $PA['uid'] . ':' . $PA['field'] . ':' . $structurePath;
             // Now, in case this record has just been created in the workspace the diff-information is still found bound to the UID of the original record.
             // So we will look for that until it has been created for the workspace record:
@@ -225,74 +236,103 @@ class Tools
     ) {
         $msg = '';
         list($kTableName, , $kFieldName) = explode(':', $key);
-        if ($TCEformsCfg['config']['type'] !== 'flex') {
-            if ($TCEformsCfg['l10n_mode'] != 'exclude') {
-                if ($TCEformsCfg['l10n_mode'] == 'mergeIfNotBlank') {
-                    $msg .= 'This field is optional. If not filled in, the default language value will be used.';
-                }
-                if (GeneralUtility::inList('shortcut,shortcut_mode,urltype,url_scheme', $kFieldName) && $kTableName === 'pages') {
-                    $this->bypassFilter = true;
-                }
-                $is_HIDE_L10N_SIBLINGS = false;
-                if (is_array($TCEformsCfg['displayCond'])) {
-                    $GLOBALS['is_HIDE_L10N_SIBLINGS'] = $is_HIDE_L10N_SIBLINGS;
-                    array_walk_recursive($TCEformsCfg['displayCond'], function ($i, $k) {
-                        if (GeneralUtility::isFirstPartOfStr($i, 'HIDE_L10N_SIBLINGS')) {
-                            $GLOBALS['is_HIDE_L10N_SIBLINGS'] = true;
-                        }
-                    });
-                    $is_HIDE_L10N_SIBLINGS = $GLOBALS['is_HIDE_L10N_SIBLINGS'];
-                } else {
-                    $is_HIDE_L10N_SIBLINGS = GeneralUtility::isFirstPartOfStr($TCEformsCfg['displayCond'], 'HIDE_L10N_SIBLINGS');
-                }
-                if (!$is_HIDE_L10N_SIBLINGS) {
-                    if (!GeneralUtility::isFirstPartOfStr($kFieldName, 't3ver_')) {
-                        if (!$this->filters['l10n_categories'] || GeneralUtility::inList($this->filters['l10n_categories'], $TCEformsCfg['l10n_cat'])) {
-                            if (!$this->filters['fieldTypes']
-                                || GeneralUtility::inList($this->filters['fieldTypes'], $TCEformsCfg['config']['type'])
-                                || $this->bypassFilter
-                            ) {
-                                if (!$this->filters['noEmptyValues'] || !(!$dataValue && !$translationValue)
-                                    || !empty($previewLanguageValues[key($previewLanguageValues)]) || $TCEformsCfg['labelField'] === $kFieldName
-                                ) {
-                                    // Checking that no translation value exists either; if a translation value is found it is considered that it should be translated
-                                    // even if the default value is empty for some reason.
-                                    if (!$this->filters['noIntegers'] || !MathUtility::canBeInterpretedAsInteger($dataValue) || $this->bypassFilter) {
-                                        $this->detailsOutput['fields'][$key] = [
-                                            'defaultValue' => $dataValue,
-                                            'translationValue' => $translationValue,
-                                            'diffDefaultValue' => $TCEformsCfg['l10n_display'] != 'hideDiff' ? $diffDefaultValue : '',
-                                            'previewLanguageValues' => $previewLanguageValues,
-                                            'msg' => $msg,
-                                            'readOnly' => $TCEformsCfg['l10n_display'] == 'defaultAsReadonly',
-                                            'fieldType' => $TCEformsCfg['config']['type'],
-                                            'isRTE' => $this->_isRTEField($key, $TCEformsCfg, $contentRow)
-                                        ];
-                                    } elseif ($this->verbose) {
-                                        $this->detailsOutput['fields'][$key] = 'Bypassing; ->filters[noIntegers] was set and dataValue "' . $dataValue . '" was an integer';
-                                    }
-                                } elseif ($this->verbose) {
-                                    $this->detailsOutput['fields'][$key] = 'Bypassing; ->filters[noEmptyValues] was set and dataValue "'
-                                        . $dataValue . '" was empty an field was no label field and no translation or alternative source language value found either.';
-                                }
-                            } elseif ($this->verbose) {
-                                $this->detailsOutput['fields'][$key] = 'Bypassing; fields of type "' . $TCEformsCfg['config']['type'] . '" was filtered out in ->filters[fieldTypes]';
-                            }
-                        } elseif ($this->verbose) {
-                            $this->detailsOutput['fields'][$key] = 'Bypassing; ->filters[l10n_categories] was set to "'
-                                . $this->filters['l10n_categories'] . '" and l10n_cat for field ("' . $TCEformsCfg['l10n_cat'] . '") did not match.';
-                        }
-                    } elseif ($this->verbose) {
-                        $this->detailsOutput['fields'][$key] = 'Bypassing; Fieldname "' . $kFieldName . '" was prefixed "t3ver_"';
-                    }
-                } elseif ($this->verbose) {
-                    $this->detailsOutput['fields'][$key] = 'Bypassing; displayCondition HIDE_L10N_SIBLINGS was set.';
-                }
-            } elseif ($this->verbose) {
+
+        if (array_key_exists($kTableName, $this->filters['excludes']) && in_array($kFieldName, $this->filters['excludes'][$kTableName])) {
+            return;
+        }
+
+        if ($TCEformsCfg['config']['type'] === 'flex') {
+            if ($this->verbose) {
+                $this->detailsOutput['fields'][$key] = 'Bypassing; fields of type "flex" can only be translated in the context of an "ALL" language record';
+            }
+            return;
+        }
+
+        if ($TCEformsCfg['l10n_mode'] === 'exclude') {
+            if ($this->verbose) {
                 $this->detailsOutput['fields'][$key] = 'Bypassing; "l10n_mode" for the field was "exclude" and field is not translated then.';
             }
+            return;
+        }
+
+        if (GeneralUtility::isFirstPartOfStr($kFieldName, 't3ver_')) {
+            if ($this->verbose) {
+                $this->detailsOutput['fields'][$key] = 'Bypassing; Fieldname "' . $kFieldName . '" was prefixed "t3ver_"';
+            }
+            $this->bypassFilter = false;
+            return;
+        }
+
+        if ($TCEformsCfg['l10n_mode'] == 'mergeIfNotBlank') {
+            $msg .= 'This field is optional. If not filled in, the default language value will be used.';
+        }
+        if (GeneralUtility::inList('shortcut,shortcut_mode,urltype,url_scheme', $kFieldName) && $kTableName === 'pages') {
+            $this->bypassFilter = true;
+        }
+
+        $is_HIDE_L10N_SIBLINGS = false;
+        if (is_array($TCEformsCfg['displayCond'])) {
+            $GLOBALS['is_HIDE_L10N_SIBLINGS'] = $is_HIDE_L10N_SIBLINGS;
+            array_walk_recursive($TCEformsCfg['displayCond'], function ($i, $k) {
+                if (GeneralUtility::isFirstPartOfStr($i, 'HIDE_L10N_SIBLINGS')) {
+                    $GLOBALS['is_HIDE_L10N_SIBLINGS'] = true;
+                }
+            });
+            $is_HIDE_L10N_SIBLINGS = $GLOBALS['is_HIDE_L10N_SIBLINGS'];
+        } else {
+            $is_HIDE_L10N_SIBLINGS = GeneralUtility::isFirstPartOfStr($TCEformsCfg['displayCond'], 'HIDE_L10N_SIBLINGS');
+        }
+        if ($is_HIDE_L10N_SIBLINGS) {
+            if ($this->verbose) {
+                $this->detailsOutput['fields'][$key] = 'Bypassing; displayCondition HIDE_L10N_SIBLINGS was set.';
+            }
+            $this->bypassFilter = false;
+            return;
+        }
+
+        if ($this->filters['l10n_categories'] && !GeneralUtility::inList($this->filters['l10n_categories'], $TCEformsCfg['l10n_cat'])) {
+            if ($this->verbose) {
+                $this->detailsOutput['fields'][$key] = 'Bypassing; ->filters[l10n_categories] was set to "'
+                    . $this->filters['l10n_categories'] . '" and l10n_cat for field ("' . $TCEformsCfg['l10n_cat'] . '") did not match.';
+            }
+            $this->bypassFilter = false;
+            return;
+        }
+
+
+        if ($this->filters['fieldTypes']
+            && !GeneralUtility::inList($this->filters['fieldTypes'], $TCEformsCfg['config']['type'])
+            && !$this->bypassFilter
+        ) {
+            if ($this->verbose) {
+                $this->detailsOutput['fields'][$key] = 'Bypassing; fields of type "' . $TCEformsCfg['config']['type'] . '" was filtered out in ->filters[fieldTypes]';
+            }
+            $this->bypassFilter = false;
+            return;
+        }
+
+        if (!$this->filters['noEmptyValues'] || !(!$dataValue && !$translationValue)
+            || !empty($previewLanguageValues[key($previewLanguageValues)]) || $TCEformsCfg['labelField'] === $kFieldName
+        ) {
+            // Checking that no translation value exists either; if a translation value is found it is considered that it should be translated
+            // even if the default value is empty for some reason.
+            if (!$this->filters['noIntegers'] || !MathUtility::canBeInterpretedAsInteger($dataValue) || $this->bypassFilter) {
+                $this->detailsOutput['fields'][$key] = [
+                    'defaultValue' => $dataValue,
+                    'translationValue' => $translationValue,
+                    'diffDefaultValue' => $TCEformsCfg['l10n_display'] != 'hideDiff' ? $diffDefaultValue : '',
+                    'previewLanguageValues' => $previewLanguageValues,
+                    'msg' => $msg,
+                    'readOnly' => $TCEformsCfg['l10n_display'] == 'defaultAsReadonly',
+                    'fieldType' => $TCEformsCfg['config']['type'],
+                    'isRTE' => $this->_isRTEField($key, $TCEformsCfg, $contentRow)
+                ];
+            } elseif ($this->verbose) {
+                $this->detailsOutput['fields'][$key] = 'Bypassing; ->filters[noIntegers] was set and dataValue "' . $dataValue . '" was an integer';
+            }
         } elseif ($this->verbose) {
-            $this->detailsOutput['fields'][$key] = 'Bypassing; fields of type "flex" can only be translated in the context of an "ALL" language record';
+            $this->detailsOutput['fields'][$key] = 'Bypassing; ->filters[noEmptyValues] was set and dataValue "'
+                . $dataValue . '" was empty an field was no label field and no translation or alternative source language value found either.';
         }
         $this->bypassFilter = false;
     }
@@ -650,9 +690,9 @@ class Tools
                                 && $GLOBALS['TCA'][$tInfo['translation_table']]['ctrl']['transOrigDiffSourceField'] !== $field
                             ) {
                                 $key = $tInfo['translation_table'] . ':' . BackendUtility::wsMapId(
-                                    $tInfo['translation_table'],
-                                    $translationUID
-                                ) . ':' . $field;
+                                        $tInfo['translation_table'],
+                                        $translationUID
+                                    ) . ':' . $field;
                                 if ($cfg['config']['type'] == 'flex') {
                                     $dataStructArray = $this->_getFlexFormMetaDataForContentElement(
                                         $table,
