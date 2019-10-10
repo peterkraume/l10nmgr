@@ -135,10 +135,10 @@ class Tcemain
         if ($p[0] != 'pages') {
             $records = $this->getDatabaseConnection()->exec_SELECTgetRows('*', 'tx_l10nmgr_index',
                 'tablename=' . $this->getDatabaseConnection()->fullQuoteStr($p[0],
-                    'tx_l10nmgr_index') . ' AND recuid=' . (int)$p[1] . ' AND (translation_lang IN (' . $languageList . ') OR ' . $languageList . ' = 0)' . ' AND workspace=' . (int)$this->getBackendUser()->workspace);
+                    'tx_l10nmgr_index') . ' AND recuid=' . (int)$p[1] . ' AND translation_lang IN (' . $languageList . ') AND workspace=' . (int)$this->getBackendUser()->workspace);
         } else {
             $records = $this->getDatabaseConnection()->exec_SELECTgetRows('*', 'tx_l10nmgr_index',
-                'recpid=' . (int)$p[1] . ' AND (translation_lang IN (' . $languageList . ') OR ' . $languageList . ' = 0)' . ' AND workspace=' . (int)$this->getBackendUser()->workspace);
+                'recpid=' . (int)$p[1] . ' AND translation_lang IN (' . $languageList . ') AND workspace=' . (int)$this->getBackendUser()->workspace);
         }
         $flags = [];
         foreach ($records as $r) {
