@@ -150,4 +150,135 @@ class XmlTools
         }
         return $content;
     }
+
+    /**
+     * Parses XML input into a PHP array with associative keys
+     *
+     * @param string $string XML data input
+     * @param int $depth Number of element levels to resolve the XML into an array. Any further structure will be set as XML.
+     * @param array $parserOptions Options that will be passed to PHP's xml_parser_set_option()
+     * @return mixed The array with the parsed structure unless the XML parser returns with an error in which case the error message string is returned.
+     */
+    public static function xml2tree($string, $depth = 999, $parserOptions = [])
+    {
+        // Disables the functionality to allow external entities to be loaded when parsing the XML, must be kept
+        $previousValueOfEntityLoader = libxml_disable_entity_loader(true);
+        $parser = xml_parser_create();
+        $vals = [];
+        $index = [];
+        xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
+        xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 0);
+        foreach ($parserOptions as $option => $value) {
+            xml_parser_set_option($parser, $option, $value);
+        }
+        xml_parse_into_struct($parser, $string, $vals, $index);
+        libxml_disable_entity_loader($previousValueOfEntityLoader);
+        if (xml_get_error_code($parser)) {
+            return 'Line ' . xml_get_current_line_number($parser) . ': ' . xml_error_string(xml_get_error_code($parser));
+        }
+        xml_parser_free($parser);
+        $stack = [[]];
+        $stacktop = 0;
+        $startPoint = 0;
+        $tagi = [];
+        foreach ($vals as $key => $val) {
+            $type = $val['type'];
+            // open tag:
+            if ($type === 'open' || $type === 'complete') {
+                $stack[$stacktop++] = $tagi;
+                if ($depth == $stacktop) {
+                    $startPoint = $key;
+                }
+                $tagi = ['tag' => $val['tag']];
+                if (isset($val['attributes'])) {
+                    $tagi['attrs'] = $val['attributes'];
+                }
+                if (isset($val['value'])) {
+                    $tagi['values'][] = $val['value'];
+                }
+            }
+            // finish tag:
+            if ($type === 'complete' || $type === 'close') {
+                $oldtagi = $tagi;
+                $tagi = $stack[--$stacktop];
+                $oldtag = $oldtagi['tag'];
+                unset($oldtagi['tag']);
+                if ($depth == $stacktop + 1) {
+                    if ($key - $startPoint > 0) {
+                        $partArray = array_slice($vals, $startPoint + 1, $key - $startPoint - 1);
+                        $oldtagi['XMLvalue'] = self::xmlRecompileFromStructValArray($partArray);
+                    } else {
+                        $oldtagi['XMLvalue'] = $oldtagi['values'][0];
+                    }
+                }
+                $tagi['ch'][$oldtag][] = $oldtagi;
+                unset($oldtagi);
+            }
+            // cdata
+            if ($type === 'cdata') {
+                $tagi['values'][] = $val['value'];
+            }
+        }
+        return $tagi['ch'];
+    }
+
+    /**
+     * This implodes an array of XML parts (made with xml_parse_into_struct()) into XML again.
+     *
+     * @param array $vals An array of XML parts, see xml2tree
+     * @return string Re-compiled XML data.
+     */
+    protected static function xmlRecompileFromStructValArray(array $vals)
+    {
+        $XMLcontent = '';
+        $selfClosingTags = [
+            'area' => 1,
+            'base' => 1,
+            'br' => 1,
+            'col' => 1,
+            'command' => 1,
+            'hr' => 1,
+            'img' => 1,
+            'input' => 1,
+            'keygen' => 1,
+            'link' => 1,
+            'meta' => 1,
+            'param' => 1,
+            'source' => 1
+        ];
+        foreach ($vals as $val) {
+            $type = $val['type'];
+            // Open tag:
+            if ($type === 'open' || $type === 'complete') {
+                $XMLcontent .= '<' . $val['tag'];
+                if (isset($val['attributes'])) {
+                    foreach ($val['attributes'] as $k => $v) {
+                        $XMLcontent .= ' ' . $k . '="' . htmlspecialchars($v) . '"';
+                    }
+                }
+                if ($type === 'complete') {
+                    if (!isset($val['value']) && isset($selfClosingTags[$val['tag']])) {
+                        $XMLcontent .= '/>';
+                    } else {
+                        $XMLcontent .= '>' . htmlspecialchars($val['value']) . '</' . $val['tag'] . '>';
+                    }
+                } else {
+                    $XMLcontent .= '>';
+                }
+                if ($type === 'open' && isset($val['value'])) {
+                    $XMLcontent .= htmlspecialchars($val['value']);
+                }
+            }
+            // Finish tag:
+            if ($type === 'close') {
+                $XMLcontent .= '</' . $val['tag'] . '>';
+            }
+            // Cdata
+            if ($type === 'cdata') {
+                $XMLcontent .= htmlspecialchars($val['value']);
+            }
+        }
+        return $XMLcontent;
+    }
+
 }
