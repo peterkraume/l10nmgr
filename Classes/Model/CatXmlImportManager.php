@@ -19,6 +19,7 @@ namespace Localizationteam\L10nmgr\Model;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Localizationteam\L10nmgr\Model\Tools\XmlTools;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -77,7 +78,7 @@ class CatXmlImportManager
         global $LANG;
         
         $fileContent = GeneralUtility::getUrl($this->file);
-        $this->xmlNodes = GeneralUtility::xml2tree(str_replace('&nbsp;', '&#160;', $fileContent),
+        $this->xmlNodes = XmlTools::xml2tree(str_replace('&nbsp;', '&#160;', $fileContent),
             3); // For some reason PHP chokes on incoming  &nbsp; in XML!
         
         if (!is_array($this->xmlNodes)) {
@@ -145,7 +146,7 @@ class CatXmlImportManager
         global $LANG;
         
         $catXmlString = $this->xmlString;
-        $this->xmlNodes = GeneralUtility::xml2tree(str_replace('&nbsp;', '&#160;', $catXmlString),
+        $this->xmlNodes = XmlTools::xml2tree(str_replace('&nbsp;', '&#160;', $catXmlString),
             3); // For some reason PHP chokes on incoming &nbsp; in XML!
         
         if (!is_array($this->xmlNodes)) {

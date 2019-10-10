@@ -131,6 +131,12 @@ class TranslationDataFactory
                                     'l10nmgr');
                             }
                         }
+                        if (!empty($translation[$attrs['table']][$attrs['elementUid']][$attrs['key']])) {
+                            $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = str_replace([
+                                ' &gt; ',
+                                ' &lt; '
+                            ], [' > ', ' < '], $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']]);
+                        }
                     }
                 }
             }
@@ -174,7 +180,7 @@ class TranslationDataFactory
     {
         // Parse XML in a rude fashion:
         // Check if &nbsp; has to be substituted -> DOCTYPE -> entity?
-        $xmlNodes = GeneralUtility::xml2tree(str_replace('&nbsp;', '&#160;',
+        $xmlNodes = XmlTools::xml2tree(str_replace('&nbsp;', '&#160;',
             $fileContent)); // For some reason PHP chokes on incoming &nbsp; in XML!
         $translation = array();
         
@@ -246,7 +252,7 @@ class TranslationDataFactory
     {
         /** @var $parseHTML RteHtmlParser */
         $parseHTML = GeneralUtility::makeInstance(RteHtmlParser::class);
-        $xmlNodes = GeneralUtility::xml2tree(str_replace('&nbsp;', '&#160;', $fileContent),
+        $xmlNodes = XmlTools::xml2tree(str_replace('&nbsp;', '&#160;', $fileContent),
             2); // For some reason PHP chokes on incoming &nbsp; in XML!
         
         if (!is_array($xmlNodes)) {
