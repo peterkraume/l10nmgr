@@ -233,7 +233,7 @@ class Tools
                 }
                 if ((
                         GeneralUtility::inList('shortcut,shortcut_mode,urltype,url_scheme', $kFieldName)
-                        && $kTableName === 'pages'
+                        && $kTableName === 'pages,pages_language_overlay'
                     )
                     || $TCEformsCfg['labelField'] === $kFieldName
                 ) {
