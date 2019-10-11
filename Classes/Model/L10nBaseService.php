@@ -321,7 +321,7 @@ class L10nBaseService
                                 $data = GeneralUtility::callUserFunction($hookObj, $parameters, $this);
                             }
                         }
-                        if (is_array($data['fields'])) {
+                        if (is_array($data['fields']) && $elementUid) {
                             foreach ($data['fields'] as $key => $tData) {
                                 if (is_array($tData) && is_array($inputArray[$table][$elementUid]) && array_key_exists($key, $inputArray[$table][$elementUid])) {
                                     list($Ttable, $TuidString, $Tfield, $Tpath) = explode(':', $key);
@@ -426,7 +426,7 @@ class L10nBaseService
                         /** @var $relationHandler RelationHandler */
                         // integrators have to make sure to configure fields of parent elements properly
                         // so they will do translations of their children automatically when translated
-                        if (!empty($TCA[$table]['columns'])) {
+                        if (!empty($TCA[$table]['columns']) && $elementUid) {
                             foreach ($TCA[$table]['columns'] as $column => $setup) {
                                 $configuration = $setup['config'];
                                 if ($configuration['foreign_table']) {
