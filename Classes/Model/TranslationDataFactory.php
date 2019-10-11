@@ -129,7 +129,7 @@ class TranslationDataFactory
                             }
                         }
                         if (!empty($translation[$attrs['table']][$attrs['elementUid']][$attrs['key']])) {
-                            $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = str_replace([' &gt; ', ' &lt; '],[' > ', ' < '],$translation[$attrs['table']][$attrs['elementUid']][$attrs['key']]);
+                            $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = htmlspecialchars_decode($translation[$attrs['table']][$attrs['elementUid']][$attrs['key']]);
                         }
                     }
                 }
