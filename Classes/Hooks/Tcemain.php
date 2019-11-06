@@ -31,6 +31,7 @@ namespace Localizationteam\L10nmgr\Hooks;
 use Localizationteam\L10nmgr\Model\L10nBaseService;
 use Localizationteam\L10nmgr\Model\Tools\Tools;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
@@ -131,6 +132,7 @@ class Tcemain
     function calcStat($p, $languageList, $noLink = false)
     {
         $output = '';
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
 
         if ($p[0] != 'pages') {
             $records = $this->getDatabaseConnection()->exec_SELECTgetRows('*', 'tx_l10nmgr_index',
@@ -172,7 +174,7 @@ class Tcemain
                 $msg .= '[n/?/u/ok=' . implode('/', $flags) . ']';
                 $output = '<img src="../' . ExtensionManagementUtility::siteRelPath('l10nmgr') . 'Resources/Public/Images/flags_none.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
             }
-            $output = !$noLink ? '<a href="#" onclick="' . htmlspecialchars('parent.list_frame.location.href="' . $GLOBALS['BACK_PATH'] . ExtensionManagementUtility::siteRelPath('l10nmgr') . 'cm2/index.php?table=' . $p[0] . '&uid=' . $p[1] . '&languageList=' . rawurlencode($languageList) . '"; return false;') . '" target="listframe">' . $output . '</a>' : $output;
+            $output = !$noLink ? '<a href="#" onclick="' . htmlspecialchars('parent.list_frame.location.href="' . $uriBuilder->buildUriFromRoute('tx_l10nmgr_cm2', ['table' => $p[0], 'uid' => $p[1], 'languageList' => $languageList]) . '"; return false;') . '" target="listframe">' . $output . '</a>' : $output;
         }
         return $output;
     }

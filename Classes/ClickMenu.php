@@ -1,5 +1,4 @@
 <?php
-
 namespace Localizationteam\L10nmgr;
 
 /***************************************************************
@@ -26,11 +25,10 @@ namespace Localizationteam\L10nmgr;
  * @author Kasper Skårhøj <kasperYYYY@typo3.com>
  */
 
+use TYPO3\CMS\Backend\ContextMenu\ItemProviders\AbstractProvider;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Lang\LanguageService;
 
 /**
  * Context menu processing
@@ -39,110 +37,107 @@ use TYPO3\CMS\Lang\LanguageService;
  * @packageTYPO3
  * @subpackage tx_l10nmgr
  */
-class ClickMenu
+class ClickMenu extends AbstractProvider
 {
     /**
-     * @var LanguageService
+     * Array of items the class is providing
+     *
+     * @var array
      */
-    protected $languageService;
+    protected $itemsConfiguration = [
+        'tx_l10nmgr' => [
+            'type' => 'submenu',
+            'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang.xlf:cm1_title',
+            'iconIdentifier' => 'module-LocalizationManager',
+            'childItems' => [
+                'tx_l10nmgr_create' => [
+                    'type' => 'item',
+                    'label' => 'Create priority',
+                    'iconIdentifier' => 'actions-document-new',
+                    'callbackAction' => 'openUrl'
+                ],
+                'tx_l10nmgr_manage' => [
+                    'type' => 'item',
+                    'label' => 'Manage priorities',
+                    'iconIdentifier' => 'actions-document',
+                    'callbackAction' => 'openUrl'
+                ],
+                'tx_l10nmgr_flush' => [
+                    'type' => 'item',
+                    'label' => 'Flush Translations',
+                    'iconIdentifier' => 'actions-system-cache-clear',
+                    'callbackAction' => 'openUrl'
+                ],
+            ]
+        ]
+    ];
 
     /**
-     * Main function
+     * This needs to be lower than priority of the RecordProvider
      *
-     * @param $backRef
-     * @param $menuItems
-     * @param $table
-     * @param $uid
-     * @return array [type]...
-     * @internal param $ [type]$$backRef: ...
-     * @internal param $ [type]$menuItems: ...
-     * @internal param $ [type]$table: ...
-     * @internal param $ [type]$uid: ...
-     *
+     * @return int
      */
-    public function main(&$backRef, $menuItems, $table, $uid)
+    public function getPriority(): int
     {
-        $localItems = [];
-        if (!$backRef->cmLevel) {
-            // Returns directly, because the clicked item was not from the pages table
-            if ($table == "tx_l10nmgr_cfg") {
-                // Adds the regular item:
-                $LL = $this->includeLL();
-                // Repeat this (below) for as many items you want to add!
-                // Remember to add entries in the localconf.php file for additional titles.
-                $url = BackendUtility::getModuleUrl(
-                    'ConfigurationManager_LocalizationManager',
-                    [
-                        'id'        => $backRef->rec['pid'],
-                        'srcPID'    => $backRef->rec['pid'],
-                        'exportUID' => $uid,
-                    ]
-                );
-                $localItems[] = $backRef->linkItem($this->getLanguageService()->getLLL("cm1_title", $LL),
-                    $backRef->excludeIcon('<img src="' . ExtensionManagementUtility::siteRelPath("l10nmgr") . 'cm1/cm_icon.gif" width="15" height="12" border="0" align="top" />'),
-                    $backRef->urlRefForCM($url),
-                    1 // Disables the item in the top-bar. Set this to zero if you with the item to appear in the top bar!
-                );
-            }
-            $localItems["moreoptions_tx_l10nmgr_cm3"] = $backRef->linkItem('L10Nmgr tools', '',
-                "top.loadTopMenu('" . GeneralUtility::linkThisScript() . "&cmLevel=1&subname=moreoptions_tx_l10nmgrXX_cm3');return false;",
-                0, 1);
-            // Simply merges the two arrays together and returns ...
-            $menuItems = array_merge($menuItems, $localItems);
-        } elseif (GeneralUtility::_GET('subname') == 'moreoptions_tx_l10nmgrXX_cm3') {
-            $url = BackendUtility::getModuleUrl('LocalizationManager_TranslationTasks',
-                [
-                    'id'    => $backRef->rec['pid'],
-                    'table' => $table,
-                ]
+        return 10;
+    }
+
+    /**
+     * Whether this provider can handle given request (usually a check based on table, uid and context)
+     *
+     * @return bool
+     */
+    public function canHandle(): bool
+    {
+        return $this->backendUser->isAdmin() &&
+            ($this->table === 'pages' || BackendUtility::isTableLocalizable($this->table));
+    }
+
+    /**
+     * Checks whether certain item can be rendered (e.g. check for disabled items or permissions)
+     *
+     * @param string $itemName
+     * @param string $type
+     * @return bool
+     */
+    protected function canRender(string $itemName, string $type): bool
+    {
+        return true;
+    }
+
+    /**
+     * Add module url to attributes
+     *
+     * @param string $itemName
+     * @return array
+     * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
+     */
+    protected function getAdditionalAttributes(string $itemName): array
+    {
+        $attributes = [
+            'data-callback-module' => 'TYPO3/CMS/L10nmgr/ContextMenuActions',
+        ];
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $command = '';
+        switch ($itemName) {
+            case 'tx_l10nmgr_create':
+                $command = 'createPriority';
+                break;
+            case 'tx_l10nmgr_manage':
+                $command = 'managePriorities';
+                break;
+            case 'tx_l10nmgr_flush':
+                $command = 'flushTranslations';
+                break;
+        }
+
+        if ($command !== '') {
+            $attributes['data-url'] = (string)$uriBuilder->buildUriFromRoute(
+                'tx_l10nmgr_cm3',
+                ['table' => $this->table, 'id' => $this->identifier, 'cmd' => $command],
+                UriBuilder::ABSOLUTE_URL
             );
-            $localItems[] = $backRef->linkItem('Create priority', '',
-                $backRef->urlRefForCM($url . '&cmd=createPriority'), 1);
-            $localItems[] = $backRef->linkItem('Manage priorities', '',
-                $backRef->urlRefForCM($url . '&cmd=managePriorities'), 1);
-            $localItems[] = $backRef->linkItem('Update Index', '', $backRef->urlRefForCM($url . '&cmd=updateIndex'), 1);
-            $localItems[] = $backRef->linkItem('Flush Translations', '',
-                $backRef->urlRefForCM($url . '&cmd=flushTranslations'), 1);
-            $menuItems = array_merge($menuItems, $localItems);
         }
-        return $menuItems;
-    }
-
-    /**
-     * Reads the [extDir]/locallang.xml and returns the $LOCAL_LANG array found in that file.
-     *
-     * @return array Local lang value.
-     */
-    protected function includeLL()
-    {
-        $LOCAL_LANG = $this->getLanguageService()->includeLLFile('EXT:l10nmgr/Resources/Private/Language/locallang.xml',
-            false);
-        return $LOCAL_LANG;
-    }
-
-    /**
-     * setter for databaseConnection object
-     *
-     * @return LanguageService $languageService
-     */
-    protected function getLanguageService()
-    {
-        if (!$this->languageService instanceof LanguageService) {
-            $this->languageService = GeneralUtility::makeInstance(LanguageService::class);
-        }
-        if ($this->getBackendUser()) {
-            $this->languageService->init($this->getBackendUser()->uc['lang']);
-        }
-        return $this->languageService;
-    }
-
-    /**
-     * Gets the current backend user.
-     *
-     * @return BackendUserAuthentication
-     */
-    protected function getBackendUser()
-    {
-        return $GLOBALS['BE_USER'];
+        return $attributes;
     }
 }

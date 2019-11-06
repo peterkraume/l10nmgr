@@ -1,5 +1,6 @@
 <?php
 namespace Localizationteam\L10nmgr\Controller;
+
 /***************************************************************
  * Copyright notice
  * (c) 2007 Kasper Skårhøj <kasperYYYY@typo3.com>
@@ -25,10 +26,14 @@ namespace Localizationteam\L10nmgr\Controller;
  */
 
 use Localizationteam\L10nmgr\Model\Tools\Tools;
-use TYPO3\CMS\Backend\Module\BaseScriptClass;
-use TYPO3\CMS\Backend\Template\DocumentTemplate;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Database\DatabaseConnection;
+use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Lang\LanguageService;
 
@@ -39,14 +44,14 @@ use TYPO3\CMS\Lang\LanguageService;
  * @packageTYPO3
  * @subpackage tx_l10nmgr
  */
-class Cm2 extends BaseScriptClass
+class Cm2
 {
     /**
      * @var LanguageService
      */
     protected $languageService;
     /**
-     * @var DocumentTemplate
+     * @var ModuleTemplate
      */
     protected $module;
     /**
@@ -59,11 +64,17 @@ class Cm2 extends BaseScriptClass
     protected $sysLanguages;
 
     /**
-     * main action to be registered in ext_tables.php
+     * Generally used for accumulating the output content of backend modules
+     *
+     * @var string
+     */
+    protected $content = '';
+
+    /**
+     * main action to be registered in "Configuration/Backend/Routes.php"
      */
     public function mainAction()
     {
-        $this->init();
         $this->main();
         $this->printContent();
     }
@@ -75,27 +86,24 @@ class Cm2 extends BaseScriptClass
      */
     protected function main()
     {
-        global $BACK_PATH;
         // Draw the header.
-        $this->module = GeneralUtility::makeInstance(DocumentTemplate::class);
-        $this->module->backPath = $BACK_PATH;
-        $this->module->form = '<form action="" method="post" enctype="multipart/form-data">';
+        $this->module = GeneralUtility::makeInstance(ModuleTemplate::class);
+        $this->module->setForm('<form action="" id="tx_l10nmgr_cm2" method="post" enctype="multipart/form-data">');
         // JavaScript
-        $this->module->JScode = '
-	<script language="javascript" type="text/javascript">
+        $this->module->addJavaScriptCode('
 	script_ended = 0;
 	function jumpToUrl(URL)	{
 	document.location = URL;
 	}
-	</script>
-	';
+	');
         // Header:
-        $this->content .= $this->module->startPage($this->getLanguageService()->getLL('title'));
         $this->content .= $this->module->header($this->getLanguageService()->getLL('title'));
         $this->content .= '<hr />';
         // Render the module content (for all modes):
-        $this->content .= '<div class="bottomspace10">' . $this->moduleContent((string)GeneralUtility::_GP('table'),
-                (int)GeneralUtility::_GP('uid')) . '</div>';
+        $this->content .= '<div class="bottomspace10">' . $this->moduleContent(
+                (string)GeneralUtility::_GP('table'),
+                (int)GeneralUtility::_GP('uid')
+            ) . '</div>';
     }
 
     /**
@@ -115,11 +123,11 @@ class Cm2 extends BaseScriptClass
             $this->l10nMgrTools = GeneralUtility::makeInstance(Tools::class);
             $this->l10nMgrTools->verbose = false; // Otherwise it will show records which has fields but none editable.
             if (GeneralUtility::_POST('_updateIndex')) {
-                $output .= $this->l10nMgrTools->updateIndexForRecord($table, $uid);
+                $output .= '<div class="alert alert-success">' . $this->l10nMgrTools->updateIndexForRecord($table, $uid) . '</div>';
                 BackendUtility::setUpdateSignal('updatePageTree');
             }
             $inputRecord = BackendUtility::getRecord($table, $uid, 'pid');
-            $pathShown = BackendUtility::getRecordPath($table == 'pages' ? $uid : $inputRecord['pid'], '', 20);
+            $this->module->getDocHeaderComponent()->setMetaInformation(BackendUtility::readPageAccess($table == 'pages' ? $uid : $inputRecord['pid'], ' 1=1'));
             $this->sysLanguages = $this->l10nMgrTools->t8Tools->getSystemLanguages($table == 'pages' ? $uid : $inputRecord['pid']);
             $languageListArray = explode(',',
                 $this->getBackendUser()->groupData['allowed_languages'] ? $this->getBackendUser()->groupData['allowed_languages'] : implode(',',
@@ -148,14 +156,14 @@ class Cm2 extends BaseScriptClass
             //	\TYPO3\CMS\Core\Utility\GeneralUtility::debugRows($records,'Index entries for '.$table.':'.$uid);
             $tRows = [];
             $tRows[] = '<tr class="bgColor2 tableheader">
-	<td colspan="2">Base element:</td>
-	<td colspan="2">Translation:</td>
-	<td>Action:</td>
-	<td><img src="../flags_new.png" width="10" height="16" alt="New" title="New" /></td>
-	<td><img src="../flags_unknown.png" width="10" height="16" alt="Unknown" title="Unknown" /></td>
-	<td><img src="../flags_update.png" width="10" height="16" alt="Update" title="Update" /></td>
-	<td><img src="../flags_ok.png" width="10" height="16" alt="OK" title="OK" /></td>
-	<td>Diff:</td>
+	<th colspan="2">Base element:</th>
+	<th colspan="2">Translation:</th>
+	<th>Action:</th>
+	<th><img src="../' . ExtensionManagementUtility::siteRelPath('l10nmgr') . '/Resources/Public/Images/flags_new.png" width="10" height="16" alt="New" title="New" /></th>
+	<th><img src="../' . ExtensionManagementUtility::siteRelPath('l10nmgr') . '/Resources/Public/Images/flags_unknown.png" width="10" height="16" alt="Unknown" title="Unknown" /></th>
+	<th><img src="../' . ExtensionManagementUtility::siteRelPath('l10nmgr') . '/Resources/Public/Images/flags_update.png" width="10" height="16" alt="Update" title="Update" /></th>
+	<th><img src="../' . ExtensionManagementUtility::siteRelPath('l10nmgr') . '/Resources/Public/Images/flags_ok.png" width="10" height="16" alt="OK" title="OK" /></th>
+	<th>Diff:</th>
 	</tr>';
             //\TYPO3\CMS\Core\Utility\GeneralUtility::debugRows($records);
             foreach ($records as $rec) {
@@ -164,25 +172,69 @@ class Cm2 extends BaseScriptClass
                 }
             }
             if (count($tRows) > 1) {
-                $tRows[] = '<tr><td colspan="8">&nbsp;</td></tr>';
+                $tRows[] = '<tr><td colspan="10">&nbsp;</td></tr>';
             }
             foreach ($records as $rec) {
                 if ($rec['tablename'] != 'pages') {
                     $tRows[] = $this->makeTableRow($rec);
                 }
             }
-            $output .= 'Path: <i>' . $pathShown . '</i><br /><table border="0" cellpadding="1" cellspacing="1">' . implode('',
-                    $tRows) . '</table>';
+            $output .= '<div class="table-fit"><table class="table table-striped table-hover">' . implode('',
+                    $tRows) . '</table></div>';
             // Updating index
             if ($this->getBackendUser()->isAdmin()) {
-                $output .= '<br /><br />Functions for "' . $table . ':' . $uid . '":<br />
-	<input type="submit" name="_updateIndex" value="Update Index" /><br />
-	<input type="submit" name="_" value="Flush Translations" onclick="' . htmlspecialchars('document.location="../cm3/index.php?table=' . htmlspecialchars($table) . '&id=' . (int)$uid . '&cmd=flushTranslations";return false;') . '"/><br />
-	<input type="submit" name="_" value="Create priority" onclick="' . htmlspecialchars('document.location="' . $GLOBALS['BACK_PATH'] . 'alt_doc.php?returnUrl=' . rawurlencode('db_list.php?id=0&table=tx_l10nmgr_priorities') . '&edit[tx_l10nmgr_priorities][0]=new&defVals[tx_l10nmgr_priorities][element]=' . rawurlencode($table . '_' . $uid) . '";return false;') . '"/><br />
-	';
+                $this->addDocHeaderButtons($table, $uid);
             }
         }
         return $output;
+    }
+
+    /**
+     * Add doc header button "Update index", "Flush translations" and "Create priority"
+     *
+     * @param string $table
+     * @param int $uid
+     * @return void
+     */
+    protected function addDocHeaderButtons($table, $uid)
+    {
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $buttonBar = $this->module->getDocHeaderComponent()->getButtonBar();
+        $buttonBar->addButton(
+            $buttonBar->makeInputButton()->setForm('tx_l10nmgr_cm2')
+                ->setName('_updateIndex')
+                ->setTitle('Update Index')
+                ->setValue('Update Index')
+                ->setShowLabelText(true)
+                ->setIcon($this->module->getIconFactory()->getIcon('actions-refresh', Icon::SIZE_SMALL))
+        );
+        $buttonBar->addButton(
+            $buttonBar->makeLinkButton()->setTitle('Flush Translations')
+                ->setShowLabelText(true)
+                ->setHref($uriBuilder->buildUriFromRoute(
+                    'tx_l10nmgr_cm3',
+                    ['table' => $table, 'id' => $uid, 'cmd' => 'flushTranslations']
+                ))
+                ->setIcon($this->module->getIconFactory()->getIcon('actions-system-cache-clear', Icon::SIZE_SMALL))
+        );
+        $buttonBar->addButton(
+            $buttonBar->makeLinkButton()->setTitle('Create priority')
+                ->setShowLabelText(true)
+                ->setHref(BackendUtility::getModuleUrl('record_edit', [
+                    'edit' => [
+                        'tx_l10nmgr_priorities' => [
+                            0 => 'new'
+                        ]
+                    ],
+                    'defVals' => [
+                        'tx_l10nmgr_priorities' => [
+                            'element' => $table . '_' . $uid
+                        ]
+                    ],
+                    'returnUrl' => BackendUtility::getModuleUrl('web_list', ['id' => 0, 'table' => 'tx_l10nmgr_priorities'])
+                ]))
+                ->setIcon($this->module->getIconFactory()->getIcon('actions-document-new', Icon::SIZE_SMALL))
+        );
     }
 
     /**
@@ -197,37 +249,36 @@ class Cm2 extends BaseScriptClass
     {
         //Render information for base record:
         $baseRecord = BackendUtility::getRecordWSOL($rec['tablename'], $rec['recuid']);
-        $icon = GeneralUtility::makeInstance(IconFactory::class)->getIconForRecord($rec['tablename'], $baseRecord);
+        if (!is_array($baseRecord)) {
+            // Base record not exist. Return empty row
+            return '';
+        }
+        $icon = $this->module->getIconFactory()->getIconForRecord($rec['tablename'], $baseRecord);
         $title = BackendUtility::getRecordTitle($rec['tablename'], $baseRecord, 1);
-        $baseRecordFlag = '<img src="' . htmlspecialchars($GLOBALS['BACK_PATH'] . $this->sysLanguages[$rec['sys_language_uid']]['flagIcon']) . '" alt="" title="" />';
-        $tFlag = '<img src="' . htmlspecialchars($GLOBALS['BACK_PATH'] . $this->sysLanguages[$rec['translation_lang']]['flagIcon']) . '" alt="' . htmlspecialchars($this->sysLanguages[$rec['translation_lang']]['title']) . '" title="' . htmlspecialchars($this->sysLanguages[$rec['translation_lang']]['title']) . '" />';
-        $baseRecordStr = '<a href="#" onclick="' . htmlspecialchars(BackendUtility::editOnClick('&edit[' . $rec['tablename'] . '][' . $rec['recuid'] . ']=edit',
-                $this->module->backPath)) . '">' . $icon . $title . '</a>';
+        $baseRecordFlag = $this->module->getIconFactory()->getIcon($this->sysLanguages[$rec['sys_language_uid']]['flagIcon'], Icon::SIZE_SMALL)->render();
+        $tFlag = $this->module->getIconFactory()->getIcon($this->sysLanguages[$rec['translation_lang']]['flagIcon'], Icon::SIZE_SMALL)->render();
+        $baseRecordStr = '<a href="#" onclick="' . htmlspecialchars(BackendUtility::editOnClick('&edit[' . $rec['tablename'] . '][' . $rec['recuid'] . ']=edit')) . '">' . $icon . $title . '</a>';
         // Render for translation if any:
         $translationTable = '';
         $translationRecord = false;
         if ($rec['translation_recuid']) {
             $translationTable = $this->l10nMgrTools->t8Tools->getTranslationTable($rec['tablename']);
             $translationRecord = BackendUtility::getRecordWSOL($translationTable, $rec['translation_recuid']);
-            $icon = GeneralUtility::makeInstance(IconFactory::class)->getIconForRecord($translationTable,
-                $translationRecord);
+            $icon = GeneralUtility::makeInstance(IconFactory::class)->getIconForRecord($translationTable, $translationRecord);
             $title = BackendUtility::getRecordTitle($translationTable, $translationRecord, 1);
-            $translationRecStr = '<a href="#" onclick="' . htmlspecialchars(BackendUtility::editOnClick('&edit[' . $translationTable . '][' . $translationRecord['uid'] . ']=edit',
-                    $this->module->backPath)) . '">' . $icon . $title . '</a>';
+            $translationRecStr = '<a href="#" onclick="' . htmlspecialchars(BackendUtility::editOnClick('&edit[' . $translationTable . '][' . $translationRecord['uid'] . ']=edit')) . '">' . $icon . $title . '</a>';
         } else {
             $translationRecStr = '';
         }
         // Action:
         if (is_array($translationRecord)) {
-            $action = '<a href="#" onclick="' . htmlspecialchars(BackendUtility::editOnClick('&edit[' . $translationTable . '][' . $translationRecord['uid'] . ']=edit',
-                    $this->module->backPath)) . '"><em>[Edit]</em></a>';
+            $action = '<a href="#" onclick="' . htmlspecialchars(BackendUtility::editOnClick('&edit[' . $translationTable . '][' . $translationRecord['uid'] . ']=edit')) . '"><em>[Edit]</em></a>';
         } elseif ($rec['sys_language_uid'] == -1) {
-            $action = '<a href="#" onclick="' . htmlspecialchars(BackendUtility::editOnClick('&edit[' . $rec['tablename'] . '][' . $rec['recuid'] . ']=edit',
-                    $this->module->backPath)) . '"><em>[Edit]</em></a>';
+            $action = '<a href="#" onclick="' . htmlspecialchars(BackendUtility::editOnClick('&edit[' . $rec['tablename'] . '][' . $rec['recuid'] . ']=edit')) . '"><em>[Edit]</em></a>';
         } else {
             $action = '<a href="' . htmlspecialchars(BackendUtility::getLinkToDataHandlerAction('&cmd[' . $rec['tablename'] . '][' . $rec['recuid'] . '][localize]=' . $rec['translation_lang'])) . '"><em>[Localize]</em></a>';
         }
-        return '<tr class="bgColor4-20">
+        return '<tr>
 	<td valign="top">' . $baseRecordFlag . '</td>
 	<td valign="top" nowrap="nowrap">' . $baseRecordStr . '</td>
 	<td valign="top">' . $tFlag . '</td>
@@ -248,19 +299,34 @@ class Cm2 extends BaseScriptClass
      */
     protected function printContent()
     {
-        $this->content .= $this->module->endPage();
-        echo $this->content;
+        $this->module->setContent($this->content);
+        echo $this->module->renderContent();
     }
 
     /**
-     * Adds items to the ->MOD_MENU array. Used for the function menu selector.
-     *
-     * @return void
+     * Returns the Language Service
+     * @return LanguageService
      */
-    public function menuConfig()
+    protected function getLanguageService()
     {
-        parent::menuConfig();
+        return $GLOBALS['LANG'];
+    }
+
+    /**
+     * Returns the Backend User
+     * @return BackendUserAuthentication
+     */
+    protected function getBackendUser()
+    {
+        return $GLOBALS['BE_USER'];
+    }
+
+    /**
+     * @return DatabaseConnection
+     * @deprecated since TYPO3 v8, will be removed in TYPO3 v9, use the Doctrine DBAL layer via the ConnectionPool class
+     */
+    protected function getDatabaseConnection()
+    {
+        return $GLOBALS['TYPO3_DB'];
     }
 }
-
-?>

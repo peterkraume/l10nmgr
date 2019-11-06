@@ -71,9 +71,7 @@ class L10nHtmlListView extends AbstractExportView
      */
     public function __construct($l10ncfgObj, $sysLang)
     {
-        global $BACK_PATH;
         $this->module = GeneralUtility::makeInstance(DocumentTemplate::class);
-        $this->module->backPath = $BACK_PATH;
         parent::__construct($l10ncfgObj, $sysLang);
     }
 
