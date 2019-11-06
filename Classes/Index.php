@@ -57,11 +57,11 @@ class Index extends CleanerCommand
     /**
      * @var bool
      */
-    protected $genTree_traverseDeleted = false;
+    public $genTree_traverseDeleted = false;
     /**
      * @var bool
      */
-    protected $genTree_traverseVersions = false;
+    public $genTree_traverseVersions = false;
     /**
      * @var array Extension's configuration as from the EM
      */
@@ -76,7 +76,7 @@ class Index extends CleanerCommand
      *
      * @return void
      */
-    public function Index()
+    public function __construct()
     {
         // Load the extension's configuration
         $this->extensionConfiguration = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['l10nmgr']);
@@ -183,7 +183,7 @@ Traversing page tree and building an index of translation needs
                         $this->disallowDoktypes) && !isset($excludeIndex['pages:' . $pageId])
                 ) {
                     $accum['header']['title'] = $pageRecord['title'];
-                    $accum['items'] = $t8Tools->indexDetailsPage($pageId);
+                    $accum['items'] = $t8Tools->indexDetailsPage($pageId, null);
                     $this->resultArray['index'][$uid] = $accum;
                 }
             } else {
