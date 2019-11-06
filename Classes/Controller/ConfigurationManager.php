@@ -131,8 +131,6 @@ class ConfigurationManager extends BaseScriptClass
      */
     public function main()
     {
-        // Get a template instance and load the template
-        $this->moduleTemplate->backPath = $GLOBALS['BACK_PATH'];
         // NOTE: this module uses the same template as the CM1 module
         $this->moduleTemplate->form = '<form action="" method="POST">';
         // Get the actual content

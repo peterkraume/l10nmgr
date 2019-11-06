@@ -1,5 +1,7 @@
 <?php
-namespace Localizationteam\L10nmgr\Controller\Cm3;
+
+namespace Localizationteam\L10nmgr\Controller;
+
 /***************************************************************
  * Copyright notice
  * (c) 2007 Kasper Skårhøj <kasperYYYY@typo3.com>
@@ -25,11 +27,13 @@ namespace Localizationteam\L10nmgr\Controller\Cm3;
  */
 
 use Localizationteam\L10nmgr\Model\Tools\Tools;
-use TYPO3\CMS\Backend\Module\BaseScriptClass;
-use TYPO3\CMS\Backend\Template\DocumentTemplate;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\HttpUtility;
+use TYPO3\CMS\Lang\LanguageService;
 
 /**
  * Translation management tool
@@ -38,10 +42,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @packageTYPO3
  * @subpackage tx_l10nmgr
  */
-class Cm3 extends BaseScriptClass
+class Cm3
 {
     /**
-     * @var DocumentTemplate
+     * @var ModuleTemplate
      */
     protected $module;
     /**
@@ -50,13 +54,19 @@ class Cm3 extends BaseScriptClass
     protected $l10nMgrTools;
 
     /**
-     * Adds items to the ->MOD_MENU array. Used for the function menu selector.
+     * Generally used for accumulating the output content of backend modules
      *
-     * @return void
+     * @var string
      */
-    public function menuConfig()
+    protected $content = '';
+
+    /**
+     * main action to be registered in "Configuration/Backend/Routes.php"
+     */
+    public function mainAction()
     {
-        parent::menuConfig();
+        $this->main();
+        $this->printContent();
     }
 
     /**
@@ -66,27 +76,25 @@ class Cm3 extends BaseScriptClass
      */
     public function main()
     {
-        global $BACK_PATH;
         // Draw the header.
-        $this->module = GeneralUtility::makeInstance(DocumentTemplate::class);
-        $this->module->backPath = $BACK_PATH;
-        $this->module->form = '<form action="" method="post" enctype="multipart/form-data">';
+        $this->module = GeneralUtility::makeInstance(ModuleTemplate::class);
+        $this->module->setForm('<form action="" method="post" enctype="multipart/form-data">');
         // JavaScript
-        $this->module->JScode = '
-	<script language="javascript" type="text/javascript">
+        $this->module->addJavaScriptCode('
 	script_ended = 0;
 	function jumpToUrl(URL)	{
 	document.location = URL;
 	}
-	</script>
-	';
+	');
         // Header:
-        $this->content .= $this->module->startPage($this->getLanguageService()->getLL('title'));
         $this->content .= $this->module->header($this->getLanguageService()->getLL('title'));
         $this->content .= '<hr />';
         // Render the module content (for all modes):
-        $this->content .= '<div class="bottomspace10">' . $this->moduleContent((string)GeneralUtility::_GP('table'),
-                (int)GeneralUtility::_GP('id'), GeneralUtility::_GP('cmd')) . '</div>';
+        $this->content .= '<div class="bottomspace10">' . $this->moduleContent(
+                (string)GeneralUtility::_GP('table'),
+                (int)GeneralUtility::_GP('id'),
+                GeneralUtility::_GP('cmd')
+            ) . '</div>';
     }
 
     /**
@@ -104,6 +112,10 @@ class Cm3 extends BaseScriptClass
     {
         $output = '';
         if ($GLOBALS['TCA'][$table]) {
+            $inputRecord = BackendUtility::getRecord($table, $uid, 'pid');
+            $this->module->getDocHeaderComponent()->setMetaInformation(BackendUtility::readPageAccess($table == 'pages' ? $uid : $inputRecord['pid'],
+                ' 1=1'));
+
             $this->l10nMgrTools = GeneralUtility::makeInstance(Tools::class);
             $this->l10nMgrTools->verbose = false; // Otherwise it will show records which has fields but none editable.
             switch ((string)$cmd) {
@@ -113,8 +125,11 @@ class Cm3 extends BaseScriptClass
                     break;
                 case 'flushTranslations':
                     if ($this->getBackendUser()->isAdmin()) {
-                        $res = $this->l10nMgrTools->flushTranslations($table, $uid,
-                            GeneralUtility::_POST('_flush') ? true : false);
+                        $res = $this->l10nMgrTools->flushTranslations(
+                            $table,
+                            $uid,
+                            GeneralUtility::_POST('_flush') ? true : false
+                        );
                         if (!GeneralUtility::_POST('_flush')) {
                             $output .= 'To flush the translations shown below, press the "Flush" button below:<br /><input type="submit" name="_flush" value="FLUSH" /><br /><br />';
                         } else {
@@ -122,16 +137,34 @@ class Cm3 extends BaseScriptClass
                         }
                         $output .= DebugUtility::viewArray($res[0]);
                         if (GeneralUtility::_POST('_flush')) {
-                            $output .= $this->l10nMgrTools->updateIndexForRecord($table, $uid);
+                            $output .= '<div class="alert alert-success">' . $this->l10nMgrTools->updateIndexForRecord($table,
+                                    $uid) . '</div>';
                             BackendUtility::setUpdateSignal('updatePageTree');
                         }
                     }
                     break;
                 case 'createPriority':
-                    header('Location: ' . GeneralUtility::locationHeaderUrl($GLOBALS['BACK_PATH'] . 'alt_doc.php?returnUrl=' . rawurlencode('db_list.php?id=0&table=tx_l10nmgr_priorities') . '&edit[tx_l10nmgr_priorities][0]=new&defVals[tx_l10nmgr_priorities][element]=' . rawurlencode($table . '_' . $uid)));
+                    HttpUtility::redirect(
+                        BackendUtility::getModuleUrl('record_edit', [
+                            'edit' => [
+                                'tx_l10nmgr_priorities' => [
+                                    0 => 'new'
+                                ]
+                            ],
+                            'defVals' => [
+                                'tx_l10nmgr_priorities' => [
+                                    'element' => $table . '_' . $uid
+                                ]
+                            ],
+                            'returnUrl' => BackendUtility::getModuleUrl('web_list',
+                                ['id' => 0, 'table' => 'tx_l10nmgr_priorities'])
+                        ])
+                    );
                     break;
                 case 'managePriorities':
-                    header('Location: ' . GeneralUtility::locationHeaderUrl($GLOBALS['BACK_PATH'] . 'db_list.php?id=0&table=tx_l10nmgr_priorities'));
+                    HttpUtility::redirect(
+                        BackendUtility::getModuleUrl('web_list', ['id' => 0, 'table' => 'tx_l10nmgr_priorities'])
+                    );
                     break;
             }
         }
@@ -145,15 +178,27 @@ class Cm3 extends BaseScriptClass
      */
     public function printContent()
     {
-        $this->content .= $this->module->endPage();
-        echo $this->content;
+        $this->module->setContent($this->content);
+        echo $this->module->renderContent();
+    }
+
+    /**
+     * Returns the Backend User
+     *
+     * @return BackendUserAuthentication
+     */
+    protected function getBackendUser()
+    {
+        return $GLOBALS['BE_USER'];
+    }
+
+    /**
+     * Returns the Language Service
+     *
+     * @return LanguageService
+     */
+    protected function getLanguageService()
+    {
+        return $GLOBALS['LANG'];
     }
 }
-
-// Make instance:
-/** @var Cm3 $SOBE */
-$SOBE = GeneralUtility::makeInstance(Cm3::class);
-$SOBE->init();
-$SOBE->main();
-$SOBE->printContent();
-?>

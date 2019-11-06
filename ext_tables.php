@@ -52,10 +52,7 @@ if (TYPO3_MODE == "BE") {
             'labels'      => 'LLL:EXT:l10nmgr/Resources/Private/Language/Modules/Module2/locallang_mod.xlf',
         ]);
 
-    $GLOBALS["TBE_MODULES_EXT"]["xMOD_alt_clickmenu"]["extendCMclasses"][] = [
-        "name" => "Localizationteam\\L10nmgr\\ClickMenu",
-        "path" => $extPath . "Classes/ClickMenu.php",
-    ];
+    $GLOBALS['TYPO3_CONF_VARS']['BE']['ContextMenu']['ItemProviders'][1571991892] = \Localizationteam\L10nmgr\ClickMenu::class;
 
     // Add context sensitive help (csh) for the Scheduler tasks
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('_tasks_txl10nmgr',

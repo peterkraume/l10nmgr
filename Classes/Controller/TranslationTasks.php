@@ -1,5 +1,6 @@
 <?php
 namespace Localizationteam\L10nmgr\Controller;
+
 /***************************************************************
  * Copyright notice
  * (c) 2007 Kasper Skårhøj <kasperYYYY@typo3.com>
@@ -27,16 +28,17 @@ namespace Localizationteam\L10nmgr\Controller;
 use Localizationteam\L10nmgr\Hooks\Tcemain;
 use Localizationteam\L10nmgr\Model\Tools\Tools;
 use TYPO3\CMS\Backend\Module\BaseScriptClass;
-use TYPO3\CMS\Backend\Template\DocumentTemplate;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class TranslationTasks extends BaseScriptClass
 {
     /**
-     * @var DocumentTemplate
+     * @var ModuleTemplate
      */
     protected $module;
     /**
@@ -73,24 +75,17 @@ class TranslationTasks extends BaseScriptClass
     public function main()
     {
         // Draw the header.
-        $this->module = GeneralUtility::makeInstance(DocumentTemplate::class);
-        $this->module->backPath = $GLOBALS['BACK_PATH'];
-        $this->module->form = '<form action="" method="post">';
+        $this->module = GeneralUtility::makeInstance(ModuleTemplate::class);
+        $this->module->setForm('<form action="" method="post">');
         // JavaScript
-        $this->module->JScode = '
-	<script language="javascript" type="text/javascript">
+        $this->module->addJavaScriptCode('
 	script_ended = 0;
 	function jumpToUrl(URL)	{
 	document.location = URL;
 	}
-	</script>
-	';
+	');
         // Setting up the context sensitive menu:
-        $CMparts = $this->module->getContextMenuCode();
-        $this->module->JScode .= $CMparts[0];
-        $this->module->bodyTagAdditions = $CMparts[1];
-        $this->module->postCode .= $CMparts[2];
-        $this->content .= $this->module->startPage($this->getLanguageService()->getLL("title"));
+        $this->module->getPageRenderer()->loadRequireJsModule('TYPO3/CMS/Backend/ContextMenu');
         $this->content .= $this->module->header($this->getLanguageService()->getLL("title"));
         $this->content .= '<div class="topspace5"></div>';
         // Render content:
@@ -143,6 +138,7 @@ class TranslationTasks extends BaseScriptClass
         $firstEl = current($elements);
         /** @var Tcemain $hookObj */
         $hookObj = GeneralUtility::makeInstance(Tcemain::class);
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
         $this->l10nMgrTools = GeneralUtility::makeInstance(Tools::class);
         $this->l10nMgrTools->verbose = false; // Otherwise it will show records which has fields but none editable.
         $inputRecord = BackendUtility::getRecord($firstEl[0], $firstEl[1], 'pid');
@@ -154,7 +150,8 @@ class TranslationTasks extends BaseScriptClass
             $cells = '<td class="bgColor2 tableheader">Element:</td>';
             foreach ($languages as $l) {
                 if ($l >= 1) {
-                    $baseRecordFlag = '<img src="' . htmlspecialchars($GLOBALS['BACK_PATH'] . $this->sysLanguages[$l]['flagIcon']) . '" alt="' . htmlspecialchars($this->sysLanguages[$l]['title']) . '" title="' . htmlspecialchars($this->sysLanguages[$l]['title']) . '" />';
+                    $baseRecordFlag = $this->module->getIconFactory()->getIcon($this->sysLanguages[$l]['flagIcon'],
+                        Icon::SIZE_SMALL)->render();
                     $cells .= '<td class="bgColor2 tableheader">' . $baseRecordFlag . '</td>';
                 }
             }
@@ -167,16 +164,17 @@ class TranslationTasks extends BaseScriptClass
                 }
                 $icon = GeneralUtility::makeInstance(IconFactory::class)->getIconForRecord($el[0], $rec_on);
                 $icon = BackendUtility::wrapClickMenuOnIcon($icon, $el[0], $rec_on['uid'], 2);
-                $linkToIt = '<a href="#" onclick="' . htmlspecialchars('parent.list_frame.location.href="' . $GLOBALS['BACK_PATH'] . ExtensionManagementUtility::siteRelPath('l10nmgr') . 'cm2/index.php?table=' . $el[0] . '&uid=' . $el[1] . '"; return false;') . '" target="listframe">
+                $linkToIt = '<a href="#" onclick="' .
+                    htmlspecialchars('parent.list_frame.location.href="' . $uriBuilder->buildUriFromRoute('tx_l10nmgr_cm2', ['table' => $el[0], 'uid' => $el[1]]) . '"; return false;') .
+                    '" target="listframe">
 	' . BackendUtility::getRecordTitle($el[0], $rec_on, true) . '
 	</a>';
                 if ($el[0] == 'pages') {
                     // If another page module was specified, replace the default Page module with the new one
                     $newPageModule = trim($this->getBackendUser()->getTSConfigVal('options.overridePageModule'));
                     $pageModule = BackendUtility::isModuleSetInTBE_MODULES($newPageModule) ? $newPageModule : 'web_layout';
-                    $path_module_path = GeneralUtility::resolveBackPath($GLOBALS['BACK_PATH'] . '../' . substr($GLOBALS['TBE_MODULES']['_PATHS'][$pageModule],
-                            strlen(PATH_site)));
-                    $onclick = 'parent.list_frame.location.href="' . $path_module_path . '?id=' . $el[1] . '"; return false;';
+                    $onclick = 'parent.list_frame.location.href="' . BackendUtility::getModuleUrl($pageModule,
+                            ['id' => $el[1]]) . '"; return false;';
                     $pmLink = '<a href="#" onclick="' . htmlspecialchars($onclick) . '" target="listframe"><i>[Edit page]</i></a>';
                 } else {
                     $pmLink = '';
@@ -234,8 +232,8 @@ class TranslationTasks extends BaseScriptClass
      */
     protected function printContent()
     {
-        $this->content .= $this->module->endPage();
-        echo $this->content;
+        $this->module->setContent($this->content);
+        echo $this->module->renderContent();
     }
 
     /**
@@ -248,5 +246,3 @@ class TranslationTasks extends BaseScriptClass
         parent::menuConfig();
     }
 }
-
-?>
