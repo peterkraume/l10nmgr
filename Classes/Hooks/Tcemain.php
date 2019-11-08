@@ -134,22 +134,16 @@ class Tcemain
         $output = '';
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
 
+        $flagSelectFields = 'sum(`flag_new`) AS "new", sum(`flag_unknown`) AS "unknown", sum(`flag_update`) AS "update", sum(`flag_noChange`) AS "noChange"';
         if ($p[0] != 'pages') {
-            $records = $this->getDatabaseConnection()->exec_SELECTgetRows('*', 'tx_l10nmgr_index',
+            $flags = $this->getDatabaseConnection()->exec_SELECTgetSingleRow($flagSelectFields, 'tx_l10nmgr_index',
                 'tablename=' . $this->getDatabaseConnection()->fullQuoteStr($p[0],
                     'tx_l10nmgr_index') . ' AND recuid=' . (int)$p[1] . ' AND translation_lang IN (' . $languageList . ') AND workspace=' . (int)$this->getBackendUser()->workspace);
         } else {
-            $records = $this->getDatabaseConnection()->exec_SELECTgetRows('*', 'tx_l10nmgr_index',
+            $flags = $this->getDatabaseConnection()->exec_SELECTgetSingleRow($flagSelectFields, 'tx_l10nmgr_index',
                 'recpid=' . (int)$p[1] . ' AND translation_lang IN (' . $languageList . ') AND workspace=' . (int)$this->getBackendUser()->workspace);
         }
-        $flags = [];
-        foreach ($records as $r) {
-            $flags['new'] += $r['flag_new'];
-            $flags['unknown'] += $r['flag_unknown'];
-            $flags['update'] += $r['flag_update'];
-            $flags['noChange'] += $r['flag_noChange'];
-        }
-        if (count($records)) {
+        if (is_array($flags) && array_sum($flags) > 0) {
             // Setting icon:
             $msg = '';
             if ($flags['new'] && !$flags['unknown'] && !$flags['noChange'] && !$flags['update']) {
