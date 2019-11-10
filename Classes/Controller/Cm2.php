@@ -147,11 +147,11 @@ class Cm2
                 $records = $this->getDatabaseConnection()->exec_SELECTgetRows('*', 'tx_l10nmgr_index',
                     'tablename=' . $this->getDatabaseConnection()->fullQuoteStr($table,
                         'tx_l10nmgr_index') . ' AND recuid=' . (int)$uid . ' AND translation_lang IN (' . $this->getDatabaseConnection()->cleanIntList($languageList) . ')' . ' AND workspace=' . (int)$this->getBackendUser()->workspace . ' AND (flag_new>0 OR flag_update>0 OR flag_noChange>0 OR flag_unknown>0)',
-                    '', 'translation_lang, tablename, recuid');
+                    '', 'translation_lang, tablename, recuid', 1000);
             } else {
                 $records = $this->getDatabaseConnection()->exec_SELECTgetRows('*', 'tx_l10nmgr_index',
                     'recpid=' . (int)$uid . ' AND translation_lang IN (' . $this->getDatabaseConnection()->cleanIntList($languageList) . ')' . ' AND workspace=' . (int)$this->getBackendUser()->workspace . ' AND (flag_new>0 OR flag_update>0 OR flag_noChange>0 OR flag_unknown>0)',
-                    '', 'translation_lang, tablename, recuid');
+                    '', 'translation_lang, tablename, recuid', 1000);
             }
             //	\TYPO3\CMS\Core\Utility\GeneralUtility::debugRows($records,'Index entries for '.$table.':'.$uid);
             $tRows = [];
