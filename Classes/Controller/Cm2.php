@@ -261,14 +261,15 @@ class Cm2
         // Render for translation if any:
         $translationTable = '';
         $translationRecord = false;
+        $translationRecStr = '';
         if ($rec['translation_recuid']) {
             $translationTable = $this->l10nMgrTools->t8Tools->getTranslationTable($rec['tablename']);
             $translationRecord = BackendUtility::getRecordWSOL($translationTable, $rec['translation_recuid']);
-            $icon = GeneralUtility::makeInstance(IconFactory::class)->getIconForRecord($translationTable, $translationRecord);
-            $title = BackendUtility::getRecordTitle($translationTable, $translationRecord, 1);
-            $translationRecStr = '<a href="#" onclick="' . htmlspecialchars(BackendUtility::editOnClick('&edit[' . $translationTable . '][' . $translationRecord['uid'] . ']=edit')) . '">' . $icon . $title . '</a>';
-        } else {
-            $translationRecStr = '';
+            if (is_array($translationRecord)) {
+                $icon = GeneralUtility::makeInstance(IconFactory::class)->getIconForRecord($translationTable, $translationRecord);
+                $title = BackendUtility::getRecordTitle($translationTable, $translationRecord, 1);
+                $translationRecStr = '<a href="#" onclick="' . htmlspecialchars(BackendUtility::editOnClick('&edit[' . $translationTable . '][' . $translationRecord['uid'] . ']=edit')) . '">' . $icon . $title . '</a>';
+            }
         }
         // Action:
         if (is_array($translationRecord)) {
