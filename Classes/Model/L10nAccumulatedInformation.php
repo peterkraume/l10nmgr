@@ -265,7 +265,7 @@ class L10nAccumulatedInformation
                             }
                         }
                     }
-                    if ($table === 'sys_file_reference' && !empty($fileList)) {
+                    if ($table === 'sys_file_reference' && !empty($fileList) && GeneralUtility::inList($l10ncfg['tablelist'], 'sys_file_metadata')) {
                         $fileList = implode(',',
                             array_keys(array_flip(GeneralUtility::intExplode(',', $fileList, true))));
                         if (!empty($fileList)) {
