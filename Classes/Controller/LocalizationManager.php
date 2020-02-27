@@ -374,7 +374,7 @@ class LocalizationManager extends BaseScriptClass
                 'SET[check_exports]',
                 $this->MOD_SETTINGS['check_exports'],
                 '',
-                '&srcPID=' . rawurlencode(GeneralUtility::_GET('srcPID')) . '&exportUid=' . $l10ncfgObj->getId(),
+                '&srcPID=' . rawurlencode(GeneralUtility::_GET('srcPID')) . '&exportUID=' . $l10ncfgObj->getId(),
                 '',
                 $GLOBALS['LANG']->getLL('export.xml.check_exports.title')
             ) . '<br />' .
