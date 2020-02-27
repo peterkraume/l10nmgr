@@ -471,7 +471,7 @@ return false;
                 'SET[check_exports]',
                 $this->MOD_SETTINGS['check_exports'],
                 '',
-                '&srcPID=' . rawurlencode(GeneralUtility::_GET('srcPID')) . '&exportUid=' . $l10ncfgObj->getId(),
+                '&srcPID=' . rawurlencode(GeneralUtility::_GET('srcPID')) . '&exportUID=' . $l10ncfgObj->getId(),
                 '',
                 $this->getLanguageService()->getLL('export.xml.check_exports.title')
             ) .
