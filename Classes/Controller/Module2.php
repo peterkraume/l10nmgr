@@ -26,7 +26,8 @@ namespace Localizationteam\L10nmgr\Controller;
  * @author Kasper Skårhøj <kasperYYYY@typo3.com>
  */
 
-use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Script Class for rendering the frameset
@@ -57,9 +58,10 @@ class Module2
     {
         // Setting frame width:
         $width = $this->defaultWidth;
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
         $this->content .= '
 	<frameset cols="' . $width . ',*">
-	<frame name="nav_frame" src="' . BackendUtility::getModuleUrl('LocalizationManager_TranslationTasks') . '" marginwidth="0" marginheight="0" scrolling="auto" />
+	<frame name="nav_frame" src="' . $uriBuilder->buildUriFromRoute('LocalizationManager_TranslationTasks') . '" marginwidth="0" marginheight="0" scrolling="auto" />
 	<frame name="list_frame" src="" marginwidth="0" marginheight="0" scrolling="auto" />
 	</frameset>
 	</html>

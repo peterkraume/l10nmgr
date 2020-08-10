@@ -80,12 +80,15 @@ class L10nBaseService implements LoggerAwareInterface
      */
     protected $flexFormDiffArray;
 
+    /**
+     * Check for deprecated configuration throws false positive in extension scanner.
+     */
     public function __construct()
     {
         // Load the extension's configuration
         $this->extensionConfiguration = empty($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['l10nmgr'])
             ? unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['l10nmgr'])
-            : $GLOBALS['TYPO3_CONF_VARS']['EXTENSIO1NS']['l10nmgr'];
+            : $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['l10nmgr'];
     }
 
     /**
@@ -278,7 +281,8 @@ class L10nBaseService implements LoggerAwareInterface
         string $theValue,
         string $whereClause = '',
         string $orderBy = ''
-    ): array {
+    ): array
+    {
         if (is_array($GLOBALS['TCA'][$theTable])) {
             /** @var $queryBuilder QueryBuilder */
             $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($theTable);
@@ -339,7 +343,8 @@ class L10nBaseService implements LoggerAwareInterface
     protected function remapInputDataForExistingTranslations(
         L10nConfiguration $configurationObject,
         TranslationData $translationData
-    ) {
+    )
+    {
         // feature is not enabled
         if (!$configurationObject->getData('overrideexistingtranslations')) {
             return;
@@ -469,7 +474,7 @@ class L10nBaseService implements LoggerAwareInterface
                                         );
                                         $_flexFormDiffArray[$key] = [
                                             'translated' => $inputArray[$table][$elementUid][$key],
-                                            'default'    => $tData['defaultValue'],
+                                            'default' => $tData['defaultValue'],
                                         ];
                                     } else {
                                         $TCEmain_data[$Ttable][$elementUid][$Tfield] = $inputArray[$table][$elementUid][$key];
@@ -690,7 +695,7 @@ class L10nBaseService implements LoggerAwareInterface
                                         if (is_array($hooks)) {
                                             foreach ($hooks as $hookObj) {
                                                 $parameters = [
-                                                    'data'        => $data,
+                                                    'data' => $data,
                                                     'TCEmain_cmd' => $this->TCEmain_cmd,
                                                 ];
                                                 $this->TCEmain_cmd = GeneralUtility::callUserFunction(
@@ -714,7 +719,7 @@ class L10nBaseService implements LoggerAwareInterface
                                         );
                                         $_flexFormDiffArray[$key] = [
                                             'translated' => $inputArray[$table][$elementUid][$key],
-                                            'default'    => $tData['defaultValue'],
+                                            'default' => $tData['defaultValue'],
                                         ];
                                     } else {
                                         $TCEmain_data[$Ttable][$TuidString][$Tfield] = $inputArray[$table][$elementUid][$key];
@@ -734,7 +739,7 @@ class L10nBaseService implements LoggerAwareInterface
                             foreach ($hooks as $hookObj) {
                                 $parameters = [
                                     'TCEmain_data' => $TCEmain_data,
-                                    'TCEmain_cmd'  => $this->TCEmain_cmd,
+                                    'TCEmain_cmd' => $this->TCEmain_cmd,
                                 ];
                                 $this->TCEmain_data = GeneralUtility::callUserFunction($hookObj, $parameters, $this);
                             }

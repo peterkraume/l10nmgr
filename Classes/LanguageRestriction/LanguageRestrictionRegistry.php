@@ -132,7 +132,8 @@ class LanguageRestrictionRegistry implements SingletonInterface
         $fieldName = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME,
         array $options = [],
         $override = true
-    ) {
+    )
+    {
         $didRegister = false;
         if (empty($tableName) || !is_string($tableName)) {
             throw new InvalidArgumentException('No or invalid table name "' . $tableName . '" given.', 1540460445);
@@ -229,8 +230,8 @@ class LanguageRestrictionRegistry implements SingletonInterface
             $columns = [
                 $fieldName => [
                     'exclude' => $exclude,
-                    'label'   => $label,
-                    'config'  => static::getTcaFieldConfiguration($tableName, $fieldName, $fieldConfiguration),
+                    'label' => $label,
+                    'config' => static::getTcaFieldConfiguration($tableName, $fieldName, $fieldConfiguration),
                 ],
             ];
 
@@ -273,21 +274,22 @@ class LanguageRestrictionRegistry implements SingletonInterface
         $tableName,
         $fieldName = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME,
         array $fieldConfigurationOverride = []
-    ) {
+    )
+    {
         // Forges a new field, default name is "l10nmgr_language_restriction"
         $fieldConfiguration = [
-            'type'                => 'select',
-            'renderType'          => 'selectMultipleSideBySide',
-            'foreign_table'       => Constants::L10NMGR_LANGUAGE_RESTRICTION_FOREIGN_TABLENAME,
+            'type' => 'select',
+            'renderType' => 'selectMultipleSideBySide',
+            'foreign_table' => Constants::L10NMGR_LANGUAGE_RESTRICTION_FOREIGN_TABLENAME,
             'foreign_table_where' => ' ORDER BY sys_language.sorting ASC',
-            'MM'                  => Constants::L10NMGR_LANGUAGE_RESTRICTION_MM_TABLENAME,
-            'MM_opposite_field'   => 'items',
-            'MM_match_fields'     => [
+            'MM' => Constants::L10NMGR_LANGUAGE_RESTRICTION_MM_TABLENAME,
+            'MM_opposite_field' => 'items',
+            'MM_match_fields' => [
                 'tablenames' => $tableName,
-                'fieldname'  => $fieldName,
+                'fieldname' => $fieldName,
             ],
-            'size'                => 10,
-            'maxitems'            => 9999,
+            'size' => 10,
+            'maxitems' => 9999,
         ];
 
         // Merge changes to TCA configuration

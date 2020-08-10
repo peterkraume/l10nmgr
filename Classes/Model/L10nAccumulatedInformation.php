@@ -97,6 +97,7 @@ class L10nAccumulatedInformation
 
     /**
      * Constructor
+     * Check for deprecated configuration throws false positive in extension scanner.
      *
      * @param $tree
      * @param $l10ncfg

@@ -28,7 +28,7 @@ namespace Localizationteam\L10nmgr\Controller;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Backend\Module\BaseScriptClass;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\DocumentTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -45,7 +45,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @packageTYPO3
  * @subpackage tx_l10nmgr
  */
-class ConfigurationManager extends BaseScriptClass
+class ConfigurationManager extends BaseModule
 {
     var $pageinfo;
     /**
@@ -183,10 +183,11 @@ class ConfigurationManager extends BaseScriptClass
                 $configurationDetails .= '</div>';
                 $content .= '<tr class="db_list_normal">';
                 $content .= '<td>' . $configurationDetails . '</td>';
-                $content .= '<td><a href="' . BackendUtility::getModuleUrl('LocalizationManager',
+                $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+                $content .= '<td><a href="' . $uriBuilder->buildUriFromRoute('LocalizationManager',
                         [
-                            'id'        => $record['pid'],
-                            'srcPID'    => $this->id,
+                            'id' => $record['pid'],
+                            'srcPID' => $this->id,
                             'exportUID' => $record['uid'],
                         ]) . '">' . $record['title'] . '</a>' . '</td>';
                 // Get the full page path

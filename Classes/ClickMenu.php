@@ -28,11 +28,11 @@ namespace Localizationteam\L10nmgr;
 
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Lang\LanguageService;
+use TYPO3\CMS\Core\Utility\PathUtility;
 
 /**
  * Context menu processing
@@ -73,8 +73,8 @@ class ClickMenu
                 // Remember to add entries in the localconf.php file for additional titles.
                 $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
                 $urlParameters = [
-                    'id'        => $backRef->rec['pid'],
-                    'srcPID'    => $backRef->rec['pid'],
+                    'id' => $backRef->rec['pid'],
+                    'srcPID' => $backRef->rec['pid'],
                     'exportUID' => $uid,
                 ];
                 try {
@@ -87,7 +87,7 @@ class ClickMenu
 
                 $localItems[] = $backRef->linkItem(
                     $this->getLanguageService()->getLLL("cm1_title", $LL),
-                    $backRef->excludeIcon('<img src="' . ExtensionManagementUtility::siteRelPath("l10nmgr") . 'cm1/cm_icon.gif" width="15" height="12" border="0" align="top" />'),
+                    $backRef->excludeIcon('<img src="' . PathUtility::stripPathSitePrefix(ExtensionManagementUtility::extPath("l10nmgr")) . 'cm1/cm_icon.gif" width="15" height="12" border="0" align="top" />'),
                     $backRef->urlRefForCM($url),
                     1 // Disables the item in the top-bar. Set this to zero if you with the item to appear in the top bar!
                 );
@@ -102,10 +102,11 @@ class ClickMenu
             // Simply merges the two arrays together and returns ...
             $menuItems = array_merge($menuItems, $localItems);
         } elseif (GeneralUtility::_GET('subname') == 'moreoptions_tx_l10nmgrXX_cm3') {
-            $url = BackendUtility::getModuleUrl(
+            $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+            $url = $uriBuilder->buildUriFromRoute(
                 'LocalizationManager_TranslationTasks',
                 [
-                    'id'    => $backRef->rec['pid'],
+                    'id' => $backRef->rec['pid'],
                     'table' => $table,
                 ]
             );

@@ -29,6 +29,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Exception;
@@ -234,7 +235,7 @@ class Export extends L10nCommand
                 $l10nmgrGetXML->setOverrideParams(
                     [
                         'noxmlcheck' => !(bool)$input->getOption('checkXml'),
-                        'utf8'       => (bool)$input->getOption('utf8'),
+                        'utf8' => (bool)$input->getOption('utf8'),
                     ]
                 );
             } elseif ($format == 'EXCEL') {
@@ -271,7 +272,7 @@ class Export extends L10nCommand
                 $output->writeln('<error>' . $l10nmgrGetXML->renderExportsCli() . LF . '</error>');
             } else {
                 // Save export to XML file
-                $xmlFileName = PATH_site . $l10nmgrGetXML->render();
+                $xmlFileName = Environment::getPublicPath() . '/' . $l10nmgrGetXML->render();
                 $l10nmgrGetXML->saveExportInformation();
                 // If email notification is set send export files to responsible translator
                 if ($this->extensionConfiguration['enable_notification'] == 1) {
@@ -327,6 +328,69 @@ class Export extends L10nCommand
     }
 
     /**
+     * The function emailNotification sends an email with a translation job to the recipient specified in the extension config.
+     *
+     * @param string $xmlFileName Name of the XML file
+     * @param L10nConfiguration $l10nmgrCfgObj L10N Manager configuration object
+     * @param int $tlang ID of the language to translate to
+     */
+    protected function emailNotification($xmlFileName, $l10nmgrCfgObj, $tlang)
+    {
+        // If at least a recipient is indeed defined, proceed with sending the mail
+        $recipients = GeneralUtility::trimExplode(',', $this->extensionConfiguration['email_recipient']);
+        if (count($recipients) > 0) {
+            $fullFilename = Environment::getPublicPath() . '/' . 'uploads/tx_l10nmgr/jobs/out/' . $xmlFileName;
+            // Get source & target language ISO codes
+            $sourceStaticLangArr = BackendUtility::getRecord('static_languages',
+                $l10nmgrCfgObj->l10ncfg['sourceLangStaticId'], 'lg_iso_2');
+            $targetStaticLang = BackendUtility::getRecord('sys_language', $tlang, 'static_lang_isocode');
+            $targetStaticLangArr = BackendUtility::getRecord('static_languages',
+                $targetStaticLang['static_lang_isocode'], 'lg_iso_2');
+            $sourceLang = $sourceStaticLangArr['lg_iso_2'];
+            $targetLang = $targetStaticLangArr['lg_iso_2'];
+            // Collect mail data
+            $fromMail = $this->extensionConfiguration['email_sender'];
+            $fromName = $this->extensionConfiguration['email_sender_name'];
+            $subject = sprintf($this->getLanguageService()->getLL('email.suject.msg'), $sourceLang, $targetLang,
+                $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
+            // Assemble message body
+            $message = [
+                'msg1' => $this->getLanguageService()->getLL('email.greeting.msg'),
+                'msg2' => '',
+                'msg3' => sprintf($this->getLanguageService()->getLL('email.new_translation_job.msg'), $sourceLang,
+                    $targetLang,
+                    $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']),
+                'msg4' => $this->getLanguageService()->getLL('email.info.msg'),
+                'msg5' => $this->getLanguageService()->getLL('email.info.import.msg'),
+                'msg6' => '',
+                'msg7' => $this->getLanguageService()->getLL('email.goodbye.msg'),
+                'msg8' => $fromName,
+                'msg9' => '--',
+                'msg10' => $this->getLanguageService()->getLL('email.info.exportef_file.msg'),
+                'msg11' => $xmlFileName,
+            ];
+            if ($this->extensionConfiguration['email_attachment']) {
+                $message['msg3'] = sprintf($this->getLanguageService()->getLL('email.new_translation_job_attached.msg'),
+                    $sourceLang, $targetLang, $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
+            }
+            $msg = implode(chr(10), $message);
+            // Instantiate the mail object, set all necessary properties and send the mail
+            /** @var MailMessage $mailObject */
+            $mailObject = GeneralUtility::makeInstance(MailMessage::class);
+            $mailObject->setFrom([$fromMail => $fromName]);
+            $mailObject->setTo($recipients);
+            $mailObject->setSubject($subject);
+            $mailObject->setFormat('text/plain');
+            $mailObject->setBody($msg);
+            if ($this->extensionConfiguration['email_attachment']) {
+                $attachment = Swift_Attachment::fromPath($fullFilename, 'text/xml');
+                $mailObject->attach($attachment);
+            }
+            $mailObject->send();
+        }
+    }
+
+    /**
      * The function ftpUpload puts an export on a remote FTP server for further processing
      *
      * @param string $xmlFileName Path to the file to upload
@@ -360,68 +424,5 @@ class Export extends L10nCommand
             $error .= $this->getLanguageService()->getLL('error.ftp.connection_failed.msg');
         }
         return $error;
-    }
-
-    /**
-     * The function emailNotification sends an email with a translation job to the recipient specified in the extension config.
-     *
-     * @param string $xmlFileName Name of the XML file
-     * @param L10nConfiguration $l10nmgrCfgObj L10N Manager configuration object
-     * @param int $tlang ID of the language to translate to
-     */
-    protected function emailNotification($xmlFileName, $l10nmgrCfgObj, $tlang)
-    {
-        // If at least a recipient is indeed defined, proceed with sending the mail
-        $recipients = GeneralUtility::trimExplode(',', $this->extensionConfiguration['email_recipient']);
-        if (count($recipients) > 0) {
-            $fullFilename = PATH_site . 'uploads/tx_l10nmgr/jobs/out/' . $xmlFileName;
-            // Get source & target language ISO codes
-            $sourceStaticLangArr = BackendUtility::getRecord('static_languages',
-                $l10nmgrCfgObj->l10ncfg['sourceLangStaticId'], 'lg_iso_2');
-            $targetStaticLang = BackendUtility::getRecord('sys_language', $tlang, 'static_lang_isocode');
-            $targetStaticLangArr = BackendUtility::getRecord('static_languages',
-                $targetStaticLang['static_lang_isocode'], 'lg_iso_2');
-            $sourceLang = $sourceStaticLangArr['lg_iso_2'];
-            $targetLang = $targetStaticLangArr['lg_iso_2'];
-            // Collect mail data
-            $fromMail = $this->extensionConfiguration['email_sender'];
-            $fromName = $this->extensionConfiguration['email_sender_name'];
-            $subject = sprintf($this->getLanguageService()->getLL('email.suject.msg'), $sourceLang, $targetLang,
-                $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
-            // Assemble message body
-            $message = [
-                'msg1'  => $this->getLanguageService()->getLL('email.greeting.msg'),
-                'msg2'  => '',
-                'msg3'  => sprintf($this->getLanguageService()->getLL('email.new_translation_job.msg'), $sourceLang,
-                    $targetLang,
-                    $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']),
-                'msg4'  => $this->getLanguageService()->getLL('email.info.msg'),
-                'msg5'  => $this->getLanguageService()->getLL('email.info.import.msg'),
-                'msg6'  => '',
-                'msg7'  => $this->getLanguageService()->getLL('email.goodbye.msg'),
-                'msg8'  => $fromName,
-                'msg9'  => '--',
-                'msg10' => $this->getLanguageService()->getLL('email.info.exportef_file.msg'),
-                'msg11' => $xmlFileName,
-            ];
-            if ($this->extensionConfiguration['email_attachment']) {
-                $message['msg3'] = sprintf($this->getLanguageService()->getLL('email.new_translation_job_attached.msg'),
-                    $sourceLang, $targetLang, $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
-            }
-            $msg = implode(chr(10), $message);
-            // Instantiate the mail object, set all necessary properties and send the mail
-            /** @var MailMessage $mailObject */
-            $mailObject = GeneralUtility::makeInstance(MailMessage::class);
-            $mailObject->setFrom([$fromMail => $fromName]);
-            $mailObject->setTo($recipients);
-            $mailObject->setSubject($subject);
-            $mailObject->setFormat('text/plain');
-            $mailObject->setBody($msg);
-            if ($this->extensionConfiguration['email_attachment']) {
-                $attachment = Swift_Attachment::fromPath($fullFilename, 'text/xml');
-                $mailObject->attach($attachment);
-            }
-            $mailObject->send();
-        }
     }
 }
