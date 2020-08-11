@@ -177,7 +177,7 @@ class L10nAccumulatedInformation
             $previewLanguage = current(
                 GeneralUtility::intExplode(
                     ',',
-                    $this->getBackendUser()->getTSConfig('options.additionalPreviewLanguages')['value'] ?? ''
+                    $this->getBackendUser()->getTSConfig()['options.']['additionalPreviewLanguages'] ?? ''
                 )
             );
         }
@@ -290,7 +290,8 @@ class L10nAccumulatedInformation
                             }
                         }
                     }
-                    if ($table === 'sys_file_reference' && !empty($fileList) && GeneralUtility::inList($l10ncfg['tablelist'], 'sys_file_metadata')) {
+                    if ($table === 'sys_file_reference' && !empty($fileList) && GeneralUtility::inList($l10ncfg['tablelist'],
+                            'sys_file_metadata')) {
                         $fileList = implode(',',
                             array_keys(array_flip(GeneralUtility::intExplode(',', $fileList, true))));
                         if (!empty($fileList)) {

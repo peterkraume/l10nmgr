@@ -93,7 +93,6 @@ class TranslationTasks extends BaseModule
 	</script>
 	';
         // Setting up the context sensitive menu:
-        $this->getPageRenderer()->loadJquery();
         $this->getPageRenderer()->loadRequireJsModule('TYPO3/CMS/Backend/ClickMenu');
         $this->content .= $this->module->startPage($this->getLanguageService()->getLL("title"));
         $this->content .= '<div class="topspace5"></div>';

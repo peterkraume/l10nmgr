@@ -67,7 +67,7 @@ class Tools
      */
     protected static $tcaTableTypeConfigurationCache = [];
     // Array of sys_language_uids, eg. array(1,2)
-        /**
+    /**
      * @var array
      */
     public $filters = [
@@ -93,7 +93,7 @@ class Tools
      */
     public $includeFceWithDefaultLanguage = false; // Output for translation details
     // Internal:
-/**
+    /**
      * @var null|TranslationConfigurationProvider
      */
     public $t8Tools = null;
@@ -235,8 +235,7 @@ class Tools
         $diffDefaultValue = '',
         $previewLanguageValues = [],
         $contentRow = []
-    )
-    {
+    ) {
         $msg = '';
         list($kTableName, , $kFieldName) = explode(':', $key);
         if ($TCEformsCfg['config']['type'] !== 'flex') {
@@ -404,7 +403,8 @@ class Tools
                     && is_array($GLOBALS['TCA'][$table]['palettes'][$pPalette])
                     && isset($GLOBALS['TCA'][$table]['palettes'][$pPalette]['showitem'])
                 ) {
-                    $paletteFields = GeneralUtility::trimExplode(',', $GLOBALS['TCA'][$table]['palettes'][$pPalette]['showitem'], true);
+                    $paletteFields = GeneralUtility::trimExplode(',',
+                        $GLOBALS['TCA'][$table]['palettes'][$pPalette]['showitem'], true);
                     foreach ($paletteFields as $paletteField) {
                         if ($paletteField !== '--linebreak--') {
                             $paletteFieldList[] = $paletteField;
@@ -858,8 +858,7 @@ class Tools
         $row = null,
         $selFieldList = '',
         $previewLanguage = 0
-    )
-    {
+    ) {
         if (!$GLOBALS['TCA'][$table] || !$uid) {
             return 'No table "' . $table . '" or no UID value';
         }

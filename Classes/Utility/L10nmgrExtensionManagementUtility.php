@@ -45,8 +45,7 @@ class L10nmgrExtensionManagementUtility
         $fieldName = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME,
         array $options = [],
         $override = true
-    )
-    {
+    ) {
         // Update the category registry
         $result = LanguageRestrictionRegistry::getInstance()->add($extensionKey, $tableName, $fieldName, $options,
             $override);

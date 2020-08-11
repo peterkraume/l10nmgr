@@ -403,8 +403,10 @@ class Export extends L10nCommand
         $error = '';
         $connection = ftp_connect($this->extensionConfiguration['ftp_server']) or die('Connection failed');
         if ($connection) {
-            if (@ftp_login($connection, $this->extensionConfiguration['ftp_server_username'], $this->extensionConfiguration['ftp_server_password'])) {
-                if (ftp_put($connection, $this->extensionConfiguration['ftp_server_path'] . $filename, $xmlFileName, FTP_BINARY)) {
+            if (@ftp_login($connection, $this->extensionConfiguration['ftp_server_username'],
+                $this->extensionConfiguration['ftp_server_password'])) {
+                if (ftp_put($connection, $this->extensionConfiguration['ftp_server_path'] . $filename, $xmlFileName,
+                    FTP_BINARY)) {
                     ftp_close($connection) or die("Couldn't close connection");
                 } else {
                     $error .= sprintf(

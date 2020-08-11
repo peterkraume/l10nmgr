@@ -1,6 +1,7 @@
 <?php
 
 namespace Localizationteam\L10nmgr\Controller;
+
 /***************************************************************
  * Copyright notice
  * (c) 2007 Kasper Skårhøj <kasperYYYY@typo3.com>

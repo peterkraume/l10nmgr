@@ -280,8 +280,7 @@ return false;
         $script = '',
         $addParams = '',
         $label = ''
-    )
-    {
+    ) {
         if (!is_array($menuItems)) {
             return '';
         }
@@ -370,8 +369,7 @@ return false;
         $addParams = '',
         $tagParams = '',
         $label = ''
-    )
-    {
+    ) {
         $scriptUrl = self::buildScriptUrl($mainParams, $addParams, $script);
         $onClick = 'jumpToUrl(' . GeneralUtility::quoteJSvalue($scriptUrl . '&' . $elementName . '=') . '+(this.checked?1:0),this);';
         return

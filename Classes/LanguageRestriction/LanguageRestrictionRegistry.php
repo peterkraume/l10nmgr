@@ -132,8 +132,7 @@ class LanguageRestrictionRegistry implements SingletonInterface
         $fieldName = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME,
         array $options = [],
         $override = true
-    )
-    {
+    ) {
         $didRegister = false;
         if (empty($tableName) || !is_string($tableName)) {
             throw new InvalidArgumentException('No or invalid table name "' . $tableName . '" given.', 1540460445);
@@ -274,8 +273,7 @@ class LanguageRestrictionRegistry implements SingletonInterface
         $tableName,
         $fieldName = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME,
         array $fieldConfigurationOverride = []
-    )
-    {
+    ) {
         // Forges a new field, default name is "l10nmgr_language_restriction"
         $fieldConfiguration = [
             'type' => 'select',
