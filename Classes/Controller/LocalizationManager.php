@@ -43,6 +43,7 @@ use TYPO3\CMS\Backend\Template\DocumentTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
@@ -132,13 +133,14 @@ class LocalizationManager extends BaseModule
      * Then checks for module functions that have hooked in, and renders menu etc.
      *
      * @param ServerRequestInterface $request the current request
-     * @param ResponseInterface $response
      * @return ResponseInterface the response with the content
      * @throws ResourceNotFoundException
      * @throws RouteNotFoundException
      */
-    public function mainAction(ServerRequestInterface $request, ResponseInterface $response)
+    public function mainAction(ServerRequestInterface $request): ResponseInterface
     {
+        /** @var ResponseInterface $response */
+        $response = func_num_args() === 2 ? func_get_arg(1) : null;
         $GLOBALS['SOBE'] = $this;
         $this->init();
         // Checking for first level external objects
@@ -147,7 +149,12 @@ class LocalizationManager extends BaseModule
         $this->checkSubExtObj();
         $this->main();
         $this->moduleTemplate->setContent($this->content);
-        $response->getBody()->write($this->moduleTemplate->renderContent());
+        if ($response !== null) {
+            $response->getBody()->write($this->moduleTemplate->renderContent());
+        } else {
+            // Behaviour in TYPO3 v9
+            $response = new HtmlResponse($this->moduleTemplate->renderContent());
+        }
         return $response;
     }
 
