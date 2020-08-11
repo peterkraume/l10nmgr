@@ -57,7 +57,7 @@ class Tcemain
      * @param $fieldArray
      * @param $pObj
      */
-    public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, &$pObj)
+    public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, $pObj)
     {
         // Check if
         // debug(array($status, $table, $id));

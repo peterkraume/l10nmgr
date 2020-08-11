@@ -80,12 +80,11 @@ class MkPreviewLinkService
         $ttlHours = (int)$this->getBackendUser()->getTSConfig()['options.']['workspaces.']['previewLinkTTLHours'];
         $ttlHours = ($ttlHours ? $ttlHours : 24 * 2);
         $params = 'id=' . $this->pageIds[0] . '&L=' . $srcLang . '&ADMCMD_previewWS=' . $this->workspaceId;
-        $previewUrl = $baseUrl . 'index.php?ADMCMD_prev=' . $this->compilePreviewKeyword(
+        return $baseUrl . 'index.php?ADMCMD_prev=' . $this->compilePreviewKeyword(
                 $params,
                 $this->getBackendUser()->user['uid'],
                 60 * 60 * $ttlHours
             );
-        return $previewUrl;
     }
 
     /**
@@ -150,12 +149,11 @@ class MkPreviewLinkService
         $ttlHours = ($ttlHours ? $ttlHours : 24 * 2);
         //no_cache=1 ???
         $params = 'id=' . $this->pageIds[0] . '&L=' . $this->sysLang . '&ADMCMD_previewWS=' . $this->workspaceId . '&serverlink=' . $serverlink;
-        $previewUrl = $baseUrl . 'index.php?ADMCMD_prev=' . $this->compilePreviewKeyword(
+        return $baseUrl . 'index.php?ADMCMD_prev=' . $this->compilePreviewKeyword(
                 $params,
                 $this->getBackendUser()->user['uid'],
                 60 * 60 * $ttlHours
             );
-        return $previewUrl;
     }
 
     /**

@@ -20,7 +20,6 @@ namespace Localizationteam\L10nmgr\View;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Localizationteam\L10nmgr\Model\L10nAccumulatedInformation;
 use Localizationteam\L10nmgr\Model\L10nConfiguration;
 use TYPO3\CMS\Backend\Template\DocumentTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -101,7 +100,6 @@ class L10nHtmlListView extends AbstractExportView
     public function renderOverview()
     {
         $sysLang = $this->sysLang;
-        /** @var L10nAccumulatedInformation $accumObj */
         $accumObj = $this->l10ncfgObj->getL10nAccumulatedInformationsObjectForLanguage($sysLang);
         $accum = $accumObj->getInfoArray();
         $l10ncfg = $this->l10ncfg;

@@ -132,12 +132,11 @@ class LocalizationManager extends BaseModule
      * Injects the request object for the current request or subrequest
      * Then checks for module functions that have hooked in, and renders menu etc.
      *
-     * @param ServerRequestInterface $request the current request
      * @return ResponseInterface the response with the content
      * @throws ResourceNotFoundException
      * @throws RouteNotFoundException
      */
-    public function mainAction(ServerRequestInterface $request): ResponseInterface
+    public function mainAction(): ResponseInterface
     {
         /** @var ResponseInterface $response */
         $response = func_num_args() === 2 ? func_get_arg(1) : null;
@@ -635,8 +634,7 @@ return false;
     protected function downloadXML($xmlView)
     {
         // Save content to the disk and get the file name
-        $filename = $xmlView->render();
-        return $filename;
+        return $xmlView->render();
     }
 
     /**
@@ -877,7 +875,7 @@ return false;
      */
     protected function getTabContentXmlImport()
     {
-        $tabContentXmlImport = '<div class="form-section">' .
+        return '<div class="form-section">' .
             (
             ExtensionManagementUtility::isLoaded('workspaces') ? (
                 '<div class="form-group"><div class="checkbox"><label>' .
@@ -898,7 +896,6 @@ return false;
             '<input class="btn btn-info" type="submit" value="' . $this->getLanguageService()->getLL('general.action.refresh.button.title') . '" name="_" /> ' .
             '<input class="btn btn-warning" type="submit" value="Import" name="import_xml" />' .
             '<br class="clearfix">&nbsp;</div>';
-        return $tabContentXmlImport;
     }
 
     /**
@@ -1014,7 +1011,7 @@ return false;
                 'msg7' => $this->getLanguageService()->getLL('email.goodbye.msg'),
                 'msg8' => $fromName,
                 'msg9' => '--',
-                'msg10' => $this->getLanguageService()->getLL('email.info.exportef_file.msg'),
+                'msg10' => $this->getLanguageService()->getLL('email.info.exported_file.msg'),
                 'msg11' => $xmlFileName,
             ];
             if ($this->extensionConfiguration['email_attachment']) {

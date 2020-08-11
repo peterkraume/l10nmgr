@@ -116,7 +116,7 @@ class Export extends L10nCommand
     }
 
     /**
-     * Executes the command for straigthening content elements
+     * Executes the command for straightening content elements
      *
      * @param InputInterface $input
      * @param OutputInterface $output
@@ -366,7 +366,7 @@ class Export extends L10nCommand
                 'msg7' => $this->getLanguageService()->getLL('email.goodbye.msg'),
                 'msg8' => $fromName,
                 'msg9' => '--',
-                'msg10' => $this->getLanguageService()->getLL('email.info.exportef_file.msg'),
+                'msg10' => $this->getLanguageService()->getLL('email.info.exported_file.msg'),
                 'msg11' => $xmlFileName,
             ];
             if ($this->extensionConfiguration['email_attachment']) {

@@ -27,7 +27,6 @@ use Localizationteam\L10nmgr\Model\L10nBaseService;
 use Localizationteam\L10nmgr\Model\L10nConfiguration;
 use Localizationteam\L10nmgr\Model\MkPreviewLinkService;
 use Localizationteam\L10nmgr\Model\Tools\XmlTools;
-use Localizationteam\L10nmgr\Model\TranslationData;
 use Localizationteam\L10nmgr\Model\TranslationDataFactory;
 use Localizationteam\L10nmgr\Zip;
 use Symfony\Component\Console\Input\InputInterface;
@@ -279,7 +278,6 @@ class Import extends L10nCommand
                 $out .= $previewLink;
             }
         }
-        /** @var $translationData TranslationData */
         $translationData = $factory->getTranslationDataFromCATXMLNodes($importManager->getXMLNodes());
         $translationData->setLanguage($this->sysLanguage);
         $translationData->setPreviewLanguage($this->previewLanguage);
@@ -413,7 +411,6 @@ class Import extends L10nCommand
                             $out .= $previewLink;
                         }
                     }
-                    /** @var $translationData TranslationData */
                     $translationData = $factory->getTranslationDataFromCATXMLNodes($importManager->getXMLNodes());
                     $translationData->setLanguage($this->sysLanguage);
                     $translationData->setPreviewLanguage($this->previewLanguage);

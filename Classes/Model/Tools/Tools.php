@@ -63,7 +63,6 @@ class Tools
      *
      * @var array
      * @see self::getTCAtypes()
-     * @deprecated since TYPO3 v9.4 will be removed in TYPO3 v10.0.
      */
     protected static $tcaTableTypeConfigurationCache = [];
     // Array of sys_language_uids, eg. array(1,2)

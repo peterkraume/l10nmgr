@@ -118,7 +118,7 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
                                             } else {
                                                 $dataForTranslation = $tData['defaultValue'];
                                             }
-                                            $_isTranformedXML = false;
+                                            $_isTransformedXML = false;
                                             // Following checks are not enough! Fields that could be transformed to be XML conform are not transformed! textpic fields are not isRTE=1!!! No idea why...
                                             //DZ 2010-09-08
                                             // > if > else loop instead of ||
@@ -128,13 +128,13 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
                                             //echo $key."\n";
                                             if ($tData['fieldType'] == 'text' && $tData['isRTE']
                                                 || (preg_match('/templavoila_flex/', $key))) {
-                                                $dataForTranslationTranformed = $xmlTool->RTE2XML($dataForTranslation);
-                                                if ($dataForTranslationTranformed !== false) {
-                                                    $_isTranformedXML = true;
-                                                    $dataForTranslation = $dataForTranslationTranformed;
+                                                $dataForTranslationTransformed = $xmlTool->RTE2XML($dataForTranslation);
+                                                if ($dataForTranslationTransformed !== false) {
+                                                    $_isTransformedXML = true;
+                                                    $dataForTranslation = $dataForTranslationTransformed;
                                                 }
                                             }
-                                            if ($_isTranformedXML) {
+                                            if ($_isTransformedXML) {
                                                 $output[] = "\t\t"
                                                     . '<data table="' . $table . '" elementUid="' . $elementUid . '" key="' . $key . '" transformations="1">' . $dataForTranslation . '</data>' . "\n";
                                             } else {

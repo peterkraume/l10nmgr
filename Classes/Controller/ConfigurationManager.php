@@ -97,10 +97,9 @@ class ConfigurationManager extends BaseModule
      * Injects the request object for the current request or subrequest
      * Then checks for module functions that have hooked in, and renders menu etc.
      *
-     * @param ServerRequestInterface $request the current request
      * @return ResponseInterface the response with the content
      */
-    public function mainAction(ServerRequestInterface $request) : ResponseInterface
+    public function mainAction() : ResponseInterface
     {
         /** @var ResponseInterface $response */
         $response = func_num_args() === 2 ? func_get_arg(1) : null;

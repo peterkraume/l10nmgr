@@ -291,7 +291,7 @@ abstract class AbstractExportView
                 $exportData['translation_lang'], sprintf('<a href="%suploads/tx_l10nmgr/jobs/out/%s">%s</a>',
                     GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), $exportData['filename'], $exportData['filename']));
         }
-        $out = sprintf('
+        return sprintf('
 <table class="table table-striped table-hover">
 	<thead>
 	<tr class="t3-row-header">
@@ -314,7 +314,6 @@ abstract class AbstractExportView
             ),
             implode(chr(10), $content)
         );
-        return $out;
     }
 
     /**
@@ -328,7 +327,7 @@ abstract class AbstractExportView
         /** @var $queryBuilder QueryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getQueryBuilderForTable('tx_l10nmgr_exportdata');
-        $exports = $queryBuilder->select('crdate', 'l10ncfg_id', 'exportType', 'translation_lang', 'filename')
+        return $queryBuilder->select('crdate', 'l10ncfg_id', 'exportType', 'translation_lang', 'filename')
             ->from('tx_l10nmgr_exportdata')
             ->where(
                 $queryBuilder->expr()->eq(
@@ -347,8 +346,6 @@ abstract class AbstractExportView
             ->orderBy('crdate', 'DESC')
             ->execute()
             ->fetchAll();
-
-        return $exports;
     }
 
     /**
@@ -397,7 +394,7 @@ abstract class AbstractExportView
                 sprintf('%suploads/tx_l10nmgr/jobs/out/%s', Environment::getPublicPath() . '/', $exportData['filename'])
             );
         }
-        $out = sprintf(
+        return sprintf(
             '%-15s%-15s%-15s%-15s%s%s%s',
             $this->getLanguageService()->getLL('export.overview.date.label'),
             $this->getLanguageService()->getLL('export.overview.configuration.label'),
@@ -407,7 +404,6 @@ abstract class AbstractExportView
             LF,
             implode(LF, $content)
         );
-        return $out;
     }
 
     /**

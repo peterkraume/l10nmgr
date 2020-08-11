@@ -104,7 +104,7 @@ class L10nConfiguration
     }
 
     /**
-     * Factory method to create AccumulatedInformations Object (e.g. build tree etc...)
+     * Factory method to create AccumulatedInformation Object (e.g. build tree etc...)
      * (Factorys should have all dependencies passed as parameter)
      *
      * @param int $sysLang sys_language_uid

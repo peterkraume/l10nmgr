@@ -61,7 +61,7 @@ class ClickMenu
      * @internal param $ [type]$table: ...
      * @internal param $ [type]$uid: ...
      */
-    public function main(&$backRef, $menuItems, $table, $uid)
+    public function main($backRef, $menuItems, $table, $uid)
     {
         $localItems = [];
         if (!$backRef->cmLevel) {
@@ -146,11 +146,10 @@ class ClickMenu
      */
     protected function includeLL()
     {
-        $LOCAL_LANG = $this->getLanguageService()->includeLLFile(
+        return $this->getLanguageService()->includeLLFile(
             'EXT:l10nmgr/Resources/Private/Language/locallang.xml',
             false
         );
-        return $LOCAL_LANG;
     }
 
     /**

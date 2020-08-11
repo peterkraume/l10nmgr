@@ -66,6 +66,10 @@ class L10nBaseService implements LoggerAwareInterface
     /**
      * @var array
      */
+    protected $TCEmain_data = [];
+    /**
+     * @var array
+     */
     protected $checkedParentRecords = [];
     /**
      * @var array
@@ -322,8 +326,7 @@ class L10nBaseService implements LoggerAwareInterface
                 }
             }
 
-            $rows = $queryBuilder->execute()->fetchAll();
-            return $rows;
+            return $queryBuilder->execute()->fetchAll();
         }
         return [];
     }

@@ -18,9 +18,9 @@ namespace Localizationteam\L10nmgr\Controller;
 use TYPO3\CMS\Backend\Template\DocumentTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Exception;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
-use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
@@ -311,6 +311,7 @@ class BaseModule
      * Return the content of the 'main' function inside the "Function menu module" if present
      *
      * @return string
+     * @throws Exception
      */
     public function getExtObjContent()
     {
@@ -324,6 +325,7 @@ class BaseModule
 
     /**
      * Calls the 'main' function inside the "Function menu module" if present
+     * @throws Exception
      */
     public function extObjContent()
     {
@@ -336,7 +338,6 @@ class BaseModule
             );
             /** @var FlashMessageService $flashMessageService */
             $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
-            /** @var FlashMessageQueue $defaultFlashMessageQueue */
             $defaultFlashMessageQueue = $flashMessageService->getMessageQueueByIdentifier();
             $defaultFlashMessageQueue->enqueue($flashMessage);
         } else {

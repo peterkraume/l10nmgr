@@ -269,7 +269,7 @@ class CatXmlImportManager
      *
      * @return array Page IDs for preview
      */
-    public function getPidsFromCATXMLNodes(&$xmlNodes)
+    public function getPidsFromCATXMLNodes($xmlNodes)
     {
         $pids = [];
         if (is_array($xmlNodes['TYPO3L10N'][0]['ch']['pageGrp'])) {
@@ -287,7 +287,7 @@ class CatXmlImportManager
      *
      * @return array Uids for which localizations shall be removed
      */
-    public function getDelL10NDataFromCATXMLNodes(&$xmlNodes)
+    public function getDelL10NDataFromCATXMLNodes($xmlNodes)
     {
         //get L10Ns to be deleted before import
         $delL10NUids = [];

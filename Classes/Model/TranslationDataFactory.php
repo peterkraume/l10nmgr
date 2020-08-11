@@ -53,7 +53,7 @@ class TranslationDataFactory implements LoggerAwareInterface
      *
      * @return TranslationData Object with data
      **/
-    public function getTranslationDataFromCATXMLNodes(&$xmlNodes)
+    public function getTranslationDataFromCATXMLNodes($xmlNodes)
     {
         $data = $this->getParsedCATXMLFromXMLNodes($xmlNodes);
         /** @var TranslationData $translationData */
@@ -69,7 +69,7 @@ class TranslationDataFactory implements LoggerAwareInterface
      *
      * @return array with translated information
      **/
-    protected function getParsedCATXMLFromXMLNodes(&$xmlNodes)
+    protected function getParsedCATXMLFromXMLNodes($xmlNodes)
     {
         /** @var XmlTools $xmlTool */
         $xmlTool = GeneralUtility::makeInstance(XmlTools::class);
@@ -193,7 +193,7 @@ class TranslationDataFactory implements LoggerAwareInterface
 
     /**
      * For supporting older Format (without pagegrp element)
-     *public Factory method to get initialised tranlationData Object from the passed XML
+     *public Factory method to get initialised translationData Object from the passed XML
      *
      * @param string $xmlFile Path to the XML file
      *
