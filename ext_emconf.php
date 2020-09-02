@@ -7,13 +7,12 @@
  * Only the data in the array - everything else is removed by next
  * writing. "version" and "dependencies" must not be touched!
  ***************************************************************/
-
 $EM_CONF[$_EXTKEY] = array(
     'title' => 'Localization Manager',
     'description' => 'Module for managing localization import and export',
     'category' => 'module',
     'shy' => 0,
-    'version' => '7.3.3',
+    'version' => '7.4.0',
     'dependencies' => '',
     'conflicts' => '',
     'priority' => '',

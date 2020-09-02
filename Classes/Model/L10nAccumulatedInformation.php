@@ -179,10 +179,17 @@ class L10nAccumulatedInformation
                     if (GeneralUtility::inList($l10ncfg['tablelist'], $table)) {
                         
                         if ($table === 'pages') {
-                            $accum[$pageId]['items'][$table][$pageId] = $t8Tools->translationDetails('pages',
-                                BackendUtility::getRecordWSOL('pages', $pageId), $sysLang, $flexFormDiff,
-                                $previewLanguage);
-                            $this->_increaseInternalCounters($accum[$pageId]['items'][$table][$pageId]['fields']);
+                            $row = BackendUtility::getRecordWSOL('pages', $pageId);
+                            if ($t8Tools->canUserEditRecord($table, $row)) {
+                                $accum[$pageId]['items'][$table][$pageId] = $t8Tools->translationDetails(
+                                    'pages',
+                                    $row,
+                                    $sysLang,
+                                    $flexFormDiff,
+                                    $previewLanguage
+                                );
+                                $this->_increaseInternalCounters($accum[$pageId]['items'][$table][$pageId]['fields']);
+                            }
                         } else {
                             $allRows = $t8Tools->getRecordsToTranslateFromTable($table, $pageId);
                             
