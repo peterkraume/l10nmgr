@@ -78,6 +78,9 @@ class CatXmlView extends AbstractExportView
         $targetIso = '';
         // Traverse the structure and generate XML output:
         foreach ($accum as $pId => $page) {
+            if (empty($accum[$pId]['items'])) {
+                continue;
+            }
             $output[] = "\t" . '<pageGrp id="' . $pId . '" sourceUrl="' . GeneralUtility::getIndpEnv("TYPO3_SITE_URL") . 'index.php?id=' . $pId . '">' . "\n";
             foreach ($accum[$pId]['items'] as $table => $elements) {
                 foreach ($elements as $elementUid => $data) {
