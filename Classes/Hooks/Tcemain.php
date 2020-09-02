@@ -57,7 +57,7 @@ class Tcemain
      * @param $fieldArray
      * @param $pObj
      */
-    public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, &$pObj)
+    public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, $pObj)
     {
         // Check if
         // debug(array($status, $table, $id));
@@ -214,7 +214,8 @@ class Tcemain
                 . htmlspecialchars(
                     'parent.list_frame.location.href="' . $GLOBALS['BACK_PATH']
                     . $this->siteRelPath('l10nmgr')
-                    . 'cm2/index.php?table=' . $p[0] . '&uid=' . $p[1] . '&languageList=' . rawurlencode(implode(',', $languageList))
+                    . 'cm2/index.php?table=' . $p[0] . '&uid=' . $p[1] . '&languageList=' . rawurlencode(implode(',',
+                        $languageList))
                     . '"; return false;'
                 ) . '" target="listframe">' . $output . '</a>'
                 : $output;

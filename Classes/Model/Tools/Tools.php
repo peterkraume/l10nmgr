@@ -61,36 +61,43 @@ class Tools
      */
     static $systemLanguages;
     /**
+     * Cache the TCA configuration of tables with their types during runtime
+     *
      * @var array
+     * @see self::getTCAtypes()
      */
-    public $filters = [
-        'fieldTypes'      => 'text,input',
-        'noEmptyValues'   => true,
-        'noIntegers'      => true,
-        'l10n_categories' => '' // could be "text,media" for instance.
-    ];
+    protected static $tcaTableTypeConfigurationCache = [];
     // Array of sys_language_uids, eg. array(1,2)
     /**
      * @var array
      */
-    public $previewLanguages = []; // If TRUE, when fields are not included there will be shown a detailed explanation.
+    public $filters = [
+        'fieldTypes' => 'text,input',
+        'noEmptyValues' => true,
+        'noIntegers' => true,
+        'l10n_categories' => '' // could be "text,media" for instance.
+    ]; // If TRUE, when fields are not included there will be shown a detailed explanation.
+    /**
+     * @var array
+     */
+    public $previewLanguages = []; // If TRUE, do not call filter function
     /**
      * @var bool
      */
-    public $verbose = true; // If TRUE, do not call filter function
+    public $verbose = true; //if set to true also FCE with language setting default will be included (not only All)
     /**
      * @var bool
      */
-    public $bypassFilter = false; //if set to true also FCE with language setting default will be included (not only All)
+    public $bypassFilter = false; // Object to t3lib_transl8tools, set in constructor
     /**
      * @var bool
      */
-    public $includeFceWithDefaultLanguage = false; // Object to t3lib_transl8tools, set in constructor
+    public $includeFceWithDefaultLanguage = false; // Output for translation details
+    // Internal:
     /**
      * @var null|TranslationConfigurationProvider
      */
-    public $t8Tools = null; // Output for translation details
-    // Internal:
+    public $t8Tools = null;
     /**
      * @var array
      */
@@ -276,14 +283,14 @@ class Tools
                                     // even if the default value is empty for some reason.
                                     if (!$this->filters['noIntegers'] || !MathUtility::canBeInterpretedAsInteger($dataValue) || $this->bypassFilter) {
                                         $this->detailsOutput['fields'][$key] = [
-                                            'defaultValue'          => $dataValue,
-                                            'translationValue'      => $translationValue,
-                                            'diffDefaultValue'      => $TCEformsCfg['l10n_display'] != 'hideDiff' ? $diffDefaultValue : '',
+                                            'defaultValue' => $dataValue,
+                                            'translationValue' => $translationValue,
+                                            'diffDefaultValue' => $TCEformsCfg['l10n_display'] != 'hideDiff' ? $diffDefaultValue : '',
                                             'previewLanguageValues' => $previewLanguageValues,
-                                            'msg'                   => $msg,
-                                            'readOnly'              => $TCEformsCfg['l10n_display'] == 'defaultAsReadonly',
-                                            'fieldType'             => $TCEformsCfg['config']['type'],
-                                            'isRTE'                 => $this->_isRTEField($key, $TCEformsCfg,
+                                            'msg' => $msg,
+                                            'readOnly' => $TCEformsCfg['l10n_display'] == 'defaultAsReadonly',
+                                            'fieldType' => $TCEformsCfg['config']['type'],
+                                            'isRTE' => $this->_isRTEField($key, $TCEformsCfg,
                                                 $contentRow),
                                         ];
                                     } elseif ($this->verbose) {
@@ -343,12 +350,96 @@ class Tools
                 ) {
                     $isRTE = true;
                 } else {
-                    $typesDefinition = BackendUtility::getTCAtypes($table, $contentRow, true);
+                    $typesDefinition = $this->getTCAtypes($table, $contentRow, true);
                     $isRTE = !empty($typesDefinition[$field]['spec']['richtext']);
                 }
             }
         }
         return $isRTE;
+    }
+
+    /**
+     * Returns the "types" configuration parsed into an array for the record, $rec, from table, $table
+     *
+     * @param string $table Table name (present in TCA)
+     * @param array $rec Record from $table
+     * @param bool $useFieldNameAsKey If $useFieldNameAsKey is set, then the fieldname is associative keys in the return array, otherwise just numeric keys.
+     * @return array|null
+     */
+    public static function getTCAtypes($table, $rec, $useFieldNameAsKey = false)
+    {
+        if (isset($GLOBALS['TCA'][$table])) {
+            // Get type value:
+            $fieldValue = BackendUtility::getTCAtypeValue($table, $rec);
+            $cacheIdentifier = $table . '-type-' . $fieldValue . '-fnk-' . $useFieldNameAsKey;
+
+            // Fetch from first-level-cache if available
+            if (isset(self::$tcaTableTypeConfigurationCache[$cacheIdentifier])) {
+                return self::$tcaTableTypeConfigurationCache[$cacheIdentifier];
+            }
+
+            // Get typesConf
+            $typesConf = $GLOBALS['TCA'][$table]['types'][$fieldValue] ?? null;
+            // Get fields list and traverse it
+            $fieldList = explode(',', $typesConf['showitem']);
+
+            // Add subtype fields e.g. for a valid RTE transformation
+            // The RTE runs the DB -> RTE transformation only, if the RTE field is part of the getTCAtypes array
+            if (isset($typesConf['subtype_value_field'])) {
+                $subType = $rec[$typesConf['subtype_value_field']];
+                if (isset($typesConf['subtypes_addlist'][$subType])) {
+                    $subFields = GeneralUtility::trimExplode(',', $typesConf['subtypes_addlist'][$subType], true);
+                    $fieldList = array_merge($fieldList, $subFields);
+                }
+            }
+
+            // Add palette fields e.g. for a valid RTE transformation
+            $paletteFieldList = [];
+            foreach ($fieldList as $fieldData) {
+                $fieldDataArray = GeneralUtility::trimExplode(';', $fieldData);
+                // first two entries would be fieldname and altTitle, they are not used here.
+                $pPalette = $fieldDataArray[2] ?? null;
+                if ($pPalette
+                    && isset($GLOBALS['TCA'][$table]['palettes'][$pPalette])
+                    && is_array($GLOBALS['TCA'][$table]['palettes'][$pPalette])
+                    && isset($GLOBALS['TCA'][$table]['palettes'][$pPalette]['showitem'])
+                ) {
+                    $paletteFields = GeneralUtility::trimExplode(',',
+                        $GLOBALS['TCA'][$table]['palettes'][$pPalette]['showitem'], true);
+                    foreach ($paletteFields as $paletteField) {
+                        if ($paletteField !== '--linebreak--') {
+                            $paletteFieldList[] = $paletteField;
+                        }
+                    }
+                }
+            }
+            $fieldList = array_merge($fieldList, $paletteFieldList);
+            $altFieldList = [];
+            // Traverse fields in types config and parse the configuration into a nice array:
+            foreach ($fieldList as $k => $v) {
+                $vArray = GeneralUtility::trimExplode(';', $v);
+                $fieldList[$k] = [
+                    'field' => $vArray[0],
+                    'title' => $vArray[1] ?? null,
+                    'palette' => $vArray[2] ?? null,
+                    'spec' => [],
+                    'origString' => $v
+                ];
+                if ($useFieldNameAsKey) {
+                    $altFieldList[$fieldList[$k]['field']] = $fieldList[$k];
+                }
+            }
+            if ($useFieldNameAsKey) {
+                $fieldList = $altFieldList;
+            }
+
+            // Add to first-level-cache
+            self::$tcaTableTypeConfigurationCache[$cacheIdentifier] = $fieldList;
+
+            // Return array:
+            return $fieldList;
+        }
+        return null;
     }
 
     /**
@@ -596,7 +687,8 @@ class Tools
             $this->indexFilterObjects[$pageId] = [];
             $c = 0;
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['indexFilter'] as $objArray) {
-                $this->indexFilterObjects[$pageId][$c] = &GeneralUtility::getUserObj($objArray[0]);
+                $instance = GeneralUtility::makeInstance($objArray[0]);
+                $this->indexFilterObjects[$pageId][$c] = &$instance;
                 $this->indexFilterObjects[$pageId][$c]->init($pageId);
                 $c++;
             }
@@ -894,12 +986,12 @@ class Tools
             }
         }
         return [
-            'table'                  => $table,
-            'uid'                    => $uid,
-            'CType'                  => $row['CType'],
-            'sys_language_uid'       => $row[$GLOBALS['TCA'][$table]['ctrl']['languageField']],
-            'translation_table'      => $table,
-            'translations'           => $translations,
+            'table' => $table,
+            'uid' => $uid,
+            'CType' => $row['CType'],
+            'sys_language_uid' => $row[$GLOBALS['TCA'][$table]['ctrl']['languageField']],
+            'translation_table' => $table,
+            'translations' => $translations,
             'excessive_translations' => $translations_errors,
         ];
     }
@@ -991,11 +1083,6 @@ class Tools
         }
         if (!empty($dataStructArray)) {
             return $dataStructArray;
-        } else {
-            $dataStructArray = BackendUtility::getFlexFormDS($conf, $row, $table, $field);
-            if (is_array($dataStructArray)) {
-                return $dataStructArray;
-            }
         }
         return false;
     }
@@ -1064,23 +1151,23 @@ class Tools
     protected function compileIndexRecord($fullDetails, $sys_lang, $pid)
     {
         $record = [
-            'hash'               => '',
-            'tablename'          => $fullDetails['translationInfo']['table'],
-            'recuid'             => (int)$fullDetails['translationInfo']['uid'],
-            'recpid'             => $pid,
-            'sys_language_uid'   => (int)$fullDetails['translationInfo']['sys_language_uid'],
+            'hash' => '',
+            'tablename' => $fullDetails['translationInfo']['table'],
+            'recuid' => (int)$fullDetails['translationInfo']['uid'],
+            'recpid' => $pid,
+            'sys_language_uid' => (int)$fullDetails['translationInfo']['sys_language_uid'],
             // can be zero (default) or -1 (international)
-            'translation_lang'   => $sys_lang,
+            'translation_lang' => $sys_lang,
             'translation_recuid' => (int)$fullDetails['translationInfo']['translations'][$sys_lang]['uid'],
-            'workspace'          => $this->getBackendUser()->workspace,
-            'serializedDiff'     => [],
-            'flag_new'           => 0,
+            'workspace' => $this->getBackendUser()->workspace,
+            'serializedDiff' => [],
+            'flag_new' => 0,
             // Something awaits to get translated => Put to TODO list as a new element
-            'flag_unknown'       => 0,
+            'flag_unknown' => 0,
             // Status of this is unknown, probably because it has been "localized" but not yet translated from the default language => Put to TODO LIST as a priority
-            'flag_noChange'      => 0,
+            'flag_noChange' => 0,
             // If only "noChange" is set for the record, all is well!
-            'flag_update'        => 0,
+            'flag_update' => 0,
             // This indicates something to update
         ];
         if (is_array($fullDetails['fields'])) {

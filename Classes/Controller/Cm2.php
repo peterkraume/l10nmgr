@@ -1,5 +1,7 @@
 <?php
+
 namespace Localizationteam\L10nmgr\Controller;
+
 /***************************************************************
  * Copyright notice
  * (c) 2007 Kasper Skårhøj <kasperYYYY@typo3.com>
@@ -26,14 +28,13 @@ namespace Localizationteam\L10nmgr\Controller;
 
 use Localizationteam\L10nmgr\Model\Tools\Tools;
 use PDO;
-use TYPO3\CMS\Backend\Module\BaseScriptClass;
 use TYPO3\CMS\Backend\Template\DocumentTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Lang\LanguageService;
+use TYPO3\CMS\Core\Localization\LanguageService;
 
 /**
  * Translation management tool
@@ -42,7 +43,7 @@ use TYPO3\CMS\Lang\LanguageService;
  * @packageTYPO3
  * @subpackage tx_l10nmgr
  */
-class Cm2 extends BaseScriptClass
+class Cm2 extends BaseModule
 {
     /**
      * @var LanguageService

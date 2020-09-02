@@ -417,7 +417,7 @@
 				<source>Kind regards,</source>
 				<target></target>
 			</trans-unit>
-			<trans-unit id="email.info.exportef_file.msg" xml:space="preserve" approved="yes">
+			<trans-unit id="email.info.exported_file.msg" xml:space="preserve" approved="yes">
 				<source>Exported file:</source>
 				<target></target>
 			</trans-unit>

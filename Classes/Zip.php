@@ -2,6 +2,7 @@
 
 namespace Localizationteam\L10nmgr;
 
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -169,7 +170,7 @@ class Zip
     public function extractFile($file)
     {
         if (is_file($file)) {
-            $tempDir = PATH_site . 'typo3temp/' . md5(microtime()) . '/';
+            $tempDir = Environment::getPublicPath() . '/typo3temp/' . md5(microtime()) . '/';
             GeneralUtility::mkdir($tempDir);
             if (is_dir($tempDir)) {
                 // This is if I want to check the content:
@@ -207,8 +208,7 @@ class Zip
         $fileArr = array_merge($fileArr, GeneralUtility::getFilesInDir($extPath, $extList, 1, 1));
         $dirs = GeneralUtility::get_dirs($extPath);
         if (is_array($dirs)) {
-            reset($dirs);
-            while (list(, $subdirs) = each($dirs)) {
+            foreach($dirs as $subdirs) {
                 if ($subdirs) {
                     $fileArr = $this->getAllFilesAndFoldersInPath($fileArr, $extPath . $subdirs . '/');
                 }
@@ -227,15 +227,14 @@ class Zip
      */
     public function removeDir($tempDir)
     {
-        $testDir = PATH_site . 'typo3temp/';
+        $testDir = Environment::getPublicPath() . '/typo3temp/';
         if (!GeneralUtility::isFirstPartOfStr($tempDir, $testDir)) {
             die($tempDir . ' was not within ' . $testDir);
         }
         // Go through dirs:
         $dirs = GeneralUtility::get_dirs($tempDir);
         if (is_array($dirs)) {
-            reset($dirs);
-            while (list(, $subdirs) = each($dirs)) {
+            foreach($dirs as $subdirs) {
                 if ($subdirs) {
                     $this->removeDir($tempDir . $subdirs . '/');
                 }
@@ -244,8 +243,7 @@ class Zip
         // Then files in this dir:
         $fileArr = GeneralUtility::getFilesInDir($tempDir, '', 1);
         if (is_array($fileArr)) {
-            reset($fileArr);
-            while (list(, $file) = each($fileArr)) {
+            foreach($fileArr as $file) {
                 if (!GeneralUtility::isFirstPartOfStr($file, $testDir)) {
                     die($file . ' was not within ' . $testDir);
                 }
