@@ -75,6 +75,9 @@ class ExcelXmlView extends AbstractExportView
         $altSourceColState = '';
         // Traverse the structure and generate HTML output:
         foreach ($accum as $pId => $page) {
+            if (empty($accum[$pId]['items'])) {
+                continue;
+            }
             $output[] = '
 	<!-- Page header -->
 	<Row>
