@@ -127,6 +127,9 @@ class Export extends L10nCommand
         $error = false;
         $time_start = microtime(true);
 
+        // Ensure the _cli_ user is authenticated
+        $this->getBackendUser()->backendCheckLogin();
+
         $this->extensionConfiguration = $this->getExtConf();
 
         // get format (CATXML,EXCEL)
