@@ -29,6 +29,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Exception;
@@ -115,7 +116,7 @@ class Export extends L10nCommand
     }
 
     /**
-     * Executes the command for straigthening content elements
+     * Executes the command for straightening content elements
      *
      * @param InputInterface $input
      * @param OutputInterface $output
@@ -237,7 +238,7 @@ class Export extends L10nCommand
                 $l10nmgrGetXML->setOverrideParams(
                     [
                         'noxmlcheck' => !(bool)$input->getOption('checkXml'),
-                        'utf8'       => (bool)$input->getOption('utf8'),
+                        'utf8' => (bool)$input->getOption('utf8'),
                     ]
                 );
             } elseif ($format == 'EXCEL') {
@@ -274,7 +275,7 @@ class Export extends L10nCommand
                 $output->writeln('<error>' . $l10nmgrGetXML->renderExportsCli() . LF . '</error>');
             } else {
                 // Save export to XML file
-                $xmlFileName = PATH_site . $l10nmgrGetXML->render();
+                $xmlFileName = Environment::getPublicPath() . '/' . $l10nmgrGetXML->render();
                 $l10nmgrGetXML->saveExportInformation();
                 // If email notification is set send export files to responsible translator
                 if ($this->extensionConfiguration['enable_notification'] == 1) {
@@ -330,42 +331,6 @@ class Export extends L10nCommand
     }
 
     /**
-     * The function ftpUpload puts an export on a remote FTP server for further processing
-     *
-     * @param string $xmlFileName Path to the file to upload
-     * @param string $filename Name of the file to upload to
-     *
-     * @return string Error message
-     */
-    protected function ftpUpload($xmlFileName, $filename)
-    {
-        $error = '';
-        $connection = ftp_connect($this->extensionConfiguration['ftp_server']) or die('Connection failed');
-        if ($connection) {
-            if (@ftp_login($connection, $this->extensionConfiguration['ftp_server_username'], $this->extensionConfiguration['ftp_server_password'])) {
-                if (ftp_put($connection, $this->extensionConfiguration['ftp_server_path'] . $filename, $xmlFileName, FTP_BINARY)) {
-                    ftp_close($connection) or die("Couldn't close connection");
-                } else {
-                    $error .= sprintf(
-                            $this->getLanguageService()->getLL('error.ftp.connection.msg'),
-                            $this->extensionConfiguration['ftp_server_path'],
-                            $filename
-                        ) . "\n";
-                }
-            } else {
-                $error .= sprintf(
-                        $this->getLanguageService()->getLL('error.ftp.connection_user.msg'),
-                        $this->extensionConfiguration['ftp_server_username']
-                    ) . "\n";
-                ftp_close($connection) or die("Couldn't close connection");
-            }
-        } else {
-            $error .= $this->getLanguageService()->getLL('error.ftp.connection_failed.msg');
-        }
-        return $error;
-    }
-
-    /**
      * The function emailNotification sends an email with a translation job to the recipient specified in the extension config.
      *
      * @param string $xmlFileName Name of the XML file
@@ -377,7 +342,7 @@ class Export extends L10nCommand
         // If at least a recipient is indeed defined, proceed with sending the mail
         $recipients = GeneralUtility::trimExplode(',', $this->extensionConfiguration['email_recipient']);
         if (count($recipients) > 0) {
-            $fullFilename = PATH_site . 'uploads/tx_l10nmgr/jobs/out/' . $xmlFileName;
+            $fullFilename = Environment::getPublicPath() . '/' . 'uploads/tx_l10nmgr/jobs/out/' . $xmlFileName;
             // Get source & target language ISO codes
             $sourceStaticLangArr = BackendUtility::getRecord('static_languages',
                 $l10nmgrCfgObj->l10ncfg['sourceLangStaticId'], 'lg_iso_2');
@@ -393,18 +358,18 @@ class Export extends L10nCommand
                 $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
             // Assemble message body
             $message = [
-                'msg1'  => $this->getLanguageService()->getLL('email.greeting.msg'),
-                'msg2'  => '',
-                'msg3'  => sprintf($this->getLanguageService()->getLL('email.new_translation_job.msg'), $sourceLang,
+                'msg1' => $this->getLanguageService()->getLL('email.greeting.msg'),
+                'msg2' => '',
+                'msg3' => sprintf($this->getLanguageService()->getLL('email.new_translation_job.msg'), $sourceLang,
                     $targetLang,
                     $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']),
-                'msg4'  => $this->getLanguageService()->getLL('email.info.msg'),
-                'msg5'  => $this->getLanguageService()->getLL('email.info.import.msg'),
-                'msg6'  => '',
-                'msg7'  => $this->getLanguageService()->getLL('email.goodbye.msg'),
-                'msg8'  => $fromName,
-                'msg9'  => '--',
-                'msg10' => $this->getLanguageService()->getLL('email.info.exportef_file.msg'),
+                'msg4' => $this->getLanguageService()->getLL('email.info.msg'),
+                'msg5' => $this->getLanguageService()->getLL('email.info.import.msg'),
+                'msg6' => '',
+                'msg7' => $this->getLanguageService()->getLL('email.goodbye.msg'),
+                'msg8' => $fromName,
+                'msg9' => '--',
+                'msg10' => $this->getLanguageService()->getLL('email.info.exported_file.msg'),
                 'msg11' => $xmlFileName,
             ];
             if ($this->extensionConfiguration['email_attachment']) {
@@ -426,5 +391,43 @@ class Export extends L10nCommand
             }
             $mailObject->send();
         }
+    }
+
+    /**
+     * The function ftpUpload puts an export on a remote FTP server for further processing
+     *
+     * @param string $xmlFileName Path to the file to upload
+     * @param string $filename Name of the file to upload to
+     *
+     * @return string Error message
+     */
+    protected function ftpUpload($xmlFileName, $filename)
+    {
+        $error = '';
+        $connection = ftp_connect($this->extensionConfiguration['ftp_server']) or die('Connection failed');
+        if ($connection) {
+            if (@ftp_login($connection, $this->extensionConfiguration['ftp_server_username'],
+                $this->extensionConfiguration['ftp_server_password'])) {
+                if (ftp_put($connection, $this->extensionConfiguration['ftp_server_path'] . $filename, $xmlFileName,
+                    FTP_BINARY)) {
+                    ftp_close($connection) or die("Couldn't close connection");
+                } else {
+                    $error .= sprintf(
+                            $this->getLanguageService()->getLL('error.ftp.connection.msg'),
+                            $this->extensionConfiguration['ftp_server_path'],
+                            $filename
+                        ) . "\n";
+                }
+            } else {
+                $error .= sprintf(
+                        $this->getLanguageService()->getLL('error.ftp.connection_user.msg'),
+                        $this->extensionConfiguration['ftp_server_username']
+                    ) . "\n";
+                ftp_close($connection) or die("Couldn't close connection");
+            }
+        } else {
+            $error .= $this->getLanguageService()->getLL('error.ftp.connection_failed.msg');
+        }
+        return $error;
     }
 }

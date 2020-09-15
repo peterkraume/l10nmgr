@@ -15,7 +15,7 @@ use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Lang\LanguageService;
+use TYPO3\CMS\Core\Localization\LanguageService;
 
 class LanguageRestrictionRegistry implements SingletonInterface
 {
@@ -229,8 +229,8 @@ class LanguageRestrictionRegistry implements SingletonInterface
             $columns = [
                 $fieldName => [
                     'exclude' => $exclude,
-                    'label'   => $label,
-                    'config'  => static::getTcaFieldConfiguration($tableName, $fieldName, $fieldConfiguration),
+                    'label' => $label,
+                    'config' => static::getTcaFieldConfiguration($tableName, $fieldName, $fieldConfiguration),
                 ],
             ];
 
@@ -276,18 +276,18 @@ class LanguageRestrictionRegistry implements SingletonInterface
     ) {
         // Forges a new field, default name is "l10nmgr_language_restriction"
         $fieldConfiguration = [
-            'type'                => 'select',
-            'renderType'          => 'selectMultipleSideBySide',
-            'foreign_table'       => Constants::L10NMGR_LANGUAGE_RESTRICTION_FOREIGN_TABLENAME,
+            'type' => 'select',
+            'renderType' => 'selectMultipleSideBySide',
+            'foreign_table' => Constants::L10NMGR_LANGUAGE_RESTRICTION_FOREIGN_TABLENAME,
             'foreign_table_where' => ' ORDER BY sys_language.sorting ASC',
-            'MM'                  => Constants::L10NMGR_LANGUAGE_RESTRICTION_MM_TABLENAME,
-            'MM_opposite_field'   => 'items',
-            'MM_match_fields'     => [
+            'MM' => Constants::L10NMGR_LANGUAGE_RESTRICTION_MM_TABLENAME,
+            'MM_opposite_field' => 'items',
+            'MM_match_fields' => [
                 'tablenames' => $tableName,
-                'fieldname'  => $fieldName,
+                'fieldname' => $fieldName,
             ],
-            'size'                => 10,
-            'maxitems'            => 9999,
+            'size' => 10,
+            'maxitems' => 9999,
         ];
 
         // Merge changes to TCA configuration

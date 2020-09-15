@@ -92,6 +92,7 @@ return [
                 'size'        => 5,
                 'autoSizeMax' => 50,
                 'maxitems'    => 100,
+                'itemsProcFunc' => 'Localizationteam\L10nmgr\Backend\ItemsProcFuncs\Tablelist->itemsProcFunc',
             ],
         ],
         'exclude'                      => [

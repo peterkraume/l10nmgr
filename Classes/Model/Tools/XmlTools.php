@@ -48,110 +48,6 @@ class XmlTools implements LoggerAwareInterface
     }
 
     /**
-     * Transforms a RTE Field to valid XML
-     *
-     * @param string $content HTML String which should be transformed
-     *
-     * @param int $withStripBadUTF8
-     * @return mixed false if transformation failed, string with XML if all fine
-     */
-    public function RTE2XML($content, $withStripBadUTF8 = 0)
-    {
-        //function RTE2XML($content,$withStripBadUTF8=$this->getBackendUser()->getModuleData('l10nmgr/cm1/checkUTF8', '')) {
-        //if (!$withStripBadUTF8) {
-        // $withStripBadUTF8 = $this->getBackendUser()->getModuleData('l10nmgr/cm1/checkUTF8', '');
-        //}
-        //echo '###'.$withStripBadUTF8;
-        // First call special transformations (registered using hooks)
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'])) {
-            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'] as $classReference) {
-                $processingObject = GeneralUtility::getUserObj($classReference);
-                $content = $processingObject->transform_rte($content, $this->parseHTML);
-            }
-        }
-        $content = str_replace(CR, '', $content);
-        $pageTsConf = BackendUtility::getPagesTSconfig(0);
-        $rteConfiguration = $pageTsConf['RTE.']['default.'];
-        $content = $this->parseHTML->RTE_transform($content, [], 'rte', $rteConfiguration);
-        //substitute & with &amp;
-        //$content=str_replace('&','&amp;',$content); Changed by DZ 2011-05-11
-        $content = str_replace('<hr>', '<hr />', $content);
-        $content = str_replace('<br>', '<br />', $content);
-        $content = preg_replace('/&amp;([#[:alnum:]]*;)/', '&\\1', $content);
-        if ($withStripBadUTF8 == 1) {
-            $content = Utf8Tools::utf8_bad_strip($content);
-        }
-        if ($this->isValidXMLString($content)) {
-            return $content;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * @param string $xmlString
-     * @return bool
-     */
-    public function isValidXMLString($xmlString)
-    {
-        return $this->isValidXML('<!DOCTYPE dummy [ <!ENTITY nbsp " "> ]><dummy>' . $xmlString . '</dummy>');
-    }
-
-    /**
-     * @param string $xml
-     * @return bool
-     */
-    protected function isValidXML($xml)
-    {
-        $parser = xml_parser_create();
-        $vals = [];
-        $index = [];
-        xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
-        xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 0);
-        xml_parse_into_struct($parser, $xml, $vals, $index);
-        if (xml_get_error_code($parser)) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    /**
-     * Transforms a XML back to RTE / reverse function of RTE2XML
-     *
-     * @param string $xmlstring XMLString which should be transformed
-     *
-     * @return string string with HTML
-     */
-    public function XML2RTE($xmlstring)
-    {
-        //fixed setting of Parser (TO-DO set it via typoscript)
-        //Added because import failed
-        $xmlstring = str_replace('<br/>', '<br>', $xmlstring);
-        $xmlstring = str_replace('<br />', '<br>', $xmlstring);
-        $xmlstring = str_replace('<hr/>', '<hr>', $xmlstring);
-        $xmlstring = str_replace('<hr />', '<hr>', $xmlstring);
-        $xmlstring = str_replace("\xc2\xa0", '&nbsp;', $xmlstring);
-        //Writes debug information for CLI import.
-        $this->logger->debug(__FILE__ . ': Before RTE transformation:' . LF . $xmlstring . LF);
-        $pageTsConf = BackendUtility::getPagesTSconfig(0);
-        $rteConf = $pageTsConf['RTE.']['default.'];
-        $content = $this->parseHTML->RTE_transform($xmlstring, [], 'db', $rteConf);
-        // Last call special transformations (registered using hooks)
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'])) {
-            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'] as $classReference) {
-                $processingObject = GeneralUtility::makeInstance($classReference);
-                $content = $processingObject->transform_db($content, $this->parseHTML);
-            }
-        }
-        //substitute URL in <link> for CLI import
-        $content = preg_replace('/<link http(s)?:\/\/[\w\.\/]*\?id=/', '<link ', $content);
-        //Writes debug information for CLI import.
-        $this->logger->debug(__FILE__ . ': After RTE transformation:' . LF . $content . LF);
-        return $content;
-    }
-
-    /**
      * Parses XML input into a PHP array with associative keys
      *
      * @param string $string XML data input
@@ -232,19 +128,19 @@ class XmlTools implements LoggerAwareInterface
     {
         $XMLcontent = '';
         $selfClosingTags = [
-            'area'    => 1,
-            'base'    => 1,
-            'br'      => 1,
-            'col'     => 1,
+            'area' => 1,
+            'base' => 1,
+            'br' => 1,
+            'col' => 1,
             'command' => 1,
-            'hr'      => 1,
-            'img'     => 1,
-            'input'   => 1,
-            'keygen'  => 1,
-            'link'    => 1,
-            'meta'    => 1,
-            'param'   => 1,
-            'source'  => 1
+            'hr' => 1,
+            'img' => 1,
+            'input' => 1,
+            'keygen' => 1,
+            'link' => 1,
+            'meta' => 1,
+            'param' => 1,
+            'source' => 1
         ];
         foreach ($vals as $val) {
             $type = $val['type'];
@@ -279,5 +175,109 @@ class XmlTools implements LoggerAwareInterface
             }
         }
         return $XMLcontent;
+    }
+
+    /**
+     * Transforms a RTE Field to valid XML
+     *
+     * @param string $content HTML String which should be transformed
+     *
+     * @param int $withStripBadUTF8
+     * @return mixed false if transformation failed, string with XML if all fine
+     */
+    public function RTE2XML($content, $withStripBadUTF8 = 0)
+    {
+        //function RTE2XML($content,$withStripBadUTF8=$this->getBackendUser()->getModuleData('l10nmgr/cm1/checkUTF8', '')) {
+        //if (!$withStripBadUTF8) {
+        // $withStripBadUTF8 = $this->getBackendUser()->getModuleData('l10nmgr/cm1/checkUTF8', '');
+        //}
+        //echo '###'.$withStripBadUTF8;
+        // First call special transformations (registered using hooks)
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'])) {
+            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'] as $classReference) {
+                $processingObject = GeneralUtility::makeInstance($classReference);
+                $content = $processingObject->transform_rte($content, $this->parseHTML);
+            }
+        }
+        $content = str_replace(CR, '', $content);
+        $pageTsConf = BackendUtility::getPagesTSconfig(0);
+        $rteConfiguration = $pageTsConf['RTE.']['default.'];
+        $content = $this->parseHTML->RTE_transform($content, null, 'rte', $rteConfiguration);
+        //substitute & with &amp;
+        //$content=str_replace('&','&amp;',$content); Changed by DZ 2011-05-11
+        $content = str_replace('<hr>', '<hr />', $content);
+        $content = str_replace('<br>', '<br />', $content);
+        $content = preg_replace('/&amp;([#[:alnum:]]*;)/', '&\\1', $content);
+        if ($withStripBadUTF8 == 1) {
+            $content = Utf8Tools::utf8_bad_strip($content);
+        }
+        if ($this->isValidXMLString($content)) {
+            return $content;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @param string $xmlString
+     * @return bool
+     */
+    public function isValidXMLString($xmlString)
+    {
+        return $this->isValidXML('<!DOCTYPE dummy [ <!ENTITY nbsp " "> ]><dummy>' . $xmlString . '</dummy>');
+    }
+
+    /**
+     * @param string $xml
+     * @return bool
+     */
+    protected function isValidXML($xml)
+    {
+        $parser = xml_parser_create();
+        $vals = [];
+        $index = [];
+        xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
+        xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 0);
+        xml_parse_into_struct($parser, $xml, $vals, $index);
+        if (xml_get_error_code($parser)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Transforms a XML back to RTE / reverse function of RTE2XML
+     *
+     * @param string $xmlstring XMLString which should be transformed
+     *
+     * @return string string with HTML
+     */
+    public function XML2RTE($xmlstring)
+    {
+        //fixed setting of Parser (TO-DO set it via typoscript)
+        //Added because import failed
+        $xmlstring = str_replace('<br/>', '<br>', $xmlstring);
+        $xmlstring = str_replace('<br />', '<br>', $xmlstring);
+        $xmlstring = str_replace('<hr/>', '<hr>', $xmlstring);
+        $xmlstring = str_replace('<hr />', '<hr>', $xmlstring);
+        $xmlstring = str_replace("\xc2\xa0", '&nbsp;', $xmlstring);
+        //Writes debug information for CLI import.
+        $this->logger->debug(__FILE__ . ': Before RTE transformation:' . LF . $xmlstring . LF);
+        $pageTsConf = BackendUtility::getPagesTSconfig(0);
+        $rteConf = $pageTsConf['RTE.']['default.'];
+        $content = $this->parseHTML->RTE_transform($xmlstring, null, 'db', $rteConf);
+        // Last call special transformations (registered using hooks)
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'])) {
+            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'] as $classReference) {
+                $processingObject = GeneralUtility::makeInstance($classReference);
+                $content = $processingObject->transform_db($content, $this->parseHTML);
+            }
+        }
+        //substitute URL in <link> for CLI import
+        $content = preg_replace('/<link http(s)?:\/\/[\w\.\/]*\?id=/', '<link ', $content);
+        //Writes debug information for CLI import.
+        $this->logger->debug(__FILE__ . ': After RTE transformation:' . LF . $content . LF);
+        return $content;
     }
 }

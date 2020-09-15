@@ -23,7 +23,8 @@ namespace Localizationteam\L10nmgr\Task;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Lang\LanguageService;
+use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Scheduler\AbstractAdditionalFieldProvider;
 use TYPO3\CMS\Scheduler\AdditionalFieldProviderInterface;
 use TYPO3\CMS\Scheduler\Controller\SchedulerModuleController;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
@@ -38,7 +39,7 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
  * @package TYPO3
  * @subpackage tx_l10nmgr
  */
-class L10nmgrAdditionalFieldProvider implements AdditionalFieldProviderInterface
+class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider implements AdditionalFieldProviderInterface
 {
     /**
      * @var LanguageService
@@ -67,13 +68,13 @@ class L10nmgrAdditionalFieldProvider implements AdditionalFieldProviderInterface
         // Initialize selected fields
         if (!isset($taskInfo['l10nmgr_fileGarbageCollection_age'])) {
             $taskInfo['l10nmgr_fileGarbageCollection_age'] = $this->defaultAge;
-            if ($parentObject->CMD === 'edit') {
+            if ($parentObject->getCurrentAction() === 'edit') {
                 $taskInfo['l10nmgr_fileGarbageCollection_age'] = $task->age;
             }
         }
         if (!isset($taskInfo['l10nmgr_fileGarbageCollection_excludePattern'])) {
             $taskInfo['l10nmgr_fileGarbageCollection_excludePattern'] = $this->defaultPattern;
-            if ($parentObject->CMD === 'edit') {
+            if ($parentObject->getCurrentAction() === 'edit') {
                 $taskInfo['l10nmgr_fileGarbageCollection_excludePattern'] = $task->excludePattern;
             }
         }
@@ -83,9 +84,9 @@ class L10nmgrAdditionalFieldProvider implements AdditionalFieldProviderInterface
         $fieldValue = (int)$taskInfo['l10nmgr_fileGarbageCollection_age'];
         $fieldHtml = '<input type="text" name="' . $fieldName . '" id="' . $fieldId . '" value="' . htmlspecialchars($fieldValue) . '" size="10" />';
         $additionalFields[$fieldId] = [
-            'code'     => $fieldHtml,
-            'label'    => 'LLL:EXT:l10nmgr/Resources/Private/Language/Task/locallang.xlf:fileGarbageCollection.age',
-            'cshKey'   => '_tasks_txl10nmgr',
+            'code' => $fieldHtml,
+            'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/Task/locallang.xlf:fileGarbageCollection.age',
+            'cshKey' => '_tasks_txl10nmgr',
             'cshLabel' => $fieldId,
         ];
         // Add field with pattern for excluding files
@@ -94,9 +95,9 @@ class L10nmgrAdditionalFieldProvider implements AdditionalFieldProviderInterface
         $fieldValue = $taskInfo['l10nmgr_fileGarbageCollection_excludePattern'];
         $fieldHtml = '<input type="text" name="' . $fieldName . '" id="' . $fieldId . '" value="' . htmlspecialchars($fieldValue) . '" size="30" />';
         $additionalFields[$fieldId] = [
-            'code'     => $fieldHtml,
-            'label'    => 'LLL:EXT:l10nmgr/Resources/Private/Language/Task/locallang.xlf:fileGarbageCollection.excludePattern',
-            'cshKey'   => '_tasks_txl10nmgr',
+            'code' => $fieldHtml,
+            'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/Task/locallang.xlf:fileGarbageCollection.excludePattern',
+            'cshKey' => '_tasks_txl10nmgr',
             'cshLabel' => $fieldId,
         ];
         return $additionalFields;
@@ -117,7 +118,7 @@ class L10nmgrAdditionalFieldProvider implements AdditionalFieldProviderInterface
         // If not, fail validation and issue error message
         if (!is_numeric($submittedData['l10nmgr_fileGarbageCollection_age']) || (int)$submittedData['l10nmgr_fileGarbageCollection_age'] <= 0) {
             $result = false;
-            $parentObject->addMessage(
+            $this->addMessage(
                 $this->getLanguageService()->sL(
                     'LLL:EXT:l10nmgr/Resources/Private/Language/Task/locallang.xlf:fileGarbageCollection.invalidAge'
                 ),

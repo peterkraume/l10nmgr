@@ -28,12 +28,13 @@ namespace Localizationteam\L10nmgr\Controller;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Backend\Module\BaseScriptClass;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\DocumentTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
+use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -45,7 +46,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @packageTYPO3
  * @subpackage tx_l10nmgr
  */
-class ConfigurationManager extends BaseScriptClass
+class ConfigurationManager extends BaseModule
 {
     var $pageinfo;
     /**
@@ -84,7 +85,6 @@ class ConfigurationManager extends BaseScriptClass
      */
     public function __construct()
     {
-        parent::__construct();
         $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         $this->moduleTemplate = GeneralUtility::makeInstance(ModuleTemplate::class);
         $this->getLanguageService()->includeLLFile('EXT:l10nmgr/Resources/Private/Language/Modules/ConfigurationManager/locallang.xlf');
@@ -97,12 +97,12 @@ class ConfigurationManager extends BaseScriptClass
      * Injects the request object for the current request or subrequest
      * Then checks for module functions that have hooked in, and renders menu etc.
      *
-     * @param ServerRequestInterface $request the current request
-     * @param ResponseInterface $response
      * @return ResponseInterface the response with the content
      */
-    public function mainAction(ServerRequestInterface $request, ResponseInterface $response)
+    public function mainAction() : ResponseInterface
     {
+        /** @var ResponseInterface $response */
+        $response = func_num_args() === 2 ? func_get_arg(1) : null;
         $GLOBALS['SOBE'] = $this;
         $this->init();
         // Checking for first level external objects
@@ -111,7 +111,12 @@ class ConfigurationManager extends BaseScriptClass
         $this->checkSubExtObj();
         $this->main();
         $this->moduleTemplate->setContent($this->content);
-        $response->getBody()->write($this->moduleTemplate->renderContent());
+        if ($response !== null) {
+            $response->getBody()->write($this->moduleTemplate->renderContent());
+        } else {
+            // Behaviour in TYPO3 v9
+            $response = new HtmlResponse($this->moduleTemplate->renderContent());
+        }
         return $response;
     }
 
@@ -183,10 +188,11 @@ class ConfigurationManager extends BaseScriptClass
                 $configurationDetails .= '</div>';
                 $content .= '<tr class="db_list_normal">';
                 $content .= '<td>' . $configurationDetails . '</td>';
-                $content .= '<td><a href="' . BackendUtility::getModuleUrl('LocalizationManager',
+                $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+                $content .= '<td><a href="' . $uriBuilder->buildUriFromRoute('LocalizationManager',
                         [
-                            'id'        => $record['pid'],
-                            'srcPID'    => $this->id,
+                            'id' => $record['pid'],
+                            'srcPID' => $this->id,
                             'exportUID' => $record['uid'],
                         ]) . '">' . $record['title'] . '</a>' . '</td>';
                 // Get the full page path

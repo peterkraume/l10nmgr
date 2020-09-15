@@ -333,9 +333,9 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
     protected function getPersistableDataArray()
     {
         return [
-            'title'       => $this->getTitle(),
+            'title' => $this->getTitle(),
             'description' => $this->getDescription(),
-            'items'       => $this->getItemUidList(true),
+            'items' => $this->getItemUidList(true),
         ];
     }
 }

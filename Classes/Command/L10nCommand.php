@@ -38,6 +38,7 @@ class L10nCommand extends Command
 
     /**
      * The function loadExtConf loads the extension configuration.
+     * Check for deprecated configuration throws false positive in extension scanner.
      *
      * @return array
      */
