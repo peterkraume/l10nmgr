@@ -16,7 +16,7 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['proc
 $_EXTCONF_ARRAY = unserialize($_EXTCONF);
 
 if ($_EXTCONF_ARRAY['enable_stat_hook']) {
-    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['GLOBAL']['recStatInfoHooks']['tx_l10nmgr'] = 'EXT:l10nmgr/Classes/Hooks/Tcemain.php:Tcemain->stat';
+    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['GLOBAL']['recStatInfoHooks']['tx_l10nmgr'] = \Localizationteam\L10nmgr\Hooks\Tcemain::class . '->stat';
 }
 
 // Add file cleanup task
