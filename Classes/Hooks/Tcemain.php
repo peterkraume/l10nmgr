@@ -36,6 +36,7 @@ use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
+use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -109,7 +110,7 @@ class Tcemain
         if (strcmp($this->getBackendUser()->groupData['allowed_languages'], '')) {
             return $this->calcStat(
                 $p,
-                array_map('intval', $this->getBackendUser()->groupData['allowed_languages'])
+                GeneralUtility::intExplode(',', $this->getBackendUser()->groupData['allowed_languages'], true)
             );
         }
         return '';
