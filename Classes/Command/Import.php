@@ -142,6 +142,7 @@ class Import extends L10nCommand
         $output->writeln(sprintf($this->getLanguageService()->getLL('import.process.duration.message'), $time));
         // Send reporting mail
         $this->sendMailNotification();
+        return 0;
     }
 
     /**
