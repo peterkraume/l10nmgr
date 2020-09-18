@@ -45,7 +45,6 @@ class XmlToolsTestCase extends tx_phpunit_testcase
      */
     public function setUp()
     {
-
         $this->XMLtools = GeneralUtility::makeInstance(XmlTools::class);
     }
 
@@ -56,7 +55,6 @@ class XmlToolsTestCase extends tx_phpunit_testcase
      */
     public function test_isXMLString()
     {
-
         //prepare testdatas
         $_fixture_noXML = '<a>my test<p>test</p>';
         $_fixture_noXML2 = 'my test & du';
@@ -81,8 +79,11 @@ class XmlToolsTestCase extends tx_phpunit_testcase
 
         //do the test:
         $transformed = $this->XMLtools->XML2RTE($this->XMLtools->RTE2XML($fixtureRTE));
-        $this->assertEquals($transformed, $fixtureRTE,
-            "transformationresult:" . $transformed . " is not equal to source.");
+        $this->assertEquals(
+            $transformed,
+            $fixtureRTE,
+            "transformationresult:" . $transformed . " is not equal to source."
+        );
     }
 
     /**
@@ -99,8 +100,11 @@ class XmlToolsTestCase extends tx_phpunit_testcase
         //do the test:
         $transformed = $this->XMLtools->XML2RTE($this->XMLtools->RTE2XML($fixtureRTE));
 
-        $this->assertEquals($transformed, $fixtureRTE,
-            "transformationresult:" . $transformed . " is not equal to source.");
+        $this->assertEquals(
+            $transformed,
+            $fixtureRTE,
+            "transformationresult:" . $transformed . " is not equal to source."
+        );
     }
 
     /**
@@ -131,7 +135,6 @@ class XmlToolsTestCase extends tx_phpunit_testcase
      */
     public function test_keepXHTMLValidBRTest()
     {
-
         // prepare the test data
         $fixtureRTE = 'here coms some .. 8747()/=<="($<br />';
 
@@ -148,7 +151,6 @@ class XmlToolsTestCase extends tx_phpunit_testcase
      */
     public function testr_keepXHMLValidBRInnerList()
     {
-
         //prepare the test data
         $fixtureRTE = '<ul><li>  Sign on with a single user name and password to simplify user management and support  </li><li> Easily share individual applications and documents with the click of a mouse  </li><li> Simplify meeting participation with callbacks and 800 numbers through our integrated telephony and audio<br /><br /> </li></ul>';
 
@@ -165,7 +167,6 @@ class XmlToolsTestCase extends tx_phpunit_testcase
      */
     public function test_removeDeadLinkHandlingTest()
     {
-
         // prepare testdata
         $fixtureRTE = 'here comes some ... <link 92783928>this is my link</link>';
 

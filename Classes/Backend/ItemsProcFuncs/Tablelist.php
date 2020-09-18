@@ -33,7 +33,7 @@ class Tablelist implements SingletonInterface
     {
         $items = [];
         if (!empty($params['items'])) {
-            foreach($params['items'] as $item) {
+            foreach ($params['items'] as $item) {
                 if (!empty($item[1]) && isset($GLOBALS['TCA'][$item[1]]['ctrl']['languageField']) && !empty($GLOBALS['TCA'][$item[1]]['ctrl']['languageField'])) {
                     $items[] = $item;
                 }

@@ -69,7 +69,9 @@ class TranslationTasks extends BaseModule
     {
         $this->MCONF['name'] = 'LocalizationManager_TranslationTasks';
         $this->getBackendUser()->modAccess($this->MCONF, 1);
-        $this->getLanguageService()->includeLLFile("EXT:l10nmgr/Resources/Private/Language/Modules/Module2/locallang.xlf");
+        $this->getLanguageService()->includeLLFile(
+            "EXT:l10nmgr/Resources/Private/Language/Modules/Module2/locallang.xlf"
+        );
         parent::init();
     }
 
@@ -100,8 +102,11 @@ class TranslationTasks extends BaseModule
         $this->moduleContent();
         // ShortCut
         if ($this->getBackendUser()->mayMakeShortcut()) {
-            $this->content .= '<hr /><div>' . $this->module->makeShortcutIcon("id",
-                    implode(",", array_keys($this->MOD_MENU)), $this->MCONF["name"]) . '</div>';
+            $this->content .= '<hr /><div>' . $this->module->makeShortcutIcon(
+                    "id",
+                    implode(",", array_keys($this->MOD_MENU)),
+                    $this->MCONF["name"]
+                ) . '</div>';
         }
         $this->content .= '<div class="bottomspace10"></div>';
     }
@@ -114,7 +119,9 @@ class TranslationTasks extends BaseModule
     protected function moduleContent()
     {
         /** @var $queryBuilder QueryBuilder */
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_l10nmgr_priorities');
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(
+            'tx_l10nmgr_priorities'
+        );
         // Selecting priorities:
         $priorities = $queryBuilder->select('*')
             ->from('tx_l10nmgr_priorities')
@@ -128,7 +135,9 @@ class TranslationTasks extends BaseModule
                 $c++;
                 $tRows[] = '
 	<tr>
-	<td class="bgColor5"><strong>#' . ($c) . ': ' . htmlspecialchars($priorityRecord['title']) . '</strong><br />' . htmlspecialchars($priorityRecord['description']) . '</td>
+	<td class="bgColor5"><strong>#' . ($c) . ': ' . htmlspecialchars(
+                        $priorityRecord['title']
+                    ) . '</strong><br />' . htmlspecialchars($priorityRecord['description']) . '</td>
 	</tr>
 	<tr>
 	<td>' . $lTable . '</td>
@@ -154,7 +163,9 @@ class TranslationTasks extends BaseModule
         $this->l10nMgrTools = GeneralUtility::makeInstance(Tools::class);
         $this->l10nMgrTools->verbose = false; // Otherwise it will show records which has fields but none editable.
         $inputRecord = BackendUtility::getRecord($firstEl[0], $firstEl[1], 'pid');
-        $this->sysLanguages = $this->l10nMgrTools->t8Tools->getSystemLanguages($firstEl[0] == 'pages' ? $firstEl[1] : $inputRecord['pid']);
+        $this->sysLanguages = $this->l10nMgrTools->t8Tools->getSystemLanguages(
+            $firstEl[0] == 'pages' ? $firstEl[1] : $inputRecord['pid']
+        );
         $languages = $this->getLanguages($languageList, $this->sysLanguages);
         if (count($languages)) {
             $tRows = [];
@@ -162,7 +173,11 @@ class TranslationTasks extends BaseModule
             $cells = '<td class="bgColor2 tableheader">Element:</td>';
             foreach ($languages as $l) {
                 if ($l >= 1) {
-                    $baseRecordFlag = '<img src="' . htmlspecialchars($GLOBALS['BACK_PATH'] . $this->sysLanguages[$l]['flagIcon']) . '" alt="' . htmlspecialchars($this->sysLanguages[$l]['title']) . '" title="' . htmlspecialchars($this->sysLanguages[$l]['title']) . '" />';
+                    $baseRecordFlag = '<img src="' . htmlspecialchars(
+                            $GLOBALS['BACK_PATH'] . $this->sysLanguages[$l]['flagIcon']
+                        ) . '" alt="' . htmlspecialchars(
+                            $this->sysLanguages[$l]['title']
+                        ) . '" title="' . htmlspecialchars($this->sysLanguages[$l]['title']) . '" />';
                     $cells .= '<td class="bgColor2 tableheader">' . $baseRecordFlag . '</td>';
                 }
             }
@@ -175,17 +190,29 @@ class TranslationTasks extends BaseModule
                 }
                 $icon = GeneralUtility::makeInstance(IconFactory::class)->getIconForRecord($el[0], $rec_on);
                 $icon = BackendUtility::wrapClickMenuOnIcon($icon, $el[0], $rec_on['uid'], 2);
-                $linkToIt = '<a href="#" onclick="' . htmlspecialchars('parent.list_frame.location.href="' . $GLOBALS['BACK_PATH'] . PathUtility::stripPathSitePrefix(ExtensionManagementUtility::extPath('l10nmgr')) . 'cm2/index.php?table=' . $el[0] . '&uid=' . $el[1] . '"; return false;') . '" target="listframe">
+                $linkToIt = '<a href="#" onclick="' . htmlspecialchars(
+                        'parent.list_frame.location.href="' . $GLOBALS['BACK_PATH'] . PathUtility::stripPathSitePrefix(
+                            ExtensionManagementUtility::extPath('l10nmgr')
+                        ) . 'cm2/index.php?table=' . $el[0] . '&uid=' . $el[1] . '"; return false;'
+                    ) . '" target="listframe">
 	' . BackendUtility::getRecordTitle($el[0], $rec_on, true) . '
 	</a>';
                 if ($el[0] == 'pages') {
                     // If another page module was specified, replace the default Page module with the new one
                     $newPageModule = trim($this->getBackendUser()->getTSConfig()['options.']['overridePageModule']);
-                    $pageModule = BackendUtility::isModuleSetInTBE_MODULES($newPageModule) ? $newPageModule : 'web_layout';
-                    $path_module_path = GeneralUtility::resolveBackPath($GLOBALS['BACK_PATH'] . '../' . substr($GLOBALS['TBE_MODULES']['_PATHS'][$pageModule],
-                            strlen(Environment::getPublicPath() . '/')));
+                    $pageModule = BackendUtility::isModuleSetInTBE_MODULES(
+                        $newPageModule
+                    ) ? $newPageModule : 'web_layout';
+                    $path_module_path = GeneralUtility::resolveBackPath(
+                        $GLOBALS['BACK_PATH'] . '../' . substr(
+                            $GLOBALS['TBE_MODULES']['_PATHS'][$pageModule],
+                            strlen(Environment::getPublicPath() . '/')
+                        )
+                    );
                     $onclick = 'parent.list_frame.location.href="' . $path_module_path . '?id=' . $el[1] . '"; return false;';
-                    $pmLink = '<a href="#" onclick="' . htmlspecialchars($onclick) . '" target="listframe"><i>[Edit page]</i></a>';
+                    $pmLink = '<a href="#" onclick="' . htmlspecialchars(
+                            $onclick
+                        ) . '" target="listframe"><i>[Edit page]</i></a>';
                 } else {
                     $pmLink = '';
                 }
@@ -197,8 +224,10 @@ class TranslationTasks extends BaseModule
                 }
                 $tRows[] = $cells;
             }
-            return '<table border="0" cellpadding="0" cellspacing="0"><tr>' . implode('</tr><tr>',
-                    $tRows) . '</tr></table>';
+            return '<table border="0" cellpadding="0" cellspacing="0"><tr>' . implode(
+                    '</tr><tr>',
+                    $tRows
+                ) . '</tr></table>';
         } else {
             return '';
         }
@@ -224,9 +253,14 @@ class TranslationTasks extends BaseModule
      */
     protected function getLanguages($limitLanguageList, $sysLanguages)
     {
-        $languageListArray = explode(',',
-            $this->getBackendUser()->groupData['allowed_languages'] ? $this->getBackendUser()->groupData['allowed_languages'] : implode(',',
-                array_keys($sysLanguages)));
+        $languageListArray = explode(
+            ',',
+            $this->getBackendUser()->groupData['allowed_languages'] ? $this->getBackendUser(
+            )->groupData['allowed_languages'] : implode(
+                ',',
+                array_keys($sysLanguages)
+            )
+        );
         foreach ($languageListArray as $kkk => $val) {
             if ($limitLanguageList && !GeneralUtility::inList($limitLanguageList, $val)) {
                 unset($languageListArray[$kkk]);

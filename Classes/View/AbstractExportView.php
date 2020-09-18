@@ -49,7 +49,7 @@ abstract class AbstractExportView
     /**
      * @var string
      */
-    var $filename = '';
+    public $filename = '';
     /**
      * @var L10nConfiguration The language configuration object
      */
@@ -208,7 +208,9 @@ abstract class AbstractExportView
         } else {
             $fileType = 'catxml';
         }
-        if ($this->l10ncfgObj->getData('sourceLangStaticId') && ExtensionManagementUtility::isLoaded('static_info_tables')) {
+        if ($this->l10ncfgObj->getData('sourceLangStaticId') && ExtensionManagementUtility::isLoaded(
+                'static_info_tables'
+            )) {
             $staticLangArr = BackendUtility::getRecord(
                 'static_languages',
                 $this->l10ncfgObj->getData('sourceLangStaticId'),
@@ -233,7 +235,9 @@ abstract class AbstractExportView
         } elseif (isset($targetLangArr['lg_iso_2']) && !empty($targetLangArr['lg_iso_2'])) {
             $targetLang = $targetLangArr['lg_iso_2'];
         }
-        $fileNamePrefix = (trim($this->l10ncfgObj->getData('filenameprefix'))) ? $this->l10ncfgObj->getData('filenameprefix') . '_' . $fileType : $fileType;
+        $fileNamePrefix = (trim($this->l10ncfgObj->getData('filenameprefix'))) ? $this->l10ncfgObj->getData(
+                'filenameprefix'
+            ) . '_' . $fileType : $fileType;
         // Setting filename:
         $filename = $fileNamePrefix . '_' . $sourceLang . '_to_' . $targetLang . '_' . date('dmy-His') . '.xml';
         $this->filename = $filename;
@@ -247,7 +251,9 @@ abstract class AbstractExportView
     public function checkExports()
     {
         /** @var $queryBuilder QueryBuilder */
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_l10nmgr_exportdata');
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(
+            'tx_l10nmgr_exportdata'
+        );
         $numRows = $queryBuilder->count('*')
             ->from('tx_l10nmgr_exportdata')
             ->where(
@@ -280,18 +286,29 @@ abstract class AbstractExportView
         $content = [];
         $exports = $this->fetchExports();
         foreach ($exports as $export => $exportData) {
-            $content[$export] = sprintf('
+            $content[$export] = sprintf(
+                '
 <tr class="db_list_normal">
 	<td>%s</td>
 	<td>%s</td>
 	<td>%s</td>
 	<td>%s</td>
 	<td>%s</td>
-</tr>', BackendUtility::datetime($exportData['crdate']), $exportData['l10ncfg_id'], $exportData['exportType'],
-                $exportData['translation_lang'], sprintf('<a href="%suploads/tx_l10nmgr/jobs/out/%s">%s</a>',
-                    GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), $exportData['filename'], $exportData['filename']));
+</tr>',
+                BackendUtility::datetime($exportData['crdate']),
+                $exportData['l10ncfg_id'],
+                $exportData['exportType'],
+                $exportData['translation_lang'],
+                sprintf(
+                    '<a href="%suploads/tx_l10nmgr/jobs/out/%s">%s</a>',
+                    GeneralUtility::getIndpEnv('TYPO3_SITE_URL'),
+                    $exportData['filename'],
+                    $exportData['filename']
+                )
+            );
         }
-        return sprintf('
+        return sprintf(
+            '
 <table class="table table-striped table-hover">
 	<thead>
 	<tr class="t3-row-header">
@@ -305,7 +322,8 @@ abstract class AbstractExportView
 	<tbody>
 %s
 	</tbody>
-</table>', $this->getLanguageService()->getLL('export.overview.date.label'),
+</table>',
+            $this->getLanguageService()->getLL('export.overview.date.label'),
             $this->getLanguageService()->getLL('export.overview.configuration.label'),
             $this->getLanguageService()->getLL('export.overview.type.label'),
             $this->getLanguageService()->getLL('export.overview.targetlanguage.label'),

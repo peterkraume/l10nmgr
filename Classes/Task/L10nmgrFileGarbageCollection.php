@@ -106,8 +106,10 @@ class L10nmgrFileGarbageCollection extends AbstractTask
         foreach ($directoryContent as $fileObject) {
             // Remove files that are older than given timestamp and don't match the exclude pattern
             if ($fileObject->isFile()
-                && !preg_match('/' . $this->excludePattern . '/i',
-                    $fileObject->getFilename()) && $fileObject->getCTime() < $timestamp
+                && !preg_match(
+                    '/' . $this->excludePattern . '/i',
+                    $fileObject->getFilename()
+                ) && $fileObject->getCTime() < $timestamp
             ) {
                 if (!(@unlink($fileObject->getRealPath()))) {
                     throw new RuntimeException(

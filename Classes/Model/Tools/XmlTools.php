@@ -70,7 +70,9 @@ class XmlTools implements LoggerAwareInterface
         xml_parse_into_struct($parser, $string, $vals, $index);
         libxml_disable_entity_loader($previousValueOfEntityLoader);
         if (xml_get_error_code($parser)) {
-            return 'Line ' . xml_get_current_line_number($parser) . ': ' . xml_error_string(xml_get_error_code($parser));
+            return 'Line ' . xml_get_current_line_number($parser) . ': ' . xml_error_string(
+                    xml_get_error_code($parser)
+                );
         }
         xml_parser_free($parser);
         $stack = [[]];

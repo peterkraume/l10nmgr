@@ -86,8 +86,11 @@ class Cm3 extends BaseModule
         $this->content .= $this->module->header($this->getLanguageService()->getLL('title'));
         $this->content .= '<hr />';
         // Render the module content (for all modes):
-        $this->content .= '<div class="bottomspace10">' . $this->moduleContent((string)GeneralUtility::_GP('table'),
-                (int)GeneralUtility::_GP('id'), GeneralUtility::_GP('cmd')) . '</div>';
+        $this->content .= '<div class="bottomspace10">' . $this->moduleContent(
+                (string)GeneralUtility::_GP('table'),
+                (int)GeneralUtility::_GP('id'),
+                GeneralUtility::_GP('cmd')
+            ) . '</div>';
     }
 
     /**
@@ -114,8 +117,11 @@ class Cm3 extends BaseModule
                     break;
                 case 'flushTranslations':
                     if ($this->getBackendUser()->isAdmin()) {
-                        $res = $this->l10nMgrTools->flushTranslations($table, $uid,
-                            GeneralUtility::_POST('_flush') ? true : false);
+                        $res = $this->l10nMgrTools->flushTranslations(
+                            $table,
+                            $uid,
+                            GeneralUtility::_POST('_flush') ? true : false
+                        );
                         if (!GeneralUtility::_POST('_flush')) {
                             $output .= 'To flush the translations shown below, press the "Flush" button below:<br /><input type="submit" name="_flush" value="FLUSH" /><br /><br />';
                         } else {
@@ -129,10 +135,22 @@ class Cm3 extends BaseModule
                     }
                     break;
                 case 'createPriority':
-                    header('Location: ' . GeneralUtility::locationHeaderUrl($GLOBALS['BACK_PATH'] . 'alt_doc.php?returnUrl=' . rawurlencode('db_list.php?id=0&table=tx_l10nmgr_priorities') . '&edit[tx_l10nmgr_priorities][0]=new&defVals[tx_l10nmgr_priorities][element]=' . rawurlencode($table . '_' . $uid)));
+                    header(
+                        'Location: ' . GeneralUtility::locationHeaderUrl(
+                            $GLOBALS['BACK_PATH'] . 'alt_doc.php?returnUrl=' . rawurlencode(
+                                'db_list.php?id=0&table=tx_l10nmgr_priorities'
+                            ) . '&edit[tx_l10nmgr_priorities][0]=new&defVals[tx_l10nmgr_priorities][element]=' . rawurlencode(
+                                $table . '_' . $uid
+                            )
+                        )
+                    );
                     break;
                 case 'managePriorities':
-                    header('Location: ' . GeneralUtility::locationHeaderUrl($GLOBALS['BACK_PATH'] . 'db_list.php?id=0&table=tx_l10nmgr_priorities'));
+                    header(
+                        'Location: ' . GeneralUtility::locationHeaderUrl(
+                            $GLOBALS['BACK_PATH'] . 'db_list.php?id=0&table=tx_l10nmgr_priorities'
+                        )
+                    );
                     break;
             }
         }

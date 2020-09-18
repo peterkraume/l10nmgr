@@ -21,9 +21,9 @@ namespace Localizationteam\L10nmgr\Task;
  ***************************************************************/
 
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Scheduler\AbstractAdditionalFieldProvider;
 use TYPO3\CMS\Scheduler\AdditionalFieldProviderInterface;
 use TYPO3\CMS\Scheduler\Controller\SchedulerModuleController;
@@ -82,7 +82,9 @@ class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider imp
         $fieldName = 'tx_scheduler[l10nmgr_fileGarbageCollection_age]';
         $fieldId = 'task_fileGarbageCollection_age';
         $fieldValue = (int)$taskInfo['l10nmgr_fileGarbageCollection_age'];
-        $fieldHtml = '<input type="text" name="' . $fieldName . '" id="' . $fieldId . '" value="' . htmlspecialchars($fieldValue) . '" size="10" />';
+        $fieldHtml = '<input type="text" name="' . $fieldName . '" id="' . $fieldId . '" value="' . htmlspecialchars(
+                $fieldValue
+            ) . '" size="10" />';
         $additionalFields[$fieldId] = [
             'code' => $fieldHtml,
             'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/Task/locallang.xlf:fileGarbageCollection.age',
@@ -93,7 +95,9 @@ class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider imp
         $fieldName = 'tx_scheduler[l10nmgr_fileGarbageCollection_excludePattern]';
         $fieldId = 'task_fileGarbageCollection_excludePattern';
         $fieldValue = $taskInfo['l10nmgr_fileGarbageCollection_excludePattern'];
-        $fieldHtml = '<input type="text" name="' . $fieldName . '" id="' . $fieldId . '" value="' . htmlspecialchars($fieldValue) . '" size="30" />';
+        $fieldHtml = '<input type="text" name="' . $fieldName . '" id="' . $fieldId . '" value="' . htmlspecialchars(
+                $fieldValue
+            ) . '" size="30" />';
         $additionalFields[$fieldId] = [
             'code' => $fieldHtml,
             'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/Task/locallang.xlf:fileGarbageCollection.excludePattern',
@@ -116,7 +120,9 @@ class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider imp
         $result = true;
         // Check if number of days is indeed a number and greater than 0
         // If not, fail validation and issue error message
-        if (!is_numeric($submittedData['l10nmgr_fileGarbageCollection_age']) || (int)$submittedData['l10nmgr_fileGarbageCollection_age'] <= 0) {
+        if (!is_numeric(
+                $submittedData['l10nmgr_fileGarbageCollection_age']
+            ) || (int)$submittedData['l10nmgr_fileGarbageCollection_age'] <= 0) {
             $result = false;
             $this->addMessage(
                 $this->getLanguageService()->sL(

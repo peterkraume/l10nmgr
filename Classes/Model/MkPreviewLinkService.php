@@ -120,11 +120,13 @@ class MkPreviewLinkService
             'keyword' => md5(uniqid(microtime(), true)),
             'tstamp' => $GLOBALS['EXEC_TIME'],
             'endtime' => $GLOBALS['EXEC_TIME'] + $ttl,
-            'config' => serialize([
-                'fullWorkspace' => $fullWorkspace,
-                'getVars' => $getVarsStr,
-                'BEUSER_uid' => $backendUserUid,
-            ]),
+            'config' => serialize(
+                [
+                    'fullWorkspace' => $fullWorkspace,
+                    'getVars' => $getVarsStr,
+                    'BEUSER_uid' => $backendUserUid,
+                ]
+            ),
         ];
         GeneralUtility::makeInstance(ConnectionPool::class)
             ->getConnectionForTable('sys_preview')
@@ -166,7 +168,9 @@ class MkPreviewLinkService
             $ttlHours = (int)$this->getBackendUser()->getTSConfig()['options.']['workspaces.']['previewLinkTTLHours'];
             $ttlHours = ($ttlHours ? $ttlHours : 24 * 2);
             $params = 'id=' . $pageId . '&L=' . $this->sysLang . '&ADMCMD_previewWS=' . $this->workspaceId;
-            $previewUrls[$pageId] = GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . 'index.php?ADMCMD_prev=' . $this->compilePreviewKeyword(
+            $previewUrls[$pageId] = GeneralUtility::getIndpEnv(
+                    'TYPO3_SITE_URL'
+                ) . 'index.php?ADMCMD_prev=' . $this->compilePreviewKeyword(
                     $params,
                     $this->getBackendUser()->user['uid'],
                     60 * 60 * $ttlHours

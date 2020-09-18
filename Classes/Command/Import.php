@@ -128,7 +128,9 @@ class Import extends L10nCommand
                     $msg = "\n\nImport was successful.\n";
                     break;
                 default:
-                    $output->writeln('<error>Please specify a task with --task. Either "importString", "preview" or "importFile".</error>');
+                    $output->writeln(
+                        '<error>Please specify a task with --task. Either "importString", "preview" or "importFile".</error>'
+                    );
                     return 1;
             }
         } catch (Exception $e) {
@@ -156,15 +158,18 @@ class Import extends L10nCommand
      */
     protected function initializeCallParameters(InputInterface $input, OutputInterface $output)
     {
-
         // Get the task parameter from either the new or the old input style
         // The default is in the configure()
 
-        if ($input->getOption('task') === 'importString' || $input->getOption('task') === 'importFile' || $input->getOption('task') === 'preview') {
+        if ($input->getOption('task') === 'importString' || $input->getOption(
+                'task'
+            ) === 'importFile' || $input->getOption('task') === 'preview') {
             $callParameters['task'] = $input->getOption('task');
         } else {
-            throw new Exception('Please specify a task with --task. Either "importString", "preview" or "importFile".',
-                1539950024);
+            throw new Exception(
+                'Please specify a task with --task. Either "importString", "preview" or "importFile".',
+                1539950024
+            );
         }
 
         // Get the preview flag
@@ -345,7 +350,9 @@ class Import extends L10nCommand
         $xmlFilesArr = $this->gatherAllFiles($callParameters['file']);
 
         if (empty($xmlFilesArr)) {
-            throw new Exception("\nNo files to import! Either point to a file using the --file option or define a FTP server to get the files from");
+            throw new Exception(
+                "\nNo files to import! Either point to a file using the --file option or define a FTP server to get the files from"
+            );
         }
 
         foreach ($xmlFilesArr as $xmlFile) {
@@ -386,7 +393,9 @@ class Import extends L10nCommand
                         throw new Exception("l10ncfg not loaded! Exiting...\n");
                     }
                     // Delete previous translations
-                    $importManager->delL10N($importManager->getDelL10NDataFromCATXMLNodes($importManager->getXmlNodes()));
+                    $importManager->delL10N(
+                        $importManager->getDelL10NDataFromCATXMLNodes($importManager->getXmlNodes())
+                    );
                     // Make preview links
                     if ($callParameters['preview']) {
                         if (!ExtensionManagementUtility::isLoaded('workspaces')) {
@@ -556,7 +565,9 @@ class Import extends L10nCommand
                                 // If getting the file failed, register error message
                                 // (don't throw exception as this does not need to interrupt the process)
                             } else {
-                                throw new Exception('Problem getting file ' . $aFile . 'from server or saving it locally');
+                                throw new Exception(
+                                    'Problem getting file ' . $aFile . 'from server or saving it locally'
+                                );
                             }
                         }
                     }
@@ -650,7 +661,9 @@ class Import extends L10nCommand
             if (count($recipients) > 0) {
                 // First of all get a list of all workspaces and all l10nmgr configurations to use in the reporting
                 /** @var $queryBuilder QueryBuilder */
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_workspace');
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(
+                    'sys_workspace'
+                );
                 $records = $queryBuilder->select('uid', 'title')
                     ->from('sys_workspace')
                     ->execute()
@@ -661,7 +674,9 @@ class Import extends L10nCommand
                         $workspaces[$record['uid']] = $record;
                     }
                 }
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_l10nmgr_cfg');
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(
+                    'tx_l10nmgr_cfg'
+                );
                 $records = $queryBuilder->select('uid', 'title')
                     ->from('tx_l10nmgr_cfg')
                     ->execute()
@@ -738,7 +753,9 @@ class Import extends L10nCommand
                 // Instantiate the mail object, set all necessary properties and send the mail
                 /** @var MailMessage $mailObject */
                 $mailObject = GeneralUtility::makeInstance(MailMessage::class);
-                $mailObject->setFrom([$this->extensionConfiguration['email_sender'] => $this->extensionConfiguration['email_sender_name']]);
+                $mailObject->setFrom(
+                    [$this->extensionConfiguration['email_sender'] => $this->extensionConfiguration['email_sender_name']]
+                );
                 $mailObject->setTo($recipients);
                 $mailObject->setSubject($subject);
                 $mailObject->setFormat('text/plain');

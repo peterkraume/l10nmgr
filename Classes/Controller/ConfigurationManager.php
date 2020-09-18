@@ -27,7 +27,6 @@ namespace Localizationteam\L10nmgr\Controller;
  */
 
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\DocumentTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
@@ -87,7 +86,9 @@ class ConfigurationManager extends BaseModule
     {
         $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         $this->moduleTemplate = GeneralUtility::makeInstance(ModuleTemplate::class);
-        $this->getLanguageService()->includeLLFile('EXT:l10nmgr/Resources/Private/Language/Modules/ConfigurationManager/locallang.xlf');
+        $this->getLanguageService()->includeLLFile(
+            'EXT:l10nmgr/Resources/Private/Language/Modules/ConfigurationManager/locallang.xlf'
+        );
         $this->MCONF = [
             'name' => $this->moduleName,
         ];
@@ -99,7 +100,7 @@ class ConfigurationManager extends BaseModule
      *
      * @return ResponseInterface the response with the content
      */
-    public function mainAction() : ResponseInterface
+    public function mainAction(): ResponseInterface
     {
         /** @var ResponseInterface $response */
         $response = func_num_args() === 2 ? func_get_arg(1) : null;
@@ -163,20 +164,40 @@ class ConfigurationManager extends BaseModule
             $content .= '<div>' . nl2br($this->getLanguageService()->getLL('general.no_date')) . '</div>';
             // List all configurations
         } else {
-            $content .= '<div><h2 class="uppercase">' . $this->getLanguageService()->getLL('general.list.configuration.manager') . '</h2>' . nl2br($this->getLanguageService()->getLL('general.description.message')) . '</div>';
-            $content .= '<div><h2 class="uppercase">' . $this->getLanguageService()->getLL('general.list.configuration.title') . '</h2></div>';
+            $content .= '<div><h2 class="uppercase">' . $this->getLanguageService()->getLL(
+                    'general.list.configuration.manager'
+                ) . '</h2>' . nl2br($this->getLanguageService()->getLL('general.description.message')) . '</div>';
+            $content .= '<div><h2 class="uppercase">' . $this->getLanguageService()->getLL(
+                    'general.list.configuration.title'
+                ) . '</h2></div>';
             $content .= '<div class="table-fit"><table class="table table-striped table-hover">';
             // Assemble the header row
             $content .= '<thead>';
             $content .= '<tr>';
-            $content .= '<th nowrap="nowrap" class="col-info">' . $this->getLanguageService()->getLL('general.list.headline.info.title') . '</th>';
-            $content .= '<th nowrap="nowrap" class="col-title">' . $this->getLanguageService()->getLL('general.list.headline.title.title') . '</th>';
-            $content .= '<th nowrap="nowrap" class="col-path">' . $this->getLanguageService()->getLL('general.list.headline.path.title') . '</th>';
-            $content .= '<th nowrap="nowrap" class="col-depth">' . $this->getLanguageService()->getLL('general.list.headline.depth.title') . '</th>';
-            $content .= '<th class="col-tables">' . $this->getLanguageService()->getLL('general.list.headline.tables.title') . '</th>';
-            $content .= '<th class="col-exclude">' . $this->getLanguageService()->getLL('general.list.headline.exclude.title') . '</th>';
-            $content .= '<th class="col-include">' . $this->getLanguageService()->getLL('general.list.headline.include.title') . '</th>';
-            $content .= '<th class="col-incfcewithdefaultlanguage">' . $this->getLanguageService()->getLL('general.list.headline.incfcewithdefaultlanguage.title') . '</th>';
+            $content .= '<th nowrap="nowrap" class="col-info">' . $this->getLanguageService()->getLL(
+                    'general.list.headline.info.title'
+                ) . '</th>';
+            $content .= '<th nowrap="nowrap" class="col-title">' . $this->getLanguageService()->getLL(
+                    'general.list.headline.title.title'
+                ) . '</th>';
+            $content .= '<th nowrap="nowrap" class="col-path">' . $this->getLanguageService()->getLL(
+                    'general.list.headline.path.title'
+                ) . '</th>';
+            $content .= '<th nowrap="nowrap" class="col-depth">' . $this->getLanguageService()->getLL(
+                    'general.list.headline.depth.title'
+                ) . '</th>';
+            $content .= '<th class="col-tables">' . $this->getLanguageService()->getLL(
+                    'general.list.headline.tables.title'
+                ) . '</th>';
+            $content .= '<th class="col-exclude">' . $this->getLanguageService()->getLL(
+                    'general.list.headline.exclude.title'
+                ) . '</th>';
+            $content .= '<th class="col-include">' . $this->getLanguageService()->getLL(
+                    'general.list.headline.include.title'
+                ) . '</th>';
+            $content .= '<th class="col-incfcewithdefaultlanguage">' . $this->getLanguageService()->getLL(
+                    'general.list.headline.incfcewithdefaultlanguage.title'
+                ) . '</th>';
             $content .= '</tr>';
             $content .= '</thead>';
             $content .= '<tbody>';
@@ -189,12 +210,14 @@ class ConfigurationManager extends BaseModule
                 $content .= '<tr class="db_list_normal">';
                 $content .= '<td>' . $configurationDetails . '</td>';
                 $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-                $content .= '<td><a href="' . $uriBuilder->buildUriFromRoute('LocalizationManager',
+                $content .= '<td><a href="' . $uriBuilder->buildUriFromRoute(
+                        'LocalizationManager',
                         [
                             'id' => $record['pid'],
                             'srcPID' => $this->id,
                             'exportUID' => $record['uid'],
-                        ]) . '">' . $record['title'] . '</a>' . '</td>';
+                        ]
+                    ) . '">' . $record['title'] . '</a>' . '</td>';
                 // Get the full page path
                 // If very long, make sure to still display the full path
                 $pagePath = BackendUtility::getRecordPath($record['pid'], '1', 20, 50);
@@ -258,14 +281,20 @@ class ConfigurationManager extends BaseModule
         $details .= '<td>' . $this->getLanguageService()->getLL('general.list.infodetail.title.title') . '</td>';
         $details .= '<td>' . $configuration['title'] . '</td>';
         $details .= '</tr><tr class="db_list_normal">';
-        $details .= '<td>' . $this->getLanguageService()->getLL('general.list.infodetail.filenameprefix.title') . '</td>';
+        $details .= '<td>' . $this->getLanguageService()->getLL(
+                'general.list.infodetail.filenameprefix.title'
+            ) . '</td>';
         $details .= '<td>' . $configuration['filenameprefix'] . '</td>';
         $details .= '</tr><tr class="db_list_normal">';
         $details .= '<td>' . $this->getLanguageService()->getLL('general.list.infodetail.depth.title') . '</td>';
         $details .= '<td>' . $configuration['depth'] . '</td>';
         $details .= '</tr><tr class="db_list_normal">';
-        $details .= '<td>' . $this->getLanguageService()->getLL('general.list.infodetail.sourceLangStaticId.title') . '</td>';
-        $details .= '<td>' . ((empty($languageArray['lg_name_en'])) ? $this->getLanguageService()->getLL('general.list.infodetail.default') : $languageArray['lg_name_en']) . '</td>';
+        $details .= '<td>' . $this->getLanguageService()->getLL(
+                'general.list.infodetail.sourceLangStaticId.title'
+            ) . '</td>';
+        $details .= '<td>' . ((empty($languageArray['lg_name_en'])) ? $this->getLanguageService()->getLL(
+                'general.list.infodetail.default'
+            ) : $languageArray['lg_name_en']) . '</td>';
         $details .= '</tr><tr class="db_list_normal">';
         $details .= '<td>' . $this->getLanguageService()->getLL('general.list.infodetail.tablelist.title') . '</td>';
         $details .= '<td>' . $configuration['tablelist'] . '</td>';
@@ -279,7 +308,9 @@ class ConfigurationManager extends BaseModule
         $details .= '<td>' . $this->getLanguageService()->getLL('general.list.infodetail.displaymode.title') . '</td>';
         $details .= '<td>' . $configuration['displaymode'] . '</td>';
         $details .= '</tr><tr class="db_list_normal">';
-        $details .= '<td>' . $this->getLanguageService()->getLL('general.list.infodetail.incfcewithdefaultlanguage.title') . '</td>';
+        $details .= '<td>' . $this->getLanguageService()->getLL(
+                'general.list.infodetail.incfcewithdefaultlanguage.title'
+            ) . '</td>';
         $details .= '<td>' . $configuration['incfcewithdefaultlanguage'] . '</td>';
         $details .= '</tr>';
         $details .= '</table>';

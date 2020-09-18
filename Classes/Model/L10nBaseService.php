@@ -485,7 +485,9 @@ class L10nBaseService implements LoggerAwareInterface
                                 //debug($tData,'fields not set for: '.$elementUid.'-'.$key);
                                 //debug($inputArray[$table],'inputarray');
                             }
-                            if (is_array($inputArray[$table][$elementUid]) && !count($inputArray[$table][$elementUid])) {
+                            if (is_array($inputArray[$table][$elementUid]) && !count(
+                                    $inputArray[$table][$elementUid]
+                                )) {
                                 unset($inputArray[$table][$elementUid]); // Unsetting so in the end we can see if $inputArray was fully processed.
                             }
                         }
@@ -518,8 +520,12 @@ class L10nBaseService implements LoggerAwareInterface
                 $tce->process_datamap();
             }
             if (count($tce->errorLog)) {
-                $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TCEmain update errors: ' . implode(', ',
-                        $tce->errorLog));
+                $this->logger->debug(
+                    __FILE__ . ': ' . __LINE__ . ': TCEmain update errors: ' . implode(
+                        ', ',
+                        $tce->errorLog
+                    )
+                );
             }
             if (count($tce->autoVersionIdMap) && count($_flexFormDiffArray)) {
                 foreach ($_flexFormDiffArray as $key => $value) {
@@ -629,7 +635,9 @@ class L10nBaseService implements LoggerAwareInterface
                                                     $TCEmain_data[$table][$TuidString]['tablenames'] = 'pages';
                                                 } else {
                                                     /** @var $queryBuilder QueryBuilder */
-                                                    $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($element['tablenames']);
+                                                    $queryBuilder = GeneralUtility::makeInstance(
+                                                        ConnectionPool::class
+                                                    )->getQueryBuilderForTable($element['tablenames']);
                                                     $parent = $queryBuilder->select('*')
                                                         ->from($element['tablenames'])
                                                         ->where(
@@ -670,7 +678,9 @@ class L10nBaseService implements LoggerAwareInterface
                                             if (!empty($GLOBALS['TCA'][$table]['columns'][$key])) {
                                                 $configuration = $GLOBALS['TCA'][$table]['columns'][$key]['config'];
                                                 if ($configuration['foreign_table']) {
-                                                    $relationHandler = GeneralUtility::makeInstance(RelationHandler::class);
+                                                    $relationHandler = GeneralUtility::makeInstance(
+                                                        RelationHandler::class
+                                                    );
                                                     $relationHandler->start(
                                                         $element[$key],
                                                         $configuration['foreign_table'],
@@ -730,7 +740,9 @@ class L10nBaseService implements LoggerAwareInterface
                                 //debug($tData,'fields not set for: '.$elementUid.'-'.$key);
                                 //debug($inputArray[$table],'inputarray');
                             }
-                            if (is_array($inputArray[$table][$elementUid]) && !count($inputArray[$table][$elementUid])) {
+                            if (is_array($inputArray[$table][$elementUid]) && !count(
+                                    $inputArray[$table][$elementUid]
+                                )) {
                                 unset($inputArray[$table][$elementUid]); // Unsetting so in the end we can see if $inputArray was fully processed.
                             }
                         }
@@ -767,8 +779,12 @@ class L10nBaseService implements LoggerAwareInterface
                 }
             }
             // Before remapping
-            $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TCEmain_data before remapping: ' . implode(', ',
-                    $TCEmain_data));
+            $this->logger->debug(
+                __FILE__ . ': ' . __LINE__ . ': TCEmain_data before remapping: ' . implode(
+                    ', ',
+                    $TCEmain_data
+                )
+            );
             // Remapping those elements which are new:
             $this->lastTCEMAINCommandsCount = 0;
             foreach ($TCEmain_data as $table => $items) {
@@ -785,8 +801,12 @@ class L10nBaseService implements LoggerAwareInterface
                             if ($this->childMappingArray[$table][$TdefRecord]) {
                                 if ($this->childMappingArray[$table][$TdefRecord] === true) {
                                     /** @var $queryBuilder QueryBuilder */
-                                    $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-                                    $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+                                    $queryBuilder = GeneralUtility::makeInstance(
+                                        ConnectionPool::class
+                                    )->getQueryBuilderForTable($table);
+                                    $queryBuilder->getRestrictions()->removeAll()->add(
+                                        GeneralUtility::makeInstance(DeletedRestriction::class)
+                                    );
 
                                     $translatedRecordRaw = $queryBuilder
                                         ->select('*')
@@ -820,7 +840,9 @@ class L10nBaseService implements LoggerAwareInterface
                                     )] = $fields;
                                 }
                             } else {
-                                $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': Record "' . $table . ':' . $TdefRecord . '" was NOT localized as it should have been!');
+                                $this->logger->debug(
+                                    __FILE__ . ': ' . __LINE__ . ': Record "' . $table . ':' . $TdefRecord . '" was NOT localized as it should have been!'
+                                );
                             }
                         }
                         unset($TCEmain_data[$table][$TuidString]);
@@ -828,8 +850,12 @@ class L10nBaseService implements LoggerAwareInterface
                 }
             }
             // After remapping
-            $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TCEmain_data after remapping: ' . implode(', ',
-                    $TCEmain_data));
+            $this->logger->debug(
+                __FILE__ . ': ' . __LINE__ . ': TCEmain_data after remapping: ' . implode(
+                    ', ',
+                    $TCEmain_data
+                )
+            );
             // Now, submitting translation data:
             /** @var DataHandler $tce */
             $tce = GeneralUtility::makeInstance(DataHandler::class);
@@ -847,12 +873,20 @@ class L10nBaseService implements LoggerAwareInterface
             }
             self::$targetLanguageID = null;
             if (count($tce->errorLog)) {
-                $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TCEmain update errors: ' . implode(', ',
-                        $tce->errorLog));
+                $this->logger->debug(
+                    __FILE__ . ': ' . __LINE__ . ': TCEmain update errors: ' . implode(
+                        ', ',
+                        $tce->errorLog
+                    )
+                );
             }
             if (count($tce->autoVersionIdMap) && count($_flexFormDiffArray)) {
-                $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': flexFormDiffArry: ' . implode(', ',
-                        $this->flexFormDiffArray));
+                $this->logger->debug(
+                    __FILE__ . ': ' . __LINE__ . ': flexFormDiffArry: ' . implode(
+                        ', ',
+                        $this->flexFormDiffArray
+                    )
+                );
                 foreach ($_flexFormDiffArray as $key => $value) {
                     list($Ttable, $Tuid, $Trest) = explode(':', $key, 3);
                     if ($tce->autoVersionIdMap[$Ttable][$Tuid]) {
@@ -861,8 +895,12 @@ class L10nBaseService implements LoggerAwareInterface
                     }
                 }
                 $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': autoVersionIdMap: ' . $tce->autoVersionIdMap);
-                $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': _flexFormDiffArray: ' . implode(', ',
-                        $_flexFormDiffArray));
+                $this->logger->debug(
+                    __FILE__ . ': ' . __LINE__ . ': _flexFormDiffArray: ' . implode(
+                        ', ',
+                        $_flexFormDiffArray
+                    )
+                );
             }
             // Should be empty now - or there were more information in the incoming array than there should be!
             if (count($inputArray)) {
@@ -913,8 +951,12 @@ class L10nBaseService implements LoggerAwareInterface
             $translatedParent = [];
             if ($element[$parentField] > 0) {
                 /** @var $queryBuilder QueryBuilder */
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tt_content');
-                $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(
+                    'tt_content'
+                );
+                $queryBuilder->getRestrictions()->removeAll()->add(
+                    GeneralUtility::makeInstance(DeletedRestriction::class)
+                );
 
                 $translatedParent = $queryBuilder
                     ->select('*')

@@ -80,14 +80,20 @@ class ClickMenu
                 try {
                     $uri = $uriBuilder->buildUriFromRoute('ConfigurationManager_LocalizationManager', $urlParameters);
                 } catch (RouteNotFoundException $e) {
-                    $uri = $uriBuilder->buildUriFromRoutePath('ConfigurationManager_LocalizationManager',
-                        $urlParameters);
+                    $uri = $uriBuilder->buildUriFromRoutePath(
+                        'ConfigurationManager_LocalizationManager',
+                        $urlParameters
+                    );
                 }
                 $url = (string)$uri;
 
                 $localItems[] = $backRef->linkItem(
                     $this->getLanguageService()->getLLL("cm1_title", $LL),
-                    $backRef->excludeIcon('<img src="' . PathUtility::stripPathSitePrefix(ExtensionManagementUtility::extPath("l10nmgr")) . 'cm1/cm_icon.gif" width="15" height="12" border="0" align="top" />'),
+                    $backRef->excludeIcon(
+                        '<img src="' . PathUtility::stripPathSitePrefix(
+                            ExtensionManagementUtility::extPath("l10nmgr")
+                        ) . 'cm1/cm_icon.gif" width="15" height="12" border="0" align="top" />'
+                    ),
                     $backRef->urlRefForCM($url),
                     1 // Disables the item in the top-bar. Set this to zero if you with the item to appear in the top bar!
                 );
@@ -95,7 +101,8 @@ class ClickMenu
             $localItems["moreoptions_tx_l10nmgr_cm3"] = $backRef->linkItem(
                 'L10Nmgr tools',
                 '',
-                "top.loadTopMenu('" . GeneralUtility::linkThisScript() . "&cmLevel=1&subname=moreoptions_tx_l10nmgrXX_cm3');return false;",
+                "top.loadTopMenu('" . GeneralUtility::linkThisScript(
+                ) . "&cmLevel=1&subname=moreoptions_tx_l10nmgrXX_cm3');return false;",
                 0,
                 1
             );

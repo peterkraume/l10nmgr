@@ -219,8 +219,10 @@ class L10nAccumulatedInformation
                     $this->excludeIndex['pages:' . $pageId] = 1;
                 }
             }
-            if (!isset($this->excludeIndex['pages:' . $pageId]) && !in_array($treeElement['row']['doktype'],
-                    $this->disallowDoktypes)
+            if (!isset($this->excludeIndex['pages:' . $pageId]) && !in_array(
+                    $treeElement['row']['doktype'],
+                    $this->disallowDoktypes
+                )
             ) {
                 $accum[$pageId]['header']['title'] = $treeElement['row']['title'];
                 $accum[$pageId]['header']['icon'] = $treeElement['HTML'];
@@ -266,7 +268,9 @@ class L10nAccumulatedInformation
                                             $fileList .= $fileList ? ',' . (int)$row['uid_local'] : (int)$row['uid_local'];
                                         }
                                         if (is_array($row) && count($tableUidConstraintIndex) > 0) {
-                                            if (is_array($row) && isset($tableUidConstraintIndex[$table . ':' . $row['uid']])) {
+                                            if (is_array(
+                                                    $row
+                                                ) && isset($tableUidConstraintIndex[$table . ':' . $row['uid']])) {
                                                 $accum[$pageId]['items'][$table][$row['uid']] = $t8Tools->translationDetails(
                                                     $table,
                                                     $row,
@@ -274,10 +278,14 @@ class L10nAccumulatedInformation
                                                     $flexFormDiff,
                                                     $previewLanguage
                                                 );
-                                                $this->_increaseInternalCounters($accum[$pageId]['items'][$table][$row['uid']]['fields']);
+                                                $this->_increaseInternalCounters(
+                                                    $accum[$pageId]['items'][$table][$row['uid']]['fields']
+                                                );
                                             }
                                         } else {
-                                            if (is_array($row) && !isset($this->excludeIndex[$table . ':' . $row['uid']])) {
+                                            if (is_array(
+                                                    $row
+                                                ) && !isset($this->excludeIndex[$table . ':' . $row['uid']])) {
                                                 $accum[$pageId]['items'][$table][$row['uid']] = $t8Tools->translationDetails(
                                                     $table,
                                                     $row,
@@ -285,7 +293,9 @@ class L10nAccumulatedInformation
                                                     $flexFormDiff,
                                                     $previewLanguage
                                                 );
-                                                $this->_increaseInternalCounters($accum[$pageId]['items'][$table][$row['uid']]['fields']);
+                                                $this->_increaseInternalCounters(
+                                                    $accum[$pageId]['items'][$table][$row['uid']]['fields']
+                                                );
                                             }
                                         }
                                     }
@@ -293,13 +303,19 @@ class L10nAccumulatedInformation
                             }
                         }
                     }
-                    if ($table === 'sys_file_reference' && !empty($fileList) && GeneralUtility::inList($l10ncfg['tablelist'],
-                            'sys_file_metadata')) {
-                        $fileList = implode(',',
-                            array_keys(array_flip(GeneralUtility::intExplode(',', $fileList, true))));
+                    if ($table === 'sys_file_reference' && !empty($fileList) && GeneralUtility::inList(
+                            $l10ncfg['tablelist'],
+                            'sys_file_metadata'
+                        )) {
+                        $fileList = implode(
+                            ',',
+                            array_keys(array_flip(GeneralUtility::intExplode(',', $fileList, true)))
+                        );
                         if (!empty($fileList)) {
                             /** @var $queryBuilder QueryBuilder */
-                            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_file_metadata');
+                            $queryBuilder = GeneralUtility::makeInstance(
+                                ConnectionPool::class
+                            )->getQueryBuilderForTable('sys_file_metadata');
                             $metaData = $queryBuilder->select('uid')
                                 ->from('sys_file_metadata')
                                 ->where(
@@ -334,8 +350,13 @@ class L10nAccumulatedInformation
             list($table, $uid) = explode(':', $recId);
             $row = BackendUtility::getRecordWSOL($table, $uid);
             if (count($row)) {
-                $accum[-1]['items'][$table][$row['uid']] = $t8Tools->translationDetails($table, $row, $sysLang,
-                    $flexFormDiff, $previewLanguage);
+                $accum[-1]['items'][$table][$row['uid']] = $t8Tools->translationDetails(
+                    $table,
+                    $row,
+                    $sysLang,
+                    $flexFormDiff,
+                    $previewLanguage
+                );
                 $this->_increaseInternalCounters($accum[-1]['items'][$table][$row['uid']]['fields']);
             }
         }
@@ -394,8 +415,10 @@ class L10nAccumulatedInformation
 
         if (!empty($explicitlyIncludedPages)) {
             foreach ($explicitlyIncludedPages as $page) {
-                if (!isset($this->excludeIndex['pages:' . $page['uid']]) && !in_array($page['doktype'],
-                        $this->disallowDoktypes)
+                if (!isset($this->excludeIndex['pages:' . $page['uid']]) && !in_array(
+                        $page['doktype'],
+                        $this->disallowDoktypes
+                    )
                 ) {
                     $this->includeIndex['pages:' . $page['uid']] = 1;
                 }

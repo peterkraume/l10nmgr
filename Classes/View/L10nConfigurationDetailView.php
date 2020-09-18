@@ -23,8 +23,8 @@ namespace Localizationteam\L10nmgr\View;
 use Localizationteam\L10nmgr\Model\L10nConfiguration;
 use TYPO3\CMS\Backend\Template\DocumentTemplate;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * l10nmgr detail view:
@@ -77,7 +77,9 @@ class L10nConfigurationDetailView
         $configurationSettings = '
 	<table class="table table-striped table-hover">
 	<tr class="t3-row-header">
-	<th colspan="4">' . htmlspecialchars($this->l10ncfgObj->getData('title')) . ' [' . $this->l10ncfgObj->getData('uid') . ']</th>
+	<th colspan="4">' . htmlspecialchars($this->l10ncfgObj->getData('title')) . ' [' . $this->l10ncfgObj->getData(
+                'uid'
+            ) . ']</th>
 	</tr>
 	<tr class="db_list_normal">
 	<th>' . $this->getLanguageService()->getLL('general.list.headline.depth.title') . ':</h>
@@ -92,8 +94,13 @@ class L10nConfigurationDetailView
 	<td>' . htmlspecialchars($this->l10ncfgObj->getData('include')) . '&nbsp;</td>
 	</tr>
 	</table>';
-        $content .= '<div><h2 class="uppercase">' . $this->getLanguageService()->getLL('general.export.configuration.title') . '</h2>' . str_replace(',',
-                ', ', $configurationSettings);
+        $content .= '<div><h2 class="uppercase">' . $this->getLanguageService()->getLL(
+                'general.export.configuration.title'
+            ) . '</h2>' . str_replace(
+                ',',
+                ', ',
+                $configurationSettings
+            );
         return $content;
     }
 
