@@ -1,13 +1,10 @@
 <?php
 
-use Localizationteam\L10nmgr\Command\Export;
-use Localizationteam\L10nmgr\Command\Import;
-
 return [
     'l10nmanager:export' => [
-        'class' => Export::class,
+        'class' => \Localizationteam\L10nmgr\Command\Export::class,
     ],
     'l10nmanager:import' => [
-        'class' => Import::class,
+        'class' => \Localizationteam\L10nmgr\Command\Import::class,
     ],
 ];

@@ -1,11 +1,5 @@
 <?php
 
-use Localizationteam\L10nmgr\Controller\ConfigurationManager;
-use Localizationteam\L10nmgr\Controller\LocalizationManager;
-use Localizationteam\L10nmgr\Controller\Module2;
-use Localizationteam\L10nmgr\Controller\TranslationTasks;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-
 if (!defined('TYPO3_MODE')) {
     die('Access denied.');
 }
@@ -13,13 +7,13 @@ if (!defined('TYPO3_MODE')) {
 /**
  * Registers a Backend Module
  */
-ExtensionManagementUtility::addModule(
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule(
     'web',
     'ConfigurationManager',
     '',
     '',
     [
-        'routeTarget' => ConfigurationManager::class . '::mainAction',
+        'routeTarget' => \Localizationteam\L10nmgr\Controller\ConfigurationManager::class . '::mainAction',
         'access' => 'user,group',
         'name' => 'web_ConfigurationManager',
         'icon' => 'EXT:l10nmgr/Resources/Public/Icons/module-l10nmgr.svg',
@@ -30,13 +24,13 @@ ExtensionManagementUtility::addModule(
 /**
  * Registers a Backend Module
  */
-ExtensionManagementUtility::addModule(
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule(
     'LocalizationManager',
     '',
     '',
     '',
     [
-        'routeTarget' => LocalizationManager::class . '::mainAction',
+        'routeTarget' => \Localizationteam\L10nmgr\Controller\LocalizationManager::class . '::mainAction',
         'access' => 'user,group',
         'name' => 'LocalizationManager',
         'icon' => 'EXT:l10nmgr/Resources/Public/Icons/module-l10nmgr.svg',
@@ -47,13 +41,13 @@ ExtensionManagementUtility::addModule(
 /**
  * Registers a Backend Module
  */
-ExtensionManagementUtility::addModule(
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule(
     'user',
     'txl10nmgrM2',
     'top',
     '',
     [
-        'routeTarget' => Module2::class . '::main',
+        'routeTarget' => \Localizationteam\L10nmgr\Controller\Module2::class . '::main',
         'access' => 'user,group',
         'name' => 'user_txl10nmgrM2',
         'icon' => 'EXT:l10nmgr/Resources/Public/Icons/module-l10nmgr.svg',
@@ -64,13 +58,13 @@ ExtensionManagementUtility::addModule(
 /**
  * Registers a Backend Module
  */
-ExtensionManagementUtility::addModule(
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule(
     'LocalizationManager',
     'TranslationTasks',
     '',
     '',
     [
-        'routeTarget' => TranslationTasks::class . '::mainAction',
+        'routeTarget' => \Localizationteam\L10nmgr\Controller\TranslationTasks::class . '::mainAction',
         'access' => 'user,group',
         'name' => 'LocalizationManager_TranslationTasks',
         'icon' => 'EXT:l10nmgr/Resources/Public/Icons/module-l10nmgr-tasks.svg',
@@ -79,13 +73,13 @@ ExtensionManagementUtility::addModule(
 );
 
 // Add context sensitive help (csh) for the Scheduler tasks
-ExtensionManagementUtility::addLLrefForTCAdescr(
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr(
     '_tasks_txl10nmgr',
     'EXT:l10nmgr/Resources/Private/Language/Task/locallang_csh_tasks.xlf'
 );
 
-ExtensionManagementUtility::allowTableOnStandardPages("tx_l10nmgr_cfg");
-ExtensionManagementUtility::addLLrefForTCAdescr(
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::allowTableOnStandardPages("tx_l10nmgr_cfg");
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr(
     'tx_l10nmgr_cfg',
     'EXT:l10nmgr/Resources/Private/Language/locallang_csh_l10nmgr.xlf'
 );
