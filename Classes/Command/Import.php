@@ -27,12 +27,12 @@ use Localizationteam\L10nmgr\Model\L10nBaseService;
 use Localizationteam\L10nmgr\Model\L10nConfiguration;
 use Localizationteam\L10nmgr\Model\MkPreviewLinkService;
 use Localizationteam\L10nmgr\Model\Tools\XmlTools;
-use Localizationteam\L10nmgr\Model\TranslationData;
 use Localizationteam\L10nmgr\Model\TranslationDataFactory;
 use Localizationteam\L10nmgr\Zip;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Exception;
@@ -128,12 +128,14 @@ class Import extends L10nCommand
                     $msg = "\n\nImport was successful.\n";
                     break;
                 default:
-                    $output->writeln('<error>Please specify a task with --task. Either "importString", "preview" or "importFile".</error>');
-                    return;
+                    $output->writeln(
+                        '<error>Please specify a task with --task. Either "importString", "preview" or "importFile".</error>'
+                    );
+                    return 1;
             }
         } catch (Exception $e) {
             $output->writeln('<error>' . $e->getMessage() . '</error>');
-            return;
+            return 1;
         }
         // Calculate duration and output result message
         $end = microtime(true);
@@ -142,6 +144,7 @@ class Import extends L10nCommand
         $output->writeln(sprintf($this->getLanguageService()->getLL('import.process.duration.message'), $time));
         // Send reporting mail
         $this->sendMailNotification();
+        return 0;
     }
 
     /**
@@ -155,15 +158,18 @@ class Import extends L10nCommand
      */
     protected function initializeCallParameters(InputInterface $input, OutputInterface $output)
     {
-
         // Get the task parameter from either the new or the old input style
         // The default is in the configure()
 
-        if ($input->getOption('task') === 'importString' || $input->getOption('task') === 'importFile' || $input->getOption('task') === 'preview') {
+        if ($input->getOption('task') === 'importString' || $input->getOption(
+                'task'
+            ) === 'importFile' || $input->getOption('task') === 'preview') {
             $callParameters['task'] = $input->getOption('task');
         } else {
-            throw new Exception('Please specify a task with --task. Either "importString", "preview" or "importFile".',
-                1539950024);
+            throw new Exception(
+                'Please specify a task with --task. Either "importString", "preview" or "importFile".',
+                1539950024
+            );
         }
 
         // Get the preview flag
@@ -278,7 +284,6 @@ class Import extends L10nCommand
                 $out .= $previewLink;
             }
         }
-        /** @var $translationData TranslationData */
         $translationData = $factory->getTranslationDataFromCATXMLNodes($importManager->getXMLNodes());
         $translationData->setLanguage($this->sysLanguage);
         $translationData->setPreviewLanguage($this->previewLanguage);
@@ -345,7 +350,9 @@ class Import extends L10nCommand
         $xmlFilesArr = $this->gatherAllFiles($callParameters['file']);
 
         if (empty($xmlFilesArr)) {
-            throw new Exception("\nNo files to import! Either point to a file using the --file option or define a FTP server to get the files from");
+            throw new Exception(
+                "\nNo files to import! Either point to a file using the --file option or define a FTP server to get the files from"
+            );
         }
 
         foreach ($xmlFilesArr as $xmlFile) {
@@ -386,7 +393,9 @@ class Import extends L10nCommand
                         throw new Exception("l10ncfg not loaded! Exiting...\n");
                     }
                     // Delete previous translations
-                    $importManager->delL10N($importManager->getDelL10NDataFromCATXMLNodes($importManager->getXmlNodes()));
+                    $importManager->delL10N(
+                        $importManager->getDelL10NDataFromCATXMLNodes($importManager->getXmlNodes())
+                    );
                     // Make preview links
                     if ($callParameters['preview']) {
                         if (!ExtensionManagementUtility::isLoaded('workspaces')) {
@@ -412,7 +421,6 @@ class Import extends L10nCommand
                             $out .= $previewLink;
                         }
                     }
-                    /** @var $translationData TranslationData */
                     $translationData = $factory->getTranslationDataFromCATXMLNodes($importManager->getXMLNodes());
                     $translationData->setLanguage($this->sysLanguage);
                     $translationData->setPreviewLanguage($this->previewLanguage);
@@ -421,8 +429,8 @@ class Import extends L10nCommand
                     // Store some information about the imported file
                     // This is used later for reporting by mail
                     $this->filesImported[$xmlFile] = [
-                        'workspace'     => $xmlFileHead['t3_workspaceId'][0]['XMLvalue'],
-                        'language'      => $xmlFileHead['t3_targetLang'][0]['XMLvalue'],
+                        'workspace' => $xmlFileHead['t3_workspaceId'][0]['XMLvalue'],
+                        'language' => $xmlFileHead['t3_targetLang'][0]['XMLvalue'],
                         'configuration' => $xmlFileHead['t3_l10ncfg'][0]['XMLvalue'],
                     ];
                 }
@@ -520,9 +528,9 @@ class Import extends L10nCommand
             if ($filesToDownload != false) {
                 // Check that download directory exists
                 $downloadFolder = 'uploads/tx_l10nmgr/jobs/in/';
-                $downloadPath = PATH_site . $downloadFolder;
+                $downloadPath = Environment::getPublicPath() . '/' . $downloadFolder;
                 if (!is_dir(GeneralUtility::getFileAbsFileName($downloadPath))) {
-                    GeneralUtility::mkdir_deep(PATH_site . $downloadFolder);
+                    GeneralUtility::mkdir_deep(Environment::getPublicPath() . '/' . $downloadFolder);
                 }
                 foreach ($filesToDownload as $aFile) {
                     // Ignore current directory and reference to upper level
@@ -557,7 +565,9 @@ class Import extends L10nCommand
                                 // If getting the file failed, register error message
                                 // (don't throw exception as this does not need to interrupt the process)
                             } else {
-                                throw new Exception('Problem getting file ' . $aFile . 'from server or saving it locally');
+                                throw new Exception(
+                                    'Problem getting file ' . $aFile . 'from server or saving it locally'
+                                );
                             }
                         }
                     }
@@ -651,7 +661,9 @@ class Import extends L10nCommand
             if (count($recipients) > 0) {
                 // First of all get a list of all workspaces and all l10nmgr configurations to use in the reporting
                 /** @var $queryBuilder QueryBuilder */
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_workspace');
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(
+                    'sys_workspace'
+                );
                 $records = $queryBuilder->select('uid', 'title')
                     ->from('sys_workspace')
                     ->execute()
@@ -662,7 +674,9 @@ class Import extends L10nCommand
                         $workspaces[$record['uid']] = $record;
                     }
                 }
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_l10nmgr_cfg');
+                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(
+                    'tx_l10nmgr_cfg'
+                );
                 $records = $queryBuilder->select('uid', 'title')
                     ->from('tx_l10nmgr_cfg')
                     ->execute()
@@ -739,7 +753,9 @@ class Import extends L10nCommand
                 // Instantiate the mail object, set all necessary properties and send the mail
                 /** @var MailMessage $mailObject */
                 $mailObject = GeneralUtility::makeInstance(MailMessage::class);
-                $mailObject->setFrom([$this->extensionConfiguration['email_sender'] => $this->extensionConfiguration['email_sender_name']]);
+                $mailObject->setFrom(
+                    [$this->extensionConfiguration['email_sender'] => $this->extensionConfiguration['email_sender_name']]
+                );
                 $mailObject->setTo($recipients);
                 $mailObject->setSubject($subject);
                 $mailObject->setFormat('text/plain');

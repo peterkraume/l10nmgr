@@ -24,6 +24,7 @@ use DirectoryIterator;
 use Exception;
 use RuntimeException;
 use SplFileInfo;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
@@ -64,7 +65,7 @@ class L10nmgrFileGarbageCollection extends AbstractTask
     public function execute()
     {
         // There is no file ctime on windows, so this task disables itself if OS = win
-        if (TYPO3_OS == 'WIN') {
+        if (Environment::isWindows()) {
             throw new Exception('This task is not reliable on Windows OS', 1323272367);
         }
         // Calculate a reference timestamp, based on age of files to delete
@@ -105,8 +106,10 @@ class L10nmgrFileGarbageCollection extends AbstractTask
         foreach ($directoryContent as $fileObject) {
             // Remove files that are older than given timestamp and don't match the exclude pattern
             if ($fileObject->isFile()
-                && !preg_match('/' . $this->excludePattern . '/i',
-                    $fileObject->getFilename()) && $fileObject->getCTime() < $timestamp
+                && !preg_match(
+                    '/' . $this->excludePattern . '/i',
+                    $fileObject->getFilename()
+                ) && $fileObject->getCTime() < $timestamp
             ) {
                 if (!(@unlink($fileObject->getRealPath()))) {
                     throw new RuntimeException(

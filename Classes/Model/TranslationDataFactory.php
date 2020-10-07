@@ -23,7 +23,6 @@ namespace Localizationteam\L10nmgr\Model;
 use Localizationteam\L10nmgr\Model\Tools\XmlTools;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
-use TYPO3\CMS\Core\Html\RteHtmlParser;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -53,7 +52,7 @@ class TranslationDataFactory implements LoggerAwareInterface
      *
      * @return TranslationData Object with data
      **/
-    public function getTranslationDataFromCATXMLNodes(&$xmlNodes)
+    public function getTranslationDataFromCATXMLNodes($xmlNodes)
     {
         $data = $this->getParsedCATXMLFromXMLNodes($xmlNodes);
         /** @var TranslationData $translationData */
@@ -69,7 +68,7 @@ class TranslationDataFactory implements LoggerAwareInterface
      *
      * @return array with translated information
      **/
-    protected function getParsedCATXMLFromXMLNodes(&$xmlNodes)
+    protected function getParsedCATXMLFromXMLNodes($xmlNodes)
     {
         /** @var XmlTools $xmlTool */
         $xmlTool = GeneralUtility::makeInstance(XmlTools::class);
@@ -98,22 +97,32 @@ class TranslationDataFactory implements LoggerAwareInterface
                             $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': Pattern: ' . $pattern);
                             $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': Pattern 2: ' . $pattern2);
                             if (preg_match($pattern, $row['XMLvalue'], $match)) {
-                                $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': Start row[values][0] eq start row[XMLvalue]!!!' . LF . 'XMLvalue: ' . $row['XMLvalue']);
+                                $this->logger->debug(
+                                    __FILE__ . ': ' . __LINE__ . ': Start row[values][0] eq start row[XMLvalue]!!!' . LF . 'XMLvalue: ' . $row['XMLvalue']
+                                );
                                 $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = $row['XMLvalue'];
                             } elseif ((preg_match('/<[^>]+>/i', $row['XMLvalue']))
                                 && (!preg_match($pattern2, $row['XMLvalue'], $match))
                             ) {
-                                $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TAG found in: ' . $row['XMLvalue']);
+                                $this->logger->debug(
+                                    __FILE__ . ': ' . __LINE__ . ': TAG found in: ' . $row['XMLvalue']
+                                );
                                 $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TAG found: ' . $row['values'][0]);
                                 $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = $row['values'][0] . $row['XMLvalue'];
                             } else {
-                                $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': No TAG found in: ' . $row['XMLvalue']);
+                                $this->logger->debug(
+                                    __FILE__ . ': ' . __LINE__ . ': No TAG found in: ' . $row['XMLvalue']
+                                );
                                 $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = $row['XMLvalue'];
                             }
-                            $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': IMPORT: ' . $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']]);
+                            $this->logger->debug(
+                                __FILE__ . ': ' . __LINE__ . ': IMPORT: ' . $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']]
+                            );
                         }
                         if (!empty($translation[$attrs['table']][$attrs['elementUid']][$attrs['key']])) {
-                            $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = htmlspecialchars_decode($translation[$attrs['table']][$attrs['elementUid']][$attrs['key']]);
+                            $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = htmlspecialchars_decode(
+                                $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']]
+                            );
                         }
                     }
                 }
@@ -191,83 +200,4 @@ class TranslationDataFactory implements LoggerAwareInterface
         return $translation;
     }
 
-    /**
-     * For supporting older Format (without pagegrp element)
-     *public Factory method to get initialised tranlationData Object from the passed XML
-     *
-     * @param string $xmlFile Path to the XML file
-     *
-     * @return TranslationData Object with data
-     **/
-    public function getTranslationDataFromOldFormatCATXMLFile($xmlFile)
-    {
-        $fileContent = GeneralUtility::getUrl($xmlFile);
-        $data = $this->getParsedCATXMLFromOldFormat($fileContent);
-        if ($data === false) {
-            die($this->errorMsg);
-        }
-        /** @var TranslationData $translationData */
-        $translationData = GeneralUtility::makeInstance(TranslationData::class);
-        $translationData->setTranslationData($data);
-        return $translationData;
-    }
-
-    /**
-     * For supporting older Format (without pagegrp element)
-     *
-     * @param string $fileContent String with XML
-     *
-     * @return array | bool with translated information
-     **/
-    protected function getParsedCATXMLFromOldFormat($fileContent)
-    {
-        /** @var RteHtmlParser $parseHTML */
-        $parseHTML = GeneralUtility::makeInstance(RteHtmlParser::class);
-        $xmlNodes = XmlTools::xml2tree(
-            str_replace('&nbsp;', '&#160;', $fileContent),
-            2
-        ); // For some reason PHP chokes on incoming &nbsp; in XML!
-        if (!is_array($xmlNodes)) {
-            $this->errorMsg .= $xmlNodes;
-            return false;
-        }
-        $translation = [];
-        // OK, this method of parsing the XML really sucks, but it was 4:04 in the night and ... I have no clue to make it better on PHP4. Anyway, this will work for now. But is probably unstable in case a user puts formatting in the content of the translation! (since only the first CData chunk will be found!)
-        if (is_array($xmlNodes['TYPO3L10N'][0]['ch']['Data'])) {
-            foreach ($xmlNodes['TYPO3L10N'][0]['ch']['Data'] as $row) {
-                $attrs = $row['attrs'];
-                if ($attrs['transformations'] == '1') { //substitute check with rte enabled fields from TCA
-                    //$translationValue =$this->_getXMLFromTreeArray($row);
-                    $translationValue = $row['XMLvalue'];
-                    //fixed setting of Parser (TO-DO set it via typoscript)
-                    $parseHTML->procOptions['typolist'] = false;
-                    $parseHTML->procOptions['typohead'] = false;
-                    $parseHTML->procOptions['keepPDIVattribs'] = true;
-                    $parseHTML->procOptions['dontConvBRtoParagraph'] = true;
-                    //$parseHTML->procOptions['preserveTags'].=',br';
-                    if (!is_array($parseHTML->procOptions['HTMLparser_db.'])) {
-                        $parseHTML->procOptions['HTMLparser_db.'] = [];
-                    }
-                    $parseHTML->procOptions['HTMLparser_db.']['xhtml_cleaning'] = true;
-                    //trick to preserve strongtags
-                    $parseHTML->procOptions['denyTags'] = 'strong';
-                    //$parseHTML->procOptions['disableUnifyLineBreaks']=TRUE;
-                    $parseHTML->procOptions['dontRemoveUnknownTags_db'] = true;
-                    $translationValue = $parseHTML->TS_transform_db($translationValue); // removes links from content if not called first!
-                    //print_r($translationValue);
-                    $translationValue = $parseHTML->TS_images_db($translationValue);
-                    //print_r($translationValue);
-                    $translationValue = $parseHTML->TS_links_db($translationValue);
-                    //print_r($translationValue);
-                    //print_r($translationValue);
-                    //substitute & with &amp;
-                    $translationValue = str_replace('&amp;', '&', $translationValue);
-                    $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = $translationValue;
-                } else {
-                    $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = $row['values'][0];
-                }
-            }
-        }
-        return $translation;
-    }
 }

@@ -57,7 +57,7 @@ class Tcemain
      * @param $fieldArray
      * @param $pObj
      */
-    public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, &$pObj)
+    public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, $pObj)
     {
         // Check if
         // debug(array($status, $table, $id));
@@ -80,8 +80,11 @@ class Tcemain
         // Now, see if this record is a translation of another one:
         if ($liveRecord[$GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField']]) {
             // So it had a translation pointer - lets look for the root record then:
-            $liveRecord = BackendUtility::getRecord($table,
-                $liveRecord[$GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField']], 'uid');
+            $liveRecord = BackendUtility::getRecord(
+                $table,
+                $liveRecord[$GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField']],
+                'uid'
+            );
             // echo "Finding root version<br>";
         }
         $languageID = L10nBaseService::getTargetLanguageID();
@@ -92,8 +95,13 @@ class Tcemain
             $t8Tools = GeneralUtility::makeInstance(Tools::class);
             $t8Tools->verbose = false; // Otherwise it will show records which has fields but none editable.
             // debug($t8Tools->indexDetailsRecord($table,$liveRecord['uid']));
-            $t8Tools->updateIndexTableFromDetailsArray($t8Tools->indexDetailsRecord($table, $liveRecord['uid'],
-                $languageID));
+            $t8Tools->updateIndexTableFromDetailsArray(
+                $t8Tools->indexDetailsRecord(
+                    $table,
+                    $liveRecord['uid'],
+                    $languageID
+                )
+            );
         }
     }
 
@@ -135,7 +143,9 @@ class Tcemain
     {
         $output = '';
         /** @var $queryBuilder QueryBuilder */
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_l10nmgr_index');
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(
+            'tx_l10nmgr_index'
+        );
         $queryBuilder->select('*')->from('tx_l10nmgr_index');
         $queryBuilder->where(
             $queryBuilder->expr()->in(
@@ -181,7 +191,9 @@ class Tcemain
                 $msg .= 'None of ' . $flags['new'] . ' elements are translated.';
                 $output = '<img src="' . $GLOBALS['BACK_PATH']
                     . $this->siteRelPath('l10nmgr')
-                    . 'flags_new.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
+                    . 'flags_new.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars(
+                        $msg
+                    ) . '" title="' . htmlspecialchars($msg) . '" />';
             } elseif ($flags['new'] || $flags['update']) {
                 if ($flags['update']) {
                     $msg .= $flags['update'] . ' elements to update. ';
@@ -191,30 +203,43 @@ class Tcemain
                 }
                 $output = '<img src="' . $GLOBALS['BACK_PATH']
                     . $this->siteRelPath('l10nmgr')
-                    . 'flags_update.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
+                    . 'flags_update.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars(
+                        $msg
+                    ) . '" title="' . htmlspecialchars($msg) . '" />';
             } elseif ($flags['unknown']) {
                 $msg .= 'Translation status is unknown for ' . $flags['unknown'] . ' elements. Please check and update. ';
                 $output = '<img src="' . $GLOBALS['BACK_PATH']
                     . $this->siteRelPath('l10nmgr')
-                    . 'flags_unknown.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
+                    . 'flags_unknown.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars(
+                        $msg
+                    ) . '" title="' . htmlspecialchars($msg) . '" />';
             } elseif ($flags['noChange']) {
                 $msg .= 'All ' . $flags['noChange'] . ' translations OK';
                 $output = '<img src="' . $GLOBALS['BACK_PATH']
                     . $this->siteRelPath('l10nmgr')
-                    . 'flags_ok.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
+                    . 'flags_ok.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars(
+                        $msg
+                    ) . '" title="' . htmlspecialchars($msg) . '" />';
             } else {
                 $msg .= 'Nothing to do. ';
                 $msg .= '[n/?/u/ok=' . implode('/', $flags) . ']';
                 $output = '<img src="' . $GLOBALS['BACK_PATH']
                     . $this->siteRelPath('l10nmgr')
-                    . 'flags_none.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
+                    . 'flags_none.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars(
+                        $msg
+                    ) . '" title="' . htmlspecialchars($msg) . '" />';
             }
             $output = !$noLink
                 ? '<a href="#" onclick="'
                 . htmlspecialchars(
                     'parent.list_frame.location.href="' . $GLOBALS['BACK_PATH']
                     . $this->siteRelPath('l10nmgr')
-                    . 'cm2/index.php?table=' . $p[0] . '&uid=' . $p[1] . '&languageList=' . rawurlencode(implode(',', $languageList))
+                    . 'cm2/index.php?table=' . $p[0] . '&uid=' . $p[1] . '&languageList=' . rawurlencode(
+                        implode(
+                            ',',
+                            $languageList
+                        )
+                    )
                     . '"; return false;'
                 ) . '" target="listframe">' . $output . '</a>'
                 : $output;

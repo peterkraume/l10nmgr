@@ -27,8 +27,8 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Lang\LanguageService;
 
 /**
  * Function for managing the Import of CAT XML
@@ -94,7 +94,9 @@ class CatXmlImportManager
             3
         ); // For some reason PHP chokes on incoming &nbsp; in XML!
         if (!is_array($this->xmlNodes)) {
-            $this->_errorMsg[] = $this->getLanguageService()->getLL('import.manager.error.parsing.xml2tree.message') . $this->xmlNodes . ' Content: ' . $fileContent;
+            $this->_errorMsg[] = $this->getLanguageService()->getLL(
+                    'import.manager.error.parsing.xml2tree.message'
+                ) . $this->xmlNodes . ' Content: ' . $fileContent;
             return false;
         }
         $headerInformationNodes = $this->xmlNodes['TYPO3L10N'][0]['ch']['head'][0]['ch'];
@@ -163,7 +165,8 @@ class CatXmlImportManager
                 L10NMGR_FILEVERSION
             );
         }
-        if (!isset($this->headerData['t3_workspaceId']) || $this->headerData['t3_workspaceId'] != $this->getBackendUser()->workspace) {
+        if (!isset($this->headerData['t3_workspaceId']) || $this->headerData['t3_workspaceId'] != $this->getBackendUser(
+            )->workspace) {
             $this->getBackendUser()->workspace = $this->headerData['t3_workspaceId'];
             $error[] = sprintf(
                 $this->getLanguageService()->getLL('import.manager.error.workspace.message'),
@@ -196,7 +199,9 @@ class CatXmlImportManager
             3
         ); // For some reason PHP chokes on incoming &nbsp; in XML!
         if (!is_array($this->xmlNodes)) {
-            $this->_errorMsg[] = $this->getLanguageService()->getLL('import.manager.error.parsing.xml2tree.message') . $this->xmlNodes;
+            $this->_errorMsg[] = $this->getLanguageService()->getLL(
+                    'import.manager.error.parsing.xml2tree.message'
+                ) . $this->xmlNodes;
             return false;
         }
         $headerInformationNodes = $this->xmlNodes['TYPO3L10N'][0]['ch']['head'][0]['ch'];
@@ -224,7 +229,8 @@ class CatXmlImportManager
                 L10NMGR_FILEVERSION
             );
         }
-        if (!isset($this->headerData['t3_workspaceId']) || $this->headerData['t3_workspaceId'] != $this->getBackendUser()->workspace) {
+        if (!isset($this->headerData['t3_workspaceId']) || $this->headerData['t3_workspaceId'] != $this->getBackendUser(
+            )->workspace) {
             $error[] = sprintf(
                 $this->getLanguageService()->getLL('import.manager.error.workspace.message'),
                 $this->getBackendUser()->workspace,
@@ -269,7 +275,7 @@ class CatXmlImportManager
      *
      * @return array Page IDs for preview
      */
-    public function getPidsFromCATXMLNodes(&$xmlNodes)
+    public function getPidsFromCATXMLNodes($xmlNodes)
     {
         $pids = [];
         if (is_array($xmlNodes['TYPO3L10N'][0]['ch']['pageGrp'])) {
@@ -287,7 +293,7 @@ class CatXmlImportManager
      *
      * @return array Uids for which localizations shall be removed
      */
-    public function getDelL10NDataFromCATXMLNodes(&$xmlNodes)
+    public function getDelL10NDataFromCATXMLNodes($xmlNodes)
     {
         //get L10Ns to be deleted before import
         $delL10NUids = [];

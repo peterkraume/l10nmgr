@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('TYPO3_MODE')) {
     die('Access denied.');
 }
@@ -13,10 +14,10 @@ if (!defined('TYPO3_MODE')) {
     '',
     [
         'routeTarget' => \Localizationteam\L10nmgr\Controller\ConfigurationManager::class . '::mainAction',
-        'access'      => 'user,group',
-        'name'        => 'web_ConfigurationManager',
-        'icon'        => 'EXT:l10nmgr/Resources/Public/Icons/module-l10nmgr.svg',
-        'labels'      => 'LLL:EXT:l10nmgr/Resources/Private/Language/Modules/ConfigurationManager/locallang_mod.xlf',
+        'access' => 'user,group',
+        'name' => 'web_ConfigurationManager',
+        'icon' => 'EXT:l10nmgr/Resources/Public/Icons/module-l10nmgr.svg',
+        'labels' => 'LLL:EXT:l10nmgr/Resources/Private/Language/Modules/ConfigurationManager/locallang_mod.xlf',
     ]
 );
 
@@ -30,10 +31,10 @@ if (!defined('TYPO3_MODE')) {
     '',
     [
         'routeTarget' => \Localizationteam\L10nmgr\Controller\LocalizationManager::class . '::mainAction',
-        'access'      => 'user,group',
-        'name'        => 'LocalizationManager',
-        'icon'        => 'EXT:l10nmgr/Resources/Public/Icons/module-l10nmgr.svg',
-        'labels'      => 'LLL:EXT:l10nmgr/Resources/Private/Language/Modules/ConfigurationManager/locallang_mod.xlf',
+        'access' => 'user,group',
+        'name' => 'LocalizationManager',
+        'icon' => 'EXT:l10nmgr/Resources/Public/Icons/module-l10nmgr.svg',
+        'labels' => 'LLL:EXT:l10nmgr/Resources/Private/Language/Modules/ConfigurationManager/locallang_mod.xlf',
     ]
 );
 
@@ -47,10 +48,10 @@ if (!defined('TYPO3_MODE')) {
     '',
     [
         'routeTarget' => \Localizationteam\L10nmgr\Controller\Module2::class . '::main',
-        'access'      => 'user,group',
-        'name'        => 'user_txl10nmgrM2',
-        'icon'        => 'EXT:l10nmgr/Resources/Public/Icons/module-l10nmgr.svg',
-        'labels'      => 'LLL:EXT:l10nmgr/Resources/Private/Language/Modules/Module2/locallang_mod.xlf',
+        'access' => 'user,group',
+        'name' => 'user_txl10nmgrM2',
+        'icon' => 'EXT:l10nmgr/Resources/Public/Icons/module-l10nmgr.svg',
+        'labels' => 'LLL:EXT:l10nmgr/Resources/Private/Language/Modules/Module2/locallang_mod.xlf',
     ]
 );
 
@@ -64,10 +65,10 @@ if (!defined('TYPO3_MODE')) {
     '',
     [
         'routeTarget' => \Localizationteam\L10nmgr\Controller\TranslationTasks::class . '::mainAction',
-        'access'      => 'user,group',
-        'name'        => 'LocalizationManager_TranslationTasks',
-        'icon'        => 'EXT:l10nmgr/Resources/Public/Icons/module-l10nmgr-tasks.svg',
-        'labels'      => 'LLL:EXT:l10nmgr/Resources/Private/Language/Modules/Module2/locallang_mod.xlf',
+        'access' => 'user,group',
+        'name' => 'LocalizationManager_TranslationTasks',
+        'icon' => 'EXT:l10nmgr/Resources/Public/Icons/module-l10nmgr-tasks.svg',
+        'labels' => 'LLL:EXT:l10nmgr/Resources/Private/Language/Modules/Module2/locallang_mod.xlf',
     ]
 );
 

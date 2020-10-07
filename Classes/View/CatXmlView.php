@@ -111,8 +111,10 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
                         if (is_array($data['fields'])) {
                             foreach ($data['fields'] as $key => $tData) {
                                 if (is_array($tData)) {
-                                    $noChangeFlag = !strcmp(trim($tData['diffDefaultValue']),
-                                        trim($tData['defaultValue']));
+                                    $noChangeFlag = !strcmp(
+                                        trim($tData['diffDefaultValue']),
+                                        trim($tData['defaultValue'])
+                                    );
                                     if (!$this->modeOnlyChanged || !$noChangeFlag) {
                                         // @DP: Why this check?
                                         if ((int)$this->forcedSourceLanguage === 0 || ($this->forcedSourceLanguage && isset($tData['previewLanguageValues'][$this->forcedSourceLanguage]))) {
@@ -121,7 +123,7 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
                                             } else {
                                                 $dataForTranslation = $tData['defaultValue'];
                                             }
-                                            $_isTranformedXML = false;
+                                            $_isTransformedXML = false;
                                             // Following checks are not enough! Fields that could be transformed to be XML conform are not transformed! textpic fields are not isRTE=1!!! No idea why...
                                             //DZ 2010-09-08
                                             // > if > else loop instead of ||
@@ -131,13 +133,13 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
                                             //echo $key."\n";
                                             if ($tData['fieldType'] == 'text' && $tData['isRTE']
                                                 || (preg_match('/templavoila_flex/', $key))) {
-                                                $dataForTranslationTranformed = $xmlTool->RTE2XML($dataForTranslation);
-                                                if ($dataForTranslationTranformed !== false) {
-                                                    $_isTranformedXML = true;
-                                                    $dataForTranslation = $dataForTranslationTranformed;
+                                                $dataForTranslationTransformed = $xmlTool->RTE2XML($dataForTranslation);
+                                                if ($dataForTranslationTransformed !== false) {
+                                                    $_isTransformedXML = true;
+                                                    $dataForTranslation = $dataForTranslationTransformed;
                                                 }
                                             }
-                                            if ($_isTranformedXML) {
+                                            if ($_isTransformedXML) {
                                                 $output[] = "\t\t"
                                                     . '<data table="' . $table . '" elementUid="' . $elementUid . '" key="' . $key . '" transformations="1">' . $dataForTranslation . '</data>' . "\n";
                                             } else {
@@ -148,23 +150,38 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
                                                     'UTF-8'
                                                 );
                                                 //Substitute & with &amp; in non-RTE fields
-                                                $dataForTranslation = preg_replace('/&(?!(amp|nbsp|quot|apos|lt|gt);)/',
-                                                    '&amp;', $dataForTranslation);
+                                                $dataForTranslation = preg_replace(
+                                                    '/&(?!(amp|nbsp|quot|apos|lt|gt);)/',
+                                                    '&amp;',
+                                                    $dataForTranslation
+                                                );
                                                 //Substitute > and < in non-RTE fields
                                                 $dataForTranslation = str_replace(' < ', ' &lt; ', $dataForTranslation);
                                                 $dataForTranslation = str_replace(' > ', ' &gt; ', $dataForTranslation);
-                                                $dataForTranslation = str_replace('<br>', '<br />',
-                                                    $dataForTranslation);
-                                                $dataForTranslation = str_replace('<hr>', '<hr />',
-                                                    $dataForTranslation);
+                                                $dataForTranslation = str_replace(
+                                                    '<br>',
+                                                    '<br />',
+                                                    $dataForTranslation
+                                                );
+                                                $dataForTranslation = str_replace(
+                                                    '<hr>',
+                                                    '<hr />',
+                                                    $dataForTranslation
+                                                );
                                                 if (empty($this->params)) {
-                                                    $this->params = $this->getBackendUser()->getModuleData('l10nmgr/cm1/prefs',
-                                                            'prefs') ?? [];
-                                                    ArrayUtility::mergeRecursiveWithOverrule($this->params,
-                                                        $this->overrideParams);
+                                                    $this->params = $this->getBackendUser()->getModuleData(
+                                                            'l10nmgr/cm1/prefs',
+                                                            'prefs'
+                                                        ) ?? [];
+                                                    ArrayUtility::mergeRecursiveWithOverrule(
+                                                        $this->params,
+                                                        $this->overrideParams
+                                                    );
                                                 }
                                                 if ($this->params['utf8']) {
-                                                    $dataForTranslation = Utf8Tools::utf8_bad_strip($dataForTranslation);
+                                                    $dataForTranslation = Utf8Tools::utf8_bad_strip(
+                                                        $dataForTranslation
+                                                    );
                                                 }
                                                 if ($xmlTool->isValidXMLString($dataForTranslation)) {
                                                     $output[] = "\t\t" . '<data table="' . $table . '" elementUid="' . $elementUid . '" key="' . $key . '">' . $dataForTranslation . '</data>' . "\n";
@@ -183,7 +200,9 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
                                             }
                                         } else {
                                             $this->setInternalMessage(
-                                                $this->getLanguageService()->getLL('export.process.error.empty.message'),
+                                                $this->getLanguageService()->getLL(
+                                                    'export.process.error.empty.message'
+                                                ),
                                                 $elementUid . '/' . $table . '/' . $key
                                             );
                                         }
@@ -199,13 +218,15 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
         // Provide a hook for specific manipulations before building the actual XML
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['exportCatXmlPreProcess'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['exportCatXmlPreProcess'] as $classReference) {
-                $processingObject = GeneralUtility::getUserObj($classReference);
+                $processingObject = GeneralUtility::makeInstance($classReference);
                 $output = $processingObject->processBeforeExportingCatXml($output, $this);
             }
         }
         // get ISO2L code for source language
         $staticLangArr = [];
-        if ($this->l10ncfgObj->getData('sourceLangStaticId') && ExtensionManagementUtility::isLoaded('static_info_tables')) {
+        if ($this->l10ncfgObj->getData('sourceLangStaticId') && ExtensionManagementUtility::isLoaded(
+                'static_info_tables'
+            )) {
             $staticLangArr = BackendUtility::getRecord(
                 'static_languages',
                 $this->l10ncfgObj->getData('sourceLangStaticId'),

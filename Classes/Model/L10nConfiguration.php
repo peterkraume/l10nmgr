@@ -104,7 +104,7 @@ class L10nConfiguration
     }
 
     /**
-     * Factory method to create AccumulatedInformations Object (e.g. build tree etc...)
+     * Factory method to create AccumulatedInformation Object (e.g. build tree etc...)
      * (Factorys should have all dependencies passed as parameter)
      *
      * @param int $sysLang sys_language_uid
@@ -142,7 +142,7 @@ class L10nConfiguration
             $page = array_shift($treeStartingRecords);
             $HTML = $iconFactory->getIconForRecord('pages', $page, Icon::SIZE_SMALL)->render();
             $tree->tree[] = [
-                'row'  => $page,
+                'row' => $page,
                 'HTML' => $HTML,
             ];
             // Create the tree from starting point or page list:
@@ -153,7 +153,7 @@ class L10nConfiguration
                     foreach ($treeStartingRecords as $page) {
                         $HTML = $iconFactory->getIconForRecord('pages', $page, Icon::SIZE_SMALL)->render();
                         $tree->tree[] = [
-                            'row'  => $page,
+                            'row' => $page,
                             'HTML' => $HTML,
                         ];
                     }
