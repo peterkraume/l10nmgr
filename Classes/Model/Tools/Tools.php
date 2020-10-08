@@ -1450,6 +1450,12 @@ class Tools
     {
         if ($rDetails && is_array($rDetails['indexRecord']) && count($rDetails['indexRecord'])) {
             foreach ($rDetails['indexRecord'] as $rIndexRecord) {
+                if (
+                    empty($rIndexRecord['hash'])
+                    || empty($rIndexRecord['tablename'])
+                ) {
+                    continue;
+                }
                 if ($echo) {
                     echo "Inserting " . $rIndexRecord['tablename'] . ':' . $rIndexRecord['recuid']
                         . ':' . $rIndexRecord['translation_lang'] . ':' . $rIndexRecord['workspace'] . chr(10);
