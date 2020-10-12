@@ -244,7 +244,10 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
         $XML .= "\t\t" . '<t3_workspaceId>' . $this->getBackendUser()->workspace . '</t3_workspaceId>' . "\n";
         $XML .= "\t\t" . '<t3_count>' . $accumObj->getFieldCount() . '</t3_count>' . "\n";
         $XML .= "\t\t" . '<t3_wordCount>' . $accumObj->getWordCount() . '</t3_wordCount>' . "\n";
-        $XML .= "\t\t" . '<t3_internal>' . "\r\t" . $this->renderInternalMessage() . "\t\t" . '</t3_internal>' . "\n";
+        $internalMessages = trim($this->renderInternalMessage());
+        if ($internalMessages) {
+            $XML .= "\t\t" . '<t3_internal>' . "\r\t" . $internalMessages . "\t\t" . '</t3_internal>' . "\n";
+        }
         $XML .= "\t\t" . '<t3_formatVersion>' . L10NMGR_FILEVERSION . '</t3_formatVersion>' . "\n";
         $XML .= "\t\t" . '<t3_l10nmgrVersion>' . L10NMGR_VERSION . '</t3_l10nmgrVersion>' . "\n";
         $XML .= $this->additionalHeaderData();
