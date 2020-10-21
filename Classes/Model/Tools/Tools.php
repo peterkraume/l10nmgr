@@ -1541,7 +1541,16 @@ class Tools
         if ($cache->has($key)) {
             $allowedFields = $cache->get($key);
         } else {
-            $allowedFields = array_keys($GLOBALS['TCA'][$table]['columns']);
+            $configuredFields = array_keys($GLOBALS['TCA'][$table]['columns']);
+            $tableColumns = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getConnectionForTable($table)
+                ->getSchemaManager()
+                ->listTableColumns($table);
+            $fieldsInDatabase = [];
+            foreach ($tableColumns as $column) {
+                $fieldsInDatabase[] = $column->getName();
+            }
+            $allowedFields = array_intersect($configuredFields, $fieldsInDatabase);
             if (!$GLOBALS['BE_USER']->isAdmin()) {
                 $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
                 $dataHandler->start([], []);
