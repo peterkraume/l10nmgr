@@ -605,10 +605,9 @@ class L10nBaseService implements LoggerAwareInterface
                                             if ((int)$element['colPos'] !== -2 && (int)$element['colPos'] !== -1 && (int)$element['colPos'] !== 18181) {
                                                 $this->TCEmain_cmd['tt_content'][$elementUid]['localize'] = $Tlang;
                                             } else {
-                                                $translateThroughParent = false;
                                                 if ($element['tx_gridelements_container'] > 0) {
                                                     $this->depthCounter = 0;
-                                                    $translateThroughParent = $this->recursivelyCheckForRelationParents(
+                                                    $this->recursivelyCheckForRelationParents(
                                                         $element,
                                                         $Tlang,
                                                         'tx_gridelements_container',
@@ -617,15 +616,12 @@ class L10nBaseService implements LoggerAwareInterface
                                                 }
                                                 if ($element['tx_flux_parent'] > 0) {
                                                     $this->depthCounter = 0;
-                                                    $translateThroughParent = $this->recursivelyCheckForRelationParents(
+                                                    $this->recursivelyCheckForRelationParents(
                                                         $element,
                                                         $Tlang,
                                                         'tx_flux_parent',
                                                         'tx_flux_children'
                                                     );
-                                                }
-                                                if (!$translateThroughParent) {
-                                                    $this->TCEmain_cmd['tt_content'][$elementUid]['localize'] = $Tlang;
                                                 }
                                             }
                                         } elseif ($table === 'sys_file_reference') {
@@ -947,16 +943,10 @@ class L10nBaseService implements LoggerAwareInterface
     }
 
     /**
-    /**
-     * Issues 'localize' to the DataHandler cmd map for parents of the given element recursively.
-     *
-     * Returns true if the parent will be localized, otherwise false.
-     *
      * @param $element
      * @param $Tlang
      * @param $parentField
      * @param $childrenField
-     * @return bool
      */
     protected function recursivelyCheckForRelationParents($element, $Tlang, $parentField, $childrenField)
     {
@@ -991,18 +981,12 @@ class L10nBaseService implements LoggerAwareInterface
             }
             if ($translatedParent['uid'] > 0) {
                 $this->TCEmain_cmd['tt_content'][$translatedParent['uid']]['inlineLocalizeSynchronize'] = $childrenField . ',localize';
-                return true;
             } else {
                 if ($element[$parentField] > 0) {
                     $parent = $this->getRawRecord('tt_content', (int)$element[$parentField]);
-                    return $this->recursivelyCheckForRelationParents($parent, $Tlang, $parentField, $childrenField);
+                    $this->recursivelyCheckForRelationParents($parent, $Tlang, $parentField, $childrenField);
                 } else {
-                    if ($element['sys_language_uid'] !== -1) {
-                        $this->TCEmain_cmd['tt_content'][$element['uid']]['localize'] = $Tlang;
-                        return true;
-                    } else {
-                        return false;
-                    }
+                    $this->TCEmain_cmd['tt_content'][$element['uid']]['localize'] = $Tlang;
                 }
             }
         }
