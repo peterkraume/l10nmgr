@@ -137,6 +137,16 @@ class L10nAccumulatedInformation
     }
 
     /**
+     * return extension configuration used for accumulated information
+     *
+     * @return array extension configuration
+     */
+    public function getExtensionConfiguration()
+    {
+        return $this->extensionConfiguration;
+    }
+
+    /**
      * @return void
      */
     protected function process()

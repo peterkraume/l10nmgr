@@ -241,6 +241,13 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
         $XML .= "\t\t" . '<t3_sourceLang>' . $staticLangArr['lg_iso_2'] . '</t3_sourceLang>' . "\n";
         $XML .= "\t\t" . '<t3_targetLang>' . $targetIso . '</t3_targetLang>' . "\n";
         $XML .= "\t\t" . '<t3_baseURL>' . $this->baseUrl . '</t3_baseURL>' . "\n";
+        if ($accumObj->getExtensionConfiguration()['enable_customername']) {
+            // Customer set by CLI parameter will override CLI backend user name for CLI based exports
+            $customer = $this->customer ?: $this->getBackendUser()->user['realName'];
+            if ($customer) {
+                $XML .= "\t\t" . '<t3_customer>' . $customer . '</t3_customer>' . "\n";
+            }
+        }
         $XML .= "\t\t" . '<t3_workspaceId>' . $this->getBackendUser()->workspace . '</t3_workspaceId>' . "\n";
         $XML .= "\t\t" . '<t3_count>' . $accumObj->getFieldCount() . '</t3_count>' . "\n";
         $XML .= "\t\t" . '<t3_wordCount>' . $accumObj->getWordCount() . '</t3_wordCount>' . "\n";

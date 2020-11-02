@@ -93,6 +93,12 @@ class Export extends L10nCommand
                 0
             )
             ->addOption(
+                'customer',
+                InputOption::VALUE_OPTIONAL,
+                'Name of the responsible customer. Default = Real name of the CLI backend user',
+                0
+            )
+            ->addOption(
                 'baseUrl',
                 'b',
                 InputOption::VALUE_OPTIONAL,
@@ -238,6 +244,7 @@ class Export extends L10nCommand
         $l10nmgrCfgObj->setSourcePid($sourcePid);
         if ($l10nmgrCfgObj->isLoaded()) {
             if ($format == 'CATXML') {
+                /** @var $l10nmgrGetXML CatXmlView */
                 $l10nmgrGetXML = GeneralUtility::makeInstance(CatXmlView::class, $l10nmgrCfgObj, $tlang);
                 if ($input->hasOption('baseUrl')) {
                     $baseUrl = $input->getOption('baseUrl');
@@ -277,6 +284,11 @@ class Export extends L10nCommand
             $hidden = $input->getOption('hidden');
             if ($hidden) {
                 $l10nmgrGetXML->setModeNoHidden();
+            }
+            $customer = $input->getOption('customer');
+            if ($customer) {
+                $l10nmgrGetXML->setCustomer($customer);
+                // If not set, customer set by CLI backend user name will give a default value for CLI based exports
             }
             // If the check for already exported content is enabled, run the ckeck.
             $checkExportsCli = $input->getOption('check-exports');
