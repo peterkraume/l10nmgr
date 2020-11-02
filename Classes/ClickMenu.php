@@ -102,7 +102,7 @@ class ClickMenu extends AbstractProvider
      */
     protected function canRender(string $itemName, string $type): bool
     {
-        return true;
+        return !in_array($itemName, $this->disabledItems, true);
     }
 
     /**
