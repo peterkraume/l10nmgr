@@ -94,6 +94,7 @@ class Export extends L10nCommand
             )
             ->addOption(
                 'customer',
+                null,
                 InputOption::VALUE_OPTIONAL,
                 'Name of the responsible customer. Default = Real name of the CLI backend user',
                 0
