@@ -792,11 +792,27 @@ class L10nBaseService implements LoggerAwareInterface
             );
             // Remapping those elements which are new:
             $this->lastTCEMAINCommandsCount = 0;
+            $slugFields = [];
+            // Find slug fields for each table
+            foreach (array_keys($TCEmain_data) as $table) {
+                if (!empty($GLOBALS['TCA'][$table]) && !empty($GLOBALS['TCA'][$table]['columns'])) {
+                    foreach ($GLOBALS['TCA'][$table]['columns'] as $columnName => $column) {
+                        if (!empty($column['config']) && !empty($column['config']['type']) && $column['config']['type'] === 'slug') {
+                            $slugFields[$table][$columnName] = '';
+                        }
+                    }
+                }
+            }
             foreach ($TCEmain_data as $table => $items) {
                 foreach ($items as $TuidString => $fields) {
                     list($Tuid, $Tlang, $TdefRecord) = explode('/', $TuidString);
                     $this->lastTCEMAINCommandsCount++;
                     if ($Tuid === 'NEW') {
+                        // if there are slug fields and there is no translation value for them
+                        // make sure they will be empty to trigger automatic slug generation with translated values
+                        if (!empty($slugFields[$table])) {
+                            $fields = array_merge($slugFields[$table], $fields);
+                        }
                         if ($tce->copyMappingArray_merged[$table][$TdefRecord]) {
                             $TCEmain_data[$table][BackendUtility::wsMapId(
                                 $table,
