@@ -24,7 +24,7 @@
 	},
 	"extra": {
 		"typo3/cms": {
-			"extension-key": "localizer"
+			"extension-key": "l10nmgr"
 		}
 	}
 }
