@@ -296,13 +296,21 @@ class CatXmlImportManager
         $dataHandler->start([], []);
         foreach ($delL10NData as $element) {
             list($table, $elementUid) = explode(':', $element);
+            $checkWorkspace = $GLOBALS['TCA'][$table]['ctrl']['versioningWS'] ? ' AND t3ver_wsid = ' . (int)$this->headerData['t3_workspaceId'] : '';
             if ($table == 'pages') {
                 $table = 'pages_language_overlay';
-                $where = 'pid = ' . (int)$elementUid . ' AND sys_language_uid = ' . (int)$this->headerData['t3_sysLang'] . ' AND t3ver_wsid = ' . (int)$this->headerData['t3_workspaceId'];
+                $where = 'pid = ' . (int)$elementUid . ' AND sys_language_uid = ' . (int)$this->headerData['t3_sysLang'] . $checkWorkspace;
             } else {
                 $languageField = $GLOBALS['TCA'][$table]['ctrl']['languageField'];
                 $l18nPointerField = $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'];
-                $where = $l18nPointerField . " = $elementUid AND " . $languageField . " = " . $this->headerData['t3_sysLang'] . " AND t3ver_wsid = " . $this->headerData['t3_workspaceId'];
+                $where = [];
+                if ($languageField) {
+                    $where[] = $languageField . ' = ' . (int)$this->headerData['t3_sysLang'];
+                }
+                if ($l18nPointerField) {
+                    $where[] = $l18nPointerField . ' = '  . $elementUid ;
+                }
+                $where = implode(' AND ', $where) . $checkWorkspace;
             }
             $delDataQuery = $this->getDatabaseConnection()->exec_SELECTgetRows('uid', $table, $where, '', '', '',
                 'uid');
