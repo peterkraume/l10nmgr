@@ -337,24 +337,35 @@ class CatXmlImportManager
                 ->getRestrictions()
                 ->removeAll()
                 ->add($deletedRestriction);
-            $delDataQuery = $queryBuilder->select('uid')
+            $queryBuilder->select('uid')
                 ->from($table)
                 ->where(
                     $queryBuilder->expr()->eq(
-                        $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'],
-                        $queryBuilder->createNamedParameter($elementUid, PDO::PARAM_INT)
-                    ),
-                    $queryBuilder->expr()->eq(
                         $GLOBALS['TCA'][$table]['ctrl']['languageField'],
                         $queryBuilder->createNamedParameter($this->headerData['t3_sysLang'], PDO::PARAM_INT)
-                    ),
+                    )
+                );
+
+            if ($GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField']) {
+                $queryBuilder->addWhere(
+                    $queryBuilder->expr()->eq(
+                        $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'],
+                        $queryBuilder->createNamedParameter($elementUid, PDO::PARAM_INT)
+                    )
+                );
+            }
+
+            if ($GLOBALS['TCA'][$table]['ctrl']['versioningWS']) {
+                $queryBuilder->addWhere(
                     $queryBuilder->expr()->eq(
                         't3ver_wsid',
                         $queryBuilder->createNamedParameter($this->headerData['t3_workspaceId'], PDO::PARAM_INT)
                     )
-                )
-                ->execute()
-                ->fetchAll();
+                );
+            }
+
+            $delDataQuery = $queryBuilder->execute()->fetchAll();
+
             if (!empty($delDataQuery)) {
                 foreach ($delDataQuery as $row) {
                     $dataHandler->deleteAction($table, $row['uid']);
