@@ -537,11 +537,11 @@ class L10nBaseService
                                             /** @var $relationHandler RelationHandler */
                                             // integrators have to make sure to configure fields of parent elements properly
                                             // so they will do translations of their children automatically when translated
-                                            if (!empty($TCA[$table]['columns'][$key])) {
-                                                $configuration = $TCA[$table]['columns'][$key]['config'];
+                                            if (!empty($TCA[$table]['columns'][$Tfield])) {
+                                                $configuration = $TCA[$table]['columns'][$Tfield]['config'];
                                                 if ($configuration['foreign_table']) {
                                                     $relationHandler = GeneralUtility::makeInstance(RelationHandler::class);
-                                                    $relationHandler->start($element[$key],
+                                                    $relationHandler->start($element[$Tfield],
                                                         $configuration['foreign_table'],
                                                         $configuration['MM'], $elementUid, $table, $configuration);
                                                     $relationHandler->processDeletePlaceholder();
