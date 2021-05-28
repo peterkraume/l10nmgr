@@ -341,7 +341,7 @@ class CatXmlImportManager
                 );
 
             if ($GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField']) {
-                $queryBuilder->addWhere(
+                $queryBuilder->andWhere(
                     $queryBuilder->expr()->eq(
                         $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'],
                         $queryBuilder->createNamedParameter($elementUid, PDO::PARAM_INT)
@@ -350,7 +350,7 @@ class CatXmlImportManager
             }
 
             if ($GLOBALS['TCA'][$table]['ctrl']['versioningWS']) {
-                $queryBuilder->addWhere(
+                $queryBuilder->andWhere(
                     $queryBuilder->expr()->eq(
                         't3ver_wsid',
                         $queryBuilder->createNamedParameter($this->headerData['t3_workspaceId'], PDO::PARAM_INT)
