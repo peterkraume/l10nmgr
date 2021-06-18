@@ -167,7 +167,6 @@ class L10nAccumulatedInformation
         $flexFormDiff = unserialize($l10ncfg['flexformdiff']);
         $flexFormDiff = $flexFormDiff[$sysLang];
         $this->excludeIndex = array_flip(GeneralUtility::trimExplode(',', $l10ncfg['exclude'], true));
-        $tableUidConstraintIndex = array_flip(GeneralUtility::trimExplode(',', $l10ncfg['tableUidConstraint'], 1));
         // Init:
         $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
         /** @var Tools $t8Tools */
@@ -256,38 +255,42 @@ class L10nAccumulatedInformation
                             }
                         } else {
                             $allRows = $t8Tools->getRecordsToTranslateFromTable($table, $pageId, 0, (bool)$l10ncfg['sortexports']);
-                            if (is_array($allRows)) {
-                                if (count($allRows)) {
-                                    // Now, for each record, look for localization:
-                                    foreach ($allRows as $row) {
-                                        if (!empty($row[Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME])) {
-                                            $languageIsRestricted = LanguageRestrictionCollection::load(
-                                                (int)$sysLang,
-                                                true,
-                                                $table,
-                                                Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME
-                                            );
-                                            if (count($languageIsRestricted) > 0) {
-                                                $this->excludeIndex[$table . ':' . (int)$row['uid']] = 1;
-                                                continue;
-                                            }
-                                        }
-                                        BackendUtility::workspaceOL($table, $row);
-                                        if (is_array($row) && ($tableUidConstraintIndex[$table . ':' . $row['uid']] || !isset($this->excludeIndex[$table . ':' . $row['uid']]))) {
-                                            $accum[$pageId]['items'][$table][$row['uid']] = $t8Tools->translationDetails(
-                                                $table,
-                                                $row,
-                                                $sysLang,
-                                                $flexFormDiff,
-                                                $previewLanguage
-                                            );
-                                            if ($table === 'sys_file_reference') {
-                                                $fileList .= $fileList ? ',' . (int)$row['uid_local'] : (int)$row['uid_local'];
-                                            }
-                                            $this->_increaseInternalCounters($accum[$pageId]['items'][$table][$row['uid']]['fields']);
-                                        }
+                            if (!is_array($allRows)) {
+                                continue;
+                            }
+                            // Now, for each record, look for localization:
+                            foreach ($allRows as $row) {
+                                if (isset($this->excludeIndex[$table . ':' . $row['uid']])) {
+                                    continue;
+                                }
+                                if (!empty($row[Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME])) {
+                                    $languageIsRestricted = LanguageRestrictionCollection::load(
+                                        (int)$sysLang,
+                                        true,
+                                        $table,
+                                        Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME
+                                    );
+                                    if (count($languageIsRestricted) > 0) {
+                                        $this->excludeIndex[$table . ':' . (int)$row['uid']] = 1;
+                                        continue;
                                     }
                                 }
+                                BackendUtility::workspaceOL($table, $row);
+                                if (!is_array($row)) {
+                                    continue;
+                                }
+
+                                $accum[$pageId]['items'][$table][$row['uid']] = $t8Tools->translationDetails(
+                                    $table,
+                                    $row,
+                                    $sysLang,
+                                    $flexFormDiff,
+                                    $previewLanguage
+                                );
+                                if ($table === 'sys_file_reference') {
+                                    $fileList .= $fileList ? ',' . (int)$row['uid_local'] : (int)$row['uid_local'];
+                                }
+                                $this->_increaseInternalCounters($accum[$pageId]['items'][$table][$row['uid']]['fields']);
                             }
                         }
                     }
