@@ -67,8 +67,6 @@ use TYPO3\CMS\Core\Utility\PathUtility;
  * Translation management tool
  *
  * @author Kasper Skaarhoj <kasperYYYY@typo3.com>
- * @package TYPO3
- * @subpackage tx_l10nmgr
  */
 class LocalizationManager extends BaseModule
 {
@@ -159,8 +157,6 @@ class LocalizationManager extends BaseModule
 
     /**
      * Initializes the Module
-     *
-     * @return void
      */
     public function init()
     {
@@ -171,14 +167,13 @@ class LocalizationManager extends BaseModule
     /**
      * Main function of the module. Write the content to
      *
-     * @return void
      * @throws ResourceNotFoundException
      * @throws RouteNotFoundException
      */
     protected function main()
     {
         // Get language to export/import
-        $this->sysLanguage = $this->MOD_SETTINGS["lang"];
+        $this->sysLanguage = $this->MOD_SETTINGS['lang'];
         // Draw the header.
         $this->moduleTemplate->addJavaScriptCode(
             'jumpToUrl',
@@ -206,9 +201,12 @@ return false;
                 $this->content .= $this->moduleTemplate->header($this->getLanguageService()->getLL('general.title'));
                 // Create and render view to show details for the current l10nmgrcfg
                 /** @var L10nConfigurationDetailView $l10nmgrconfigurationView */
-                $l10nmgrconfigurationView = GeneralUtility::makeInstance(L10nConfigurationDetailView::class,
-                    $l10ncfgObj, $this->moduleTemplate);
-                $title = $this->MOD_MENU["action"][$this->MOD_SETTINGS["action"]];
+                $l10nmgrconfigurationView = GeneralUtility::makeInstance(
+                    L10nConfigurationDetailView::class,
+                    $l10ncfgObj,
+                    $this->moduleTemplate
+                );
+                $title = $this->MOD_MENU['action'][$this->MOD_SETTINGS['action']];
                 $this->content .= '<div class="panel panel-default expanded">
     <div class="panel-heading" role="tab" id="headingL10nmgrPanel">
         <h2 class="panel-title">' . $title . '
@@ -222,19 +220,29 @@ return false;
     <div class="col-md-6">
         <div class="form">
             <div class="form-section">' .
-                    $this->getFuncMenu($this->id,
-                        "SET[action]", $this->MOD_SETTINGS["action"], $this->MOD_MENU["action"], '',
+                    $this->getFuncMenu(
+                        $this->id,
+                        'SET[action]',
+                        $this->MOD_SETTINGS['action'],
+                        $this->MOD_MENU['action'],
+                        '',
                         '&srcPID=' . rawurlencode(GeneralUtility::_GET('srcPID')) . '&exportUID=' . $l10ncfgObj->getId(),
-                        $this->getLanguageService()->getLL('general.export.choose.action.title')) .
-                    $this->getFuncMenu($this->id,
-                        "SET[lang]", $this->sysLanguage, $this->MOD_MENU["lang"], '',
+                        $this->getLanguageService()->getLL('general.export.choose.action.title')
+                    ) .
+                    $this->getFuncMenu(
+                        $this->id,
+                        'SET[lang]',
+                        $this->sysLanguage,
+                        $this->MOD_MENU['lang'],
+                        '',
                         '&srcPID=' . rawurlencode(GeneralUtility::_GET('srcPID')) . '&exportUID=' . $l10ncfgObj->getId(),
-                        $this->getLanguageService()->getLL('export.overview.targetlanguage.label')) .
+                        $this->getLanguageService()->getLL('export.overview.targetlanguage.label')
+                    ) .
                     '</div><div class="form-section">' .
                     $this->getFuncCheck(
                         $this->id,
-                        "SET[onlyChangedContent]",
-                        $this->MOD_SETTINGS["onlyChangedContent"],
+                        'SET[onlyChangedContent]',
+                        $this->MOD_SETTINGS['onlyChangedContent'],
                         '',
                         '&srcPID=' . rawurlencode(GeneralUtility::_GET('srcPID')) . '&exportUID=' . $l10ncfgObj->getId(),
                         '',
@@ -242,8 +250,8 @@ return false;
                     ) .
                     $this->getFuncCheck(
                         $this->id,
-                        "SET[noHidden]",
-                        $this->MOD_SETTINGS["noHidden"],
+                        'SET[noHidden]',
+                        $this->MOD_SETTINGS['noHidden'],
                         '',
                         '&srcPID=' . rawurlencode(GeneralUtility::_GET('srcPID')) . '&exportUID=' . $l10ncfgObj->getId(),
                         '',
@@ -293,8 +301,12 @@ return false;
         $scriptUrl = self::buildScriptUrl($mainParams, $addParams, $script);
         $options = [];
         foreach ($menuItems as $value => $text) {
-            $options[] = '<option value="' . htmlspecialchars($value) . '"' . ((string)$currentValue === (string)$value ? ' selected="selected"' : '') . '>' . htmlspecialchars($text,
-                    ENT_COMPAT, 'UTF-8', false) . '</option>';
+            $options[] = '<option value="' . htmlspecialchars($value) . '"' . ((string)$currentValue === (string)$value ? ' selected="selected"' : '') . '>' . htmlspecialchars(
+                $text,
+                ENT_COMPAT,
+                'UTF-8',
+                false
+            ) . '</option>';
         }
         $label = $label !== '' ?
             ('<label>' . htmlspecialchars($label) . '</label><br />') :
@@ -402,32 +414,31 @@ return false;
      * @paramL10nConfiguration $l10ncfgObj Localization Configuration record
      *
      * @param $l10ncfgObj
-     * @return void
      * @throws ResourceNotFoundException
      * @throws RouteNotFoundException
      */
     protected function moduleContent($l10ncfgObj)
     {
-        switch ($this->MOD_SETTINGS["action"]) {
+        switch ($this->MOD_SETTINGS['action']) {
             case 'inlineEdit':
             case 'link':
                 /** @var L10nHTMLListView $htmlListView */
                 $htmlListView = GeneralUtility::makeInstance(L10nHtmlListView::class, $l10ncfgObj, $this->sysLanguage);
                 $this->content .= '</div></div></div></div><div class="row">';
                 $subcontent = '';
-                if ($this->MOD_SETTINGS["action"] == 'inlineEdit') {
+                if ($this->MOD_SETTINGS['action'] == 'inlineEdit') {
                     $subcontent = $this->inlineEditAction($l10ncfgObj);
                     $htmlListView->setModeWithInlineEdit();
                 }
                 // Render the module content (for all modes):
                 //*******************************************
-                if ($this->MOD_SETTINGS["onlyChangedContent"]) {
+                if ($this->MOD_SETTINGS['onlyChangedContent']) {
                     $htmlListView->setModeOnlyChanged();
                 }
-                if ($this->MOD_SETTINGS["noHidden"]) {
+                if ($this->MOD_SETTINGS['noHidden']) {
                     $htmlListView->setModeNoHidden();
                 }
-                if ($this->MOD_SETTINGS["action"] == 'link') {
+                if ($this->MOD_SETTINGS['action'] == 'link') {
                     $htmlListView->setModeShowEditLinks();
                 }
                 $subcontent .= '</div></div><div class="col-md-12">' . $htmlListView->renderOverview() . '</div>';
@@ -489,7 +500,7 @@ return false;
         }
         // Buttons:
         $_selectOptions = ['0' => '-default-'];
-        $_selectOptions = $_selectOptions + $this->MOD_MENU["lang"];
+        $_selectOptions = $_selectOptions + $this->MOD_MENU['lang'];
         $info = '<div class="form-section">' .
             $this->getFuncCheck(
                 $this->id,
@@ -505,7 +516,7 @@ return false;
             '</label></div></div>' .
             '</div><div class="form-section"><div class="form-group form-inline">
 <label>' . $this->getLanguageService()->getLL('export.xml.source-language.title') . '</label><br />' .
-            $this->_getSelectField("export_xml_forcepreviewlanguage", '0', $_selectOptions) .
+            $this->_getSelectField('export_xml_forcepreviewlanguage', '0', $_selectOptions) .
             '</div></div><div class="form-section"><div class="form-group">
 <label>' . $this->getLanguageService()->getLL('general.action.import.upload.title') . '</label><br />' .
             '<input type="file" size="60" name="uploaded_import_file" />' .
@@ -546,9 +557,12 @@ return false;
             //Check the export
             if ($this->MOD_SETTINGS['check_exports'] && !$viewClass->checkExports()) {
                 /** @var FlashMessage $flashMessage */
-                $flashMessage = GeneralUtility::makeInstance(FlashMessage::class,
+                $flashMessage = GeneralUtility::makeInstance(
+                    FlashMessage::class,
                     '###MESSAGE###',
-                    $this->getLanguageService()->getLL('export.process.duplicate.title'), FlashMessage::INFO);
+                    $this->getLanguageService()->getLL('export.process.duplicate.title'),
+                    FlashMessage::INFO
+                );
                 $info .= str_replace(
                     '###MESSAGE###',
                     $this->getLanguageService()->getLL('export.process.duplicate.message'),
@@ -561,8 +575,11 @@ return false;
                 try {
                     $filename = $this->downloadXML($viewClass);
                     // Prepare a success message for display
-                    $link = sprintf('<a href="%s" target="_blank">%s</a>',
-                        GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . $filename, $filename);
+                    $link = sprintf(
+                        '<a href="%s" target="_blank">%s</a>',
+                        GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . $filename,
+                        $filename
+                    );
                     $title = $this->getLanguageService()->getLL('export.download.success');
                     $message = '###MESSAGE###';
                     $status = FlashMessage::OK;
@@ -608,9 +625,15 @@ return false;
     {
         $options = [];
         foreach ($menuItems as $value => $label) {
-            $options[] = '<option value="' . htmlspecialchars($value) . '"' . (!strcmp($currentValue,
-                    $value) ? ' selected="selected"' : '') . '>' . htmlspecialchars($label, ENT_COMPAT, 'UTF-8',
-                    false) . '</option>';
+            $options[] = '<option value="' . htmlspecialchars($value) . '"' . (!strcmp(
+                $currentValue,
+                $value
+            ) ? ' selected="selected"' : '') . '>' . htmlspecialchars(
+                $label,
+                ENT_COMPAT,
+                'UTF-8',
+                false
+            ) . '</option>';
         }
         if (count($options) > 0) {
             return '
@@ -619,9 +642,8 @@ return false;
 	', $options) . '
 	</select>
 	';
-        } else {
-            return '';
         }
+        return '';
     }
 
     /**
@@ -689,24 +711,33 @@ return false;
             } else {
                 // Relevant processing of XML Import with the help of the Importmanager
                 /** @var CatXmlImportManager $importManager */
-                $importManager = GeneralUtility::makeInstance(CatXmlImportManager::class, $uploadedTempFile,
-                    $this->sysLanguage, $xmlString = "");
+                $importManager = GeneralUtility::makeInstance(
+                    CatXmlImportManager::class,
+                    $uploadedTempFile,
+                    $this->sysLanguage,
+                    $xmlString = ''
+                );
                 if ($importManager->parseAndCheckXMLFile() === false) {
                     $actionInfo .= '<br /><br />' . $this->moduleTemplate->header($this->getLanguageService()->getLL('import.error.title')) . $importManager->getErrorMessages();
                 } else {
                     if (GeneralUtility::_POST('import_delL10N') == '1') {
                         $actionInfo .= $this->getLanguageService()->getLL('import.xml.delL10N.message') . '<br />';
                         $delCount = $importManager->delL10N($importManager->getDelL10NDataFromCATXMLNodes($importManager->getXMLNodes()));
-                        $actionInfo .= sprintf($this->getLanguageService()->getLL('import.xml.delL10N.count.message'),
-                                $delCount) . '<br /><br />';
+                        $actionInfo .= sprintf(
+                            $this->getLanguageService()->getLL('import.xml.delL10N.count.message'),
+                            $delCount
+                        ) . '<br /><br />';
                     }
                     if (GeneralUtility::_POST('make_preview_link') == '1' && ExtensionManagementUtility::isLoaded('workspaces')) {
                         $pageIds = $importManager->getPidsFromCATXMLNodes($importManager->getXmlNodes());
                         $actionInfo .= '<b>' . $this->getLanguageService()->getLL('import.xml.preview_links.title') . '</b><br />';
                         /** @var MkPreviewLinkService $mkPreviewLinks */
-                        $mkPreviewLinks = GeneralUtility::makeInstance(MkPreviewLinkService::class,
+                        $mkPreviewLinks = GeneralUtility::makeInstance(
+                            MkPreviewLinkService::class,
                             $t3_workspaceId = $importManager->headerData['t3_workspaceId'],
-                            $t3_sysLang = $importManager->headerData['t3_sysLang'], $pageIds);
+                            $t3_sysLang = $importManager->headerData['t3_sysLang'],
+                            $pageIds
+                        );
                         $actionInfo .= $mkPreviewLinks->renderPreviewLinks($mkPreviewLinks->mkPreviewLinks());
                     }
                     if ($importManager->headerData['t3_sourceLang'] === $importManager->headerData['t3_targetLang']) {
@@ -744,9 +775,12 @@ return false;
             // Check the export
             if ($this->MOD_SETTINGS['check_exports'] && !$viewClass->checkExports()) {
                 /** @var FlashMessage $flashMessage */
-                $flashMessage = GeneralUtility::makeInstance(FlashMessage::class,
+                $flashMessage = GeneralUtility::makeInstance(
+                    FlashMessage::class,
                     '###MESSAGE###',
-                    $this->getLanguageService()->getLL('export.process.duplicate.title'), FlashMessage::INFO);
+                    $this->getLanguageService()->getLL('export.process.duplicate.title'),
+                    FlashMessage::INFO
+                );
                 $actionInfo .= str_replace(
                     '###MESSAGE###',
                     $this->getLanguageService()->getLL('export.process.duplicate.message'),
@@ -770,8 +804,10 @@ return false;
                         $flashMessage = GeneralUtility::makeInstance(FlashMessage::class, $message, $title, $status);
                         $actionInfo .= str_replace(
                             '###MESSAGE###',
-                            sprintf($this->getLanguageService()->getLL('export.ftp.success.detail'),
-                                $this->extensionConfiguration['ftp_server_path'] . $filename),
+                            sprintf(
+                                $this->getLanguageService()->getLL('export.ftp.success.detail'),
+                                $this->extensionConfiguration['ftp_server_path'] . $filename
+                            ),
                             GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
                                 ->resolve()
                                 ->render([$flashMessage])
@@ -793,13 +829,16 @@ return false;
                     }
                     /** @var $flashMessage FlashMessage */
                     $actionInfo .= $viewClass->renderInternalMessagesAsFlashMessage($status);
-                    // Download the XML file
+                // Download the XML file
                 } else {
                     try {
                         $filename = $this->downloadXML($viewClass);
                         // Prepare a success message for display
-                        $link = sprintf('<a href="%s" target="_blank">%s</a>',
-                            GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . $filename, $filename);
+                        $link = sprintf(
+                            '<a href="%s" target="_blank">%s</a>',
+                            GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . $filename,
+                            $filename
+                        );
                         $title = $this->getLanguageService()->getLL('export.download.success');
                         $message = '###MESSAGE###';
                         $status = FlashMessage::OK;
@@ -847,7 +886,7 @@ return false;
     protected function getTabContentXmlExport()
     {
         $_selectOptions = ['0' => '-default-'];
-        $_selectOptions = $_selectOptions + $this->MOD_MENU["lang"];
+        $_selectOptions = $_selectOptions + $this->MOD_MENU['lang'];
         $tabContentXmlExport = '<div class="form-section">' .
             '<div class="form-group"><div class="checkbox"><label>' .
             '<input type="checkbox" value="1" name="check_exports" /> ' . $this->getLanguageService()->getLL('export.xml.check_exports.title') .
@@ -861,7 +900,7 @@ return false;
             '</div><div class="form-section">' .
             '<div class="form-group form-inline">' .
             '<label>' . $this->getLanguageService()->getLL('export.xml.source-language.title') . '</label><br />' .
-            $this->_getSelectField("export_xml_forcepreviewlanguage", '0', $_selectOptions) .
+            $this->_getSelectField('export_xml_forcepreviewlanguage', '0', $_selectOptions) .
             '</div></div>';
         // Add the option to send to FTP server, if FTP information is defined
         if (!empty($this->extensionConfiguration['ftp_server']) && !empty($this->extensionConfiguration['ftp_server_username']) && !empty($this->extensionConfiguration['ftp_server_password'])) {
@@ -880,11 +919,11 @@ return false;
     {
         return '<div class="form-section">' .
             (
-            ExtensionManagementUtility::isLoaded('workspaces') ? (
-                '<div class="form-group"><div class="checkbox"><label>' .
+                ExtensionManagementUtility::isLoaded('workspaces') ? (
+                    '<div class="form-group"><div class="checkbox"><label>' .
                 '<input type="checkbox" value="1" name="make_preview_link" /> ' . $this->getLanguageService()->getLL('import.xml.make_preview_link.title') .
                 '</label></div></div>'
-            ) : ''
+                ) : ''
             ) .
             '<div class="form-group"><div class="checkbox"><label>' .
             '<input type="checkbox" value="1" name="import_delL10N" /> ' . $this->getLanguageService()->getLL('import.xml.delL10N.title') .
@@ -924,8 +963,11 @@ return false;
             $currentFile = GeneralUtility::resolveBackPath($BACK_PATH . PathUtility::stripPathSitePrefix(ExtensionManagementUtility::extPath('l10nmgr')) . 'Configuration/Settings/' . $settingFileName);
             if (is_file($absoluteFileName) && is_readable($absoluteFileName)) {
                 $size = GeneralUtility::formatSize((int)filesize($absoluteFileName), ' Bytes| KB| MB| GB');
-                $tabContentXmlDownloads .= '<li><a class="t3-link" href="' . str_replace('%2F', '/',
-                        rawurlencode($currentFile)) . '" title="' . $this->getLanguageService()->getLL('file.settings.download.title') . '" target="_blank">' . $this->getLanguageService()->getLL('file.settings.' . $settingId . '.title') . ' (' . $size . ')' . '</a></li>';
+                $tabContentXmlDownloads .= '<li><a class="t3-link" href="' . str_replace(
+                    '%2F',
+                    '/',
+                    rawurlencode($currentFile)
+                ) . '" title="' . $this->getLanguageService()->getLL('file.settings.download.title') . '" target="_blank">' . $this->getLanguageService()->getLL('file.settings.' . $settingId . '.title') . ' (' . $size . ')' . '</a></li>';
             }
         }
         $tabContentXmlDownloads .= '</ul>';
@@ -949,22 +991,32 @@ return false;
         // If any step fails, an exception is thrown
         $connection = ftp_connect($this->extensionConfiguration['ftp_server']);
         if ($connection) {
-            if (@ftp_login($connection, $this->extensionConfiguration['ftp_server_username'],
-                $this->extensionConfiguration['ftp_server_password'])) {
-                if (ftp_put($connection, $this->extensionConfiguration['ftp_server_path'] . $xmlFileName,
+            if (@ftp_login(
+                $connection,
+                $this->extensionConfiguration['ftp_server_username'],
+                $this->extensionConfiguration['ftp_server_password']
+            )) {
+                if (ftp_put(
+                    $connection,
+                    $this->extensionConfiguration['ftp_server_path'] . $xmlFileName,
                     Environment::getPublicPath() . '/' . $filename,
-                    FTP_BINARY)) {
+                    FTP_BINARY
+                )) {
                     ftp_close($connection);
                 } else {
                     ftp_close($connection);
-                    throw new Exception(sprintf($this->getLanguageService()->getLL('export.ftp.upload_failed'),
+                    throw new Exception(sprintf(
+                        $this->getLanguageService()->getLL('export.ftp.upload_failed'),
                         $filename,
-                        $this->extensionConfiguration['ftp_server_path']), 1326906926);
+                        $this->extensionConfiguration['ftp_server_path']
+                    ), 1326906926);
                 }
             } else {
                 ftp_close($connection);
-                throw new Exception(sprintf($this->getLanguageService()->getLL('export.ftp.login_failed'),
-                    $this->extensionConfiguration['ftp_server_username']), 1326906772);
+                throw new Exception(sprintf(
+                    $this->getLanguageService()->getLL('export.ftp.login_failed'),
+                    $this->extensionConfiguration['ftp_server_username']
+                ), 1326906772);
             }
         } else {
             throw new Exception($this->getLanguageService()->getLL('export.ftp.connection_failed'), 1326906675);
@@ -978,9 +1030,7 @@ return false;
      *
      * @param string $xmlFileName Name of the XML file
      * @param L10nConfiguration $l10nmgrCfgObj L10N Manager configuration object
-     * @param integer $tlang ID of the language to translate to
-     *
-     * @return void
+     * @param int $tlang ID of the language to translate to
      */
     protected function emailNotification($xmlFileName, $l10nmgrCfgObj, $tlang)
     {
@@ -989,8 +1039,11 @@ return false;
         if (count($recipients) > 0) {
             $fullFilename = Environment::getPublicPath() . '/uploads/tx_l10nmgr/jobs/out/' . $xmlFileName;
             // Get source & target language ISO codes
-            $sourceStaticLangArr = BackendUtility::getRecord('static_languages',
-                $l10nmgrCfgObj->l10ncfg['sourceLangStaticId'], 'lg_iso_2');
+            $sourceStaticLangArr = BackendUtility::getRecord(
+                'static_languages',
+                $l10nmgrCfgObj->l10ncfg['sourceLangStaticId'],
+                'lg_iso_2'
+            );
             $targetStaticLang = BackendUtility::getRecord('sys_language', $tlang, 'static_lang_isocode');
             $targetStaticLangArr = BackendUtility::getRecord('static_languages', $targetStaticLang['static_lang_isocode'], 'lg_iso_2');
             $sourceLang = $sourceStaticLangArr['lg_iso_2'];
@@ -998,15 +1051,22 @@ return false;
             // Collect mail data
             $fromMail = $this->extensionConfiguration['email_sender'];
             $fromName = $this->extensionConfiguration['email_sender_name'];
-            $subject = sprintf($this->getLanguageService()->getLL('email.suject.msg'), $sourceLang, $targetLang,
-                $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
+            $subject = sprintf(
+                $this->getLanguageService()->getLL('email.suject.msg'),
+                $sourceLang,
+                $targetLang,
+                $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']
+            );
             // Assemble message body
             $message = [
                 'msg1' => $this->getLanguageService()->getLL('email.greeting.msg'),
                 'msg2' => '',
-                'msg3' => sprintf($this->getLanguageService()->getLL('email.new_translation_job.msg'), $sourceLang,
+                'msg3' => sprintf(
+                    $this->getLanguageService()->getLL('email.new_translation_job.msg'),
+                    $sourceLang,
                     $targetLang,
-                    $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']),
+                    $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']
+                ),
                 'msg4' => $this->getLanguageService()->getLL('email.info.msg'),
                 'msg5' => $this->getLanguageService()->getLL('email.info.import.msg'),
                 'msg6' => '',
@@ -1017,8 +1077,12 @@ return false;
                 'msg11' => $xmlFileName,
             ];
             if ($this->extensionConfiguration['email_attachment']) {
-                $message['msg3'] = sprintf($this->getLanguageService()->getLL('email.new_translation_job_attached.msg'),
-                    $sourceLang, $targetLang, $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
+                $message['msg3'] = sprintf(
+                    $this->getLanguageService()->getLL('email.new_translation_job_attached.msg'),
+                    $sourceLang,
+                    $targetLang,
+                    $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']
+                );
             }
             $msg = implode(chr(10), $message);
             // Instantiate the mail object, set all necessary properties and send the mail
@@ -1039,8 +1103,6 @@ return false;
 
     /**
      * Adds items to the ->MOD_MENU array. Used for the function menu selector.
-     *
-     * @return void
      */
     public function menuConfig()
     {
@@ -1076,8 +1138,6 @@ return false;
 
     /**
      * The function loadExtConf loads the extension configuration.
-     *
-     * @return void
      */
     protected function loadExtConf()
     {

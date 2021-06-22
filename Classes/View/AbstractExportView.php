@@ -42,15 +42,13 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Abstract class for all export views
  *
  * @author Fabian Seltmann <fs@marketing-factory.de>
- * @package TYPO3
- * @subpackage tx_l10nmgr
  **/
 abstract class AbstractExportView
 {
     /**
      * @var string
      */
-    var $filename = '';
+    public $filename = '';
     /**
      * @var Site The site configuration object
      */
@@ -63,7 +61,7 @@ abstract class AbstractExportView
      *flags for controlling the fields which should render in the output:
      */
     /**
-     * @var integer The sys_language_uid of language to export
+     * @var int The sys_language_uid of language to export
      */
     protected $sysLang;
     /**
@@ -123,25 +121,16 @@ abstract class AbstractExportView
         return $this->exportType;
     }
 
-    /**
-     * @return void
-     */
     public function setModeNoHidden()
     {
         $this->modeNoHidden = true;
     }
 
-    /**
-     * @return void
-     */
     public function setModeOnlyChanged()
     {
         $this->modeOnlyChanged = true;
     }
 
-    /**
-     * @return void
-     */
     public function setModeOnlyNew()
     {
         $this->modeOnlyNew = true;
@@ -150,7 +139,6 @@ abstract class AbstractExportView
     /**
      * Sets the customer name for the export
      * @param string $customer
-     * @return void
      */
     public function setCustomer($customer)
     {
@@ -219,8 +207,6 @@ abstract class AbstractExportView
 
     /**
      * Set filename
-     *
-     * @return void
      */
     public function setFilename()
     {
@@ -251,7 +237,7 @@ abstract class AbstractExportView
             // Use locale for targetLang in filename if available
             if (isset($targetLangArr['lg_collate_locale']) && !empty($targetLangArr['lg_collate_locale'])) {
                 $targetLang = $targetLangArr['lg_collate_locale'];
-                // Use two letter ISO code if locale is not available
+            // Use two letter ISO code if locale is not available
             } elseif (isset($targetLangArr['lg_iso_2']) && !empty($targetLangArr['lg_iso_2'])) {
                 $targetLang = $targetLangArr['lg_iso_2'];
             }
@@ -270,7 +256,7 @@ abstract class AbstractExportView
     /**
      * Checks if an export exists
      *
-     * @return boolean
+     * @return bool
      */
     public function checkExports()
     {
@@ -308,18 +294,29 @@ abstract class AbstractExportView
         $content = [];
         $exports = $this->fetchExports();
         foreach ($exports as $export => $exportData) {
-            $content[$export] = sprintf('
+            $content[$export] = sprintf(
+                '
 <tr class="db_list_normal">
 	<td>%s</td>
 	<td>%s</td>
 	<td>%s</td>
 	<td>%s</td>
 	<td>%s</td>
-</tr>', BackendUtility::datetime($exportData['crdate']), $exportData['l10ncfg_id'], $exportData['exportType'],
-                $exportData['translation_lang'], sprintf('<a href="%suploads/tx_l10nmgr/jobs/out/%s">%s</a>',
-                    GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), $exportData['filename'], $exportData['filename']));
+</tr>',
+                BackendUtility::datetime($exportData['crdate']),
+                $exportData['l10ncfg_id'],
+                $exportData['exportType'],
+                $exportData['translation_lang'],
+                sprintf(
+                    '<a href="%suploads/tx_l10nmgr/jobs/out/%s">%s</a>',
+                    GeneralUtility::getIndpEnv('TYPO3_SITE_URL'),
+                    $exportData['filename'],
+                    $exportData['filename']
+                )
+            );
         }
-        return sprintf('
+        return sprintf(
+            '
 <table class="table table-striped table-hover">
 	<thead>
 	<tr class="t3-row-header">
@@ -333,7 +330,8 @@ abstract class AbstractExportView
 	<tbody>
 %s
 	</tbody>
-</table>', $this->getLanguageService()->getLL('export.overview.date.label'),
+</table>',
+            $this->getLanguageService()->getLL('export.overview.date.label'),
             $this->getLanguageService()->getLL('export.overview.configuration.label'),
             $this->getLanguageService()->getLL('export.overview.type.label'),
             $this->getLanguageService()->getLL('export.overview.targetlanguage.label'),
@@ -511,7 +509,6 @@ abstract class AbstractExportView
      *
      * @param string $message Text of the message
      * @param string $key Key identifying the element where the problem happened
-     * @return void
      */
     protected function setInternalMessage($message, $key)
     {

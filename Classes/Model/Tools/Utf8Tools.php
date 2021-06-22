@@ -22,8 +22,6 @@ class Utf8Tools
      * @see http://lxr.mozilla.org/seamonkey/source/intl/uconv/src/nsUTF8ToUnicode.cpp
      * @see http://lxr.mozilla.org/seamonkey/source/intl/uconv/src/nsUnicodeToUTF8.cpp
      * @see http://hsivonen.iki.fi/php-utf8/
-     * @package utf8
-     * @subpackage bad
      * @see utf8_is_valid
      */
 
@@ -39,20 +37,18 @@ class Utf8Tools
      * @param string
      *
      * @return mixed integer byte index or FALSE if no bad found
-     * @package utf8
-     * @subpackage bad
      */
-    static public function utf8_bad_find($str)
+    public static function utf8_bad_find($str)
     {
-        $UTF8_BAD = '([\x00-\x7F]' .# ASCII (including control chars)
-            '|[\xC2-\xDF][\x80-\xBF]' .# non-overlong 2-byte
-            '|\xE0[\xA0-\xBF][\x80-\xBF]' .# excluding overlongs
-            '|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}' . # straight 3-byte
-            '|\xED[\x80-\x9F][\x80-\xBF]' .# excluding surrogates
-            '|\xF0[\x90-\xBF][\x80-\xBF]{2}' .# planes 1-3
-            '|[\xF1-\xF3][\x80-\xBF]{3}' .# planes 4-15
-            '|\xF4[\x80-\x8F][\x80-\xBF]{2}' .# plane 16
-            '|(.{1}))';# invalid byte
+        $UTF8_BAD = '([\x00-\x7F]' . // ASCII (including control chars)
+            '|[\xC2-\xDF][\x80-\xBF]' . // non-overlong 2-byte
+            '|\xE0[\xA0-\xBF][\x80-\xBF]' . // excluding overlongs
+            '|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}' . // straight 3-byte
+            '|\xED[\x80-\x9F][\x80-\xBF]' . // excluding surrogates
+            '|\xF0[\x90-\xBF][\x80-\xBF]{2}' . // planes 1-3
+            '|[\xF1-\xF3][\x80-\xBF]{3}' . // planes 4-15
+            '|\xF4[\x80-\x8F][\x80-\xBF]{2}' . // plane 16
+            '|(.{1}))';// invalid byte
         $pos = 0;
         while (preg_match('/' . $UTF8_BAD . '/S', $str, $matches)) {
             $bytes = strlen($matches[0]);
@@ -77,20 +73,18 @@ class Utf8Tools
      * @param string
      *
      * @return mixed array of integers or FALSE if no bad found
-     * @package utf8
-     * @subpackage bad
      */
-    static public function utf8_bad_findall($str)
+    public static function utf8_bad_findall($str)
     {
-        $UTF8_BAD = '([\x00-\x7F]' .# ASCII (including control chars)
-            '|[\xC2-\xDF][\x80-\xBF]' .# non-overlong 2-byte
-            '|\xE0[\xA0-\xBF][\x80-\xBF]' .# excluding overlongs
-            '|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}' . # straight 3-byte
-            '|\xED[\x80-\x9F][\x80-\xBF]' .# excluding surrogates
-            '|\xF0[\x90-\xBF][\x80-\xBF]{2}' .# planes 1-3
-            '|[\xF1-\xF3][\x80-\xBF]{3}' .# planes 4-15
-            '|\xF4[\x80-\x8F][\x80-\xBF]{2}' .# plane 16
-            '|(.{1}))';# invalid byte
+        $UTF8_BAD = '([\x00-\x7F]' . // ASCII (including control chars)
+            '|[\xC2-\xDF][\x80-\xBF]' . // non-overlong 2-byte
+            '|\xE0[\xA0-\xBF][\x80-\xBF]' . // excluding overlongs
+            '|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}' . // straight 3-byte
+            '|\xED[\x80-\x9F][\x80-\xBF]' . // excluding surrogates
+            '|\xF0[\x90-\xBF][\x80-\xBF]{2}' . // planes 1-3
+            '|[\xF1-\xF3][\x80-\xBF]{3}' . // planes 4-15
+            '|\xF4[\x80-\x8F][\x80-\xBF]{2}' . // plane 16
+            '|(.{1}))';// invalid byte
         $pos = 0;
         $badList = [];
         while (preg_match('/' . $UTF8_BAD . '/S', $str, $matches)) {
@@ -118,20 +112,18 @@ class Utf8Tools
      * @param string
      *
      * @return string
-     * @package utf8
-     * @subpackage bad
      */
-    static public function utf8_bad_strip($str)
+    public static function utf8_bad_strip($str)
     {
-        $UTF8_BAD = '([\x00-\x7F]' .# ASCII (including control chars)
-            '|[\xC2-\xDF][\x80-\xBF]' .# non-overlong 2-byte
-            '|\xE0[\xA0-\xBF][\x80-\xBF]' .# excluding overlongs
-            '|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}' . # straight 3-byte
-            '|\xED[\x80-\x9F][\x80-\xBF]' .# excluding surrogates
-            '|\xF0[\x90-\xBF][\x80-\xBF]{2}' .# planes 1-3
-            '|[\xF1-\xF3][\x80-\xBF]{3}' .# planes 4-15
-            '|\xF4[\x80-\x8F][\x80-\xBF]{2}' .# plane 16
-            '|(.{1}))';# invalid byte
+        $UTF8_BAD = '([\x00-\x7F]' . // ASCII (including control chars)
+            '|[\xC2-\xDF][\x80-\xBF]' . // non-overlong 2-byte
+            '|\xE0[\xA0-\xBF][\x80-\xBF]' . // excluding overlongs
+            '|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}' . // straight 3-byte
+            '|\xED[\x80-\x9F][\x80-\xBF]' . // excluding surrogates
+            '|\xF0[\x90-\xBF][\x80-\xBF]{2}' . // planes 1-3
+            '|[\xF1-\xF3][\x80-\xBF]{3}' . // planes 4-15
+            '|\xF4[\x80-\x8F][\x80-\xBF]{2}' . // plane 16
+            '|(.{1}))';// invalid byte
         ob_start();
         while (preg_match('/' . $UTF8_BAD . '/S', $str, $matches)) {
             if (!isset($matches[2])) {
@@ -157,20 +149,18 @@ class Utf8Tools
      * @param string $replace String to replace bad bytes with (defaults to '?') - use ASCII
      *
      * @return string
-     * @package utf8
-     * @subpackage bad
      */
-    static public function utf8_bad_replace($str, $replace = '?')
+    public static function utf8_bad_replace($str, $replace = '?')
     {
-        $UTF8_BAD = '([\x00-\x7F]' .# ASCII (including control chars)
-            '|[\xC2-\xDF][\x80-\xBF]' .# non-overlong 2-byte
-            '|\xE0[\xA0-\xBF][\x80-\xBF]' .# excluding overlongs
-            '|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}' . # straight 3-byte
-            '|\xED[\x80-\x9F][\x80-\xBF]' .# excluding surrogates
-            '|\xF0[\x90-\xBF][\x80-\xBF]{2}' .# planes 1-3
-            '|[\xF1-\xF3][\x80-\xBF]{3}' .# planes 4-15
-            '|\xF4[\x80-\x8F][\x80-\xBF]{2}' .# plane 16
-            '|(.{1}))';# invalid byte
+        $UTF8_BAD = '([\x00-\x7F]' . // ASCII (including control chars)
+            '|[\xC2-\xDF][\x80-\xBF]' . // non-overlong 2-byte
+            '|\xE0[\xA0-\xBF][\x80-\xBF]' . // excluding overlongs
+            '|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}' . // straight 3-byte
+            '|\xED[\x80-\x9F][\x80-\xBF]' . // excluding surrogates
+            '|\xF0[\x90-\xBF][\x80-\xBF]{2}' . // planes 1-3
+            '|[\xF1-\xF3][\x80-\xBF]{3}' . // planes 4-15
+            '|\xF4[\x80-\x8F][\x80-\xBF]{2}' . // plane 16
+            '|(.{1}))';// invalid byte
         ob_start();
         while (preg_match('/' . $UTF8_BAD . '/S', $str, $matches)) {
             if (!isset($matches[2])) {
@@ -197,8 +187,6 @@ class Utf8Tools
      * @see http://lxr.mozilla.org/seamonkey/source/intl/uconv/src/nsUTF8ToUnicode.cpp
      * @see http://lxr.mozilla.org/seamonkey/source/intl/uconv/src/nsUnicodeToUTF8.cpp
      * @see http://hsivonen.iki.fi/php-utf8/
-     * @package utf8
-     * @subpackage validation
      */
 
     /**
@@ -208,15 +196,13 @@ class Utf8Tools
      *
      * @param string $str UTF-8 encoded string
      *
-     * @return boolean true if valid
+     * @return bool true if valid
      * @author <hsivonen@iki.fi>
      *
      * @see http://hsivonen.iki.fi/php-utf8/
      * @see utf8_compliant
-     * @package utf8
-     * @subpackage validation
      */
-    static public function utf8_is_valid($str)
+    public static function utf8_is_valid($str)
     {
         $mState = 0; // cached expected number of octets after the current octet
         // until the beginning of the next UTF8 character sequence
@@ -338,14 +324,11 @@ class Utf8Tools
      *
      * @param string $str UTF-8 string to check
      *
-     * @return boolean TRUE if string is valid UTF-8
+     * @return bool TRUE if string is valid UTF-8
      * @see utf8_is_valid
      * @see http://www.php.net/manual/en/reference.pcre.pattern.modifiers.php#54805
-     *
-     * @package utf8
-     * @subpackage validation
      */
-    static public function utf8_compliant($str)
+    public static function utf8_compliant($str)
     {
         if (strlen($str) == 0) {
             return true;
@@ -354,6 +337,6 @@ class Utf8Tools
         // modifier is used, then it's valid UTF-8. If the UTF-8 is somehow
         // invalid, nothing at all will match, even if the string contains
         // some valid sequences
-        return (preg_match('/^.{1}/us', $str, $ar) == 1);
+        return preg_match('/^.{1}/us', $str, $ar) == 1;
     }
 }

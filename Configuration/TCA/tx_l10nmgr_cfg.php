@@ -1,4 +1,5 @@
 <?php
+
 $l10n = 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf';
 if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('static_info_tables')) {
     return [
@@ -180,8 +181,7 @@ if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('static_info_ta
             '1' => ['showitem' => ''],
         ],
     ];
-
-} else {
+}
     return [
         'ctrl'        => [
             'title'          => $l10n . ':tx_l10nmgr_cfg',
@@ -345,4 +345,3 @@ if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('static_info_ta
             '1' => ['showitem' => ''],
         ],
     ];
-}

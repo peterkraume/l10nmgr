@@ -47,8 +47,13 @@ class L10nmgrExtensionManagementUtility
         $override = true
     ) {
         // Update the category registry
-        $result = LanguageRestrictionRegistry::getInstance()->add($extensionKey, $tableName, $fieldName, $options,
-            $override);
+        $result = LanguageRestrictionRegistry::getInstance()->add(
+            $extensionKey,
+            $tableName,
+            $fieldName,
+            $options,
+            $override
+        );
         if ($result === false) {
             $message = LanguageRestrictionRegistry::class . ': no category registered for table "%s". Key was already registered.';
             /** @var $logger Logger */

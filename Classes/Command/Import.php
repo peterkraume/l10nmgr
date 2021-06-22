@@ -163,8 +163,10 @@ class Import extends L10nCommand
         if ($input->getOption('task') === 'importString' || $input->getOption('task') === 'importFile' || $input->getOption('task') === 'preview') {
             $callParameters['task'] = $input->getOption('task');
         } else {
-            throw new Exception('Please specify a task with --task. Either "importString", "preview" or "importFile".',
-                1539950024);
+            throw new Exception(
+                'Please specify a task with --task. Either "importString", "preview" or "importFile".',
+                1539950024
+            );
         }
 
         // Get the preview flag
@@ -674,27 +676,27 @@ class Import extends L10nCommand
                 }
                 // Start assembling the mail message
                 $message = sprintf(
-                        $this->getLanguageService()->getLL('import.mail.intro'),
-                        date('d.m.Y H:i:s', $GLOBALS['EXEC_TIME']),
-                        $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']
-                    ) . "\n\n";
+                    $this->getLanguageService()->getLL('import.mail.intro'),
+                    date('d.m.Y H:i:s', $GLOBALS['EXEC_TIME']),
+                    $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']
+                ) . "\n\n";
                 foreach ($this->filesImported as $file => $fileInformation) {
                     if (isset($fileInformation['error'])) {
                         $status = $this->getLanguageService()->getLL('import.mail.error');
                         $message .= '[' . $status . '] ' . sprintf(
-                                $this->getLanguageService()->getLL('import.mail.file'),
-                                $file
-                            ) . "\n";
+                            $this->getLanguageService()->getLL('import.mail.file'),
+                            $file
+                        ) . "\n";
                         $message .= "\t" . sprintf(
-                                $this->getLanguageService()->getLL('import.mail.import.failed'),
-                                $fileInformation['error']
-                            ) . "\n";
+                            $this->getLanguageService()->getLL('import.mail.import.failed'),
+                            $fileInformation['error']
+                        ) . "\n";
                     } else {
                         $status = $this->getLanguageService()->getLL('import.mail.ok');
                         $message .= '[' . $status . '] ' . sprintf(
-                                $this->getLanguageService()->getLL('import.mail.file'),
-                                $file
-                            ) . "\n";
+                            $this->getLanguageService()->getLL('import.mail.file'),
+                            $file
+                        ) . "\n";
                         // Get the workspace's name and add workspace information
                         if ($fileInformation['workspace'] == 0) {
                             $workspaceName = 'LIVE';
@@ -706,15 +708,15 @@ class Import extends L10nCommand
                             }
                         }
                         $message .= "\t" . sprintf(
-                                $this->getLanguageService()->getLL('import.mail.workspace'),
-                                $workspaceName,
-                                $fileInformation['workspace']
-                            ) . "\n";
+                            $this->getLanguageService()->getLL('import.mail.workspace'),
+                            $workspaceName,
+                            $fileInformation['workspace']
+                        ) . "\n";
                         // Add language information
                         $message .= "\t" . sprintf(
-                                $this->getLanguageService()->getLL('import.mail.language'),
-                                $fileInformation['language']
-                            ) . "\n";
+                            $this->getLanguageService()->getLL('import.mail.language'),
+                            $fileInformation['language']
+                        ) . "\n";
                         // Get configuration's name and add configuration information
                         if (isset($l10nConfigurations[$fileInformation['configuration']])) {
                             $configurationName = $l10nConfigurations[$fileInformation['configuration']]['title'];
@@ -722,10 +724,10 @@ class Import extends L10nCommand
                             $configurationName = $this->getLanguageService()->getLL('import.mail.l10nconfig.unknown');
                         }
                         $message .= "\t" . sprintf(
-                                $this->getLanguageService()->getLL('import.mail.l10nconfig'),
-                                $configurationName,
-                                $fileInformation['configuration']
-                            ) . "\n";
+                            $this->getLanguageService()->getLL('import.mail.l10nconfig'),
+                            $configurationName,
+                            $fileInformation['configuration']
+                        ) . "\n";
                     }
                 }
                 // Add signature
@@ -747,5 +749,4 @@ class Import extends L10nCommand
             }
         }
     }
-
 }

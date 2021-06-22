@@ -213,9 +213,8 @@ class XmlTools implements LoggerAwareInterface
         }
         if ($this->isValidXMLString($content)) {
             return $content;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -241,9 +240,8 @@ class XmlTools implements LoggerAwareInterface
         xml_parse_into_struct($parser, $xml, $vals, $index);
         if (xml_get_error_code($parser)) {
             return false;
-        } else {
-            return true;
         }
+        return true;
     }
 
     /**

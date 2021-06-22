@@ -38,7 +38,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @authorKasper Skaarhoj <kasperYYYY@typo3.com>
  * @authorDaniel Pötzinger <ext@aoemedia.de>
  * @packageTYPO3
- * @subpackage tx_l10nmgr
  */
 class L10nConfiguration
 {
@@ -57,7 +56,6 @@ class L10nConfiguration
      *
      * @param int $id Id of the cfg record
      *
-     * @return void
      **/
     public function load($id)
     {
@@ -67,16 +65,15 @@ class L10nConfiguration
     /**
      * checks if configuration is valid
      *
-     * @return boolean
+     * @return bool
      **/
     public function isLoaded()
     {
         // array must have values also!
         if (is_array($this->l10ncfg) && (!empty($this->l10ncfg))) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -214,7 +211,6 @@ class L10nConfiguration
 
     /**
      * @param int $id
-     * @return void
      */
     public function setSourcePid($id)
     {

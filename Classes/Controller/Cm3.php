@@ -37,7 +37,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * @authorKasper Skaarhoj <kasperYYYY@typo3.com>
  * @packageTYPO3
- * @subpackage tx_l10nmgr
  */
 class Cm3 extends BaseModule
 {
@@ -52,8 +51,6 @@ class Cm3 extends BaseModule
 
     /**
      * Adds items to the ->MOD_MENU array. Used for the function menu selector.
-     *
-     * @return void
      */
     public function menuConfig()
     {
@@ -62,8 +59,6 @@ class Cm3 extends BaseModule
 
     /**
      * Main function of the module. Write the content to
-     *
-     * @return void
      */
     public function main()
     {
@@ -86,8 +81,11 @@ class Cm3 extends BaseModule
         $this->content .= $this->module->header($this->getLanguageService()->getLL('title'));
         $this->content .= '<hr />';
         // Render the module content (for all modes):
-        $this->content .= '<div class="bottomspace10">' . $this->moduleContent((string)GeneralUtility::_GP('table'),
-                (int)GeneralUtility::_GP('id'), GeneralUtility::_GP('cmd')) . '</div>';
+        $this->content .= '<div class="bottomspace10">' . $this->moduleContent(
+            (string)GeneralUtility::_GP('table'),
+            (int)GeneralUtility::_GP('id'),
+            GeneralUtility::_GP('cmd')
+        ) . '</div>';
     }
 
     /**
@@ -99,7 +97,6 @@ class Cm3 extends BaseModule
      * @return string [type]...
      * @internal param $ [type]$table: ...
      * @internal param $ [type]$uid: ...
-     *
      */
     protected function moduleContent($table, $uid, $cmd)
     {
@@ -114,8 +111,11 @@ class Cm3 extends BaseModule
                     break;
                 case 'flushTranslations':
                     if ($this->getBackendUser()->isAdmin()) {
-                        $res = $this->l10nMgrTools->flushTranslations($table, $uid,
-                            GeneralUtility::_POST('_flush') ? true : false);
+                        $res = $this->l10nMgrTools->flushTranslations(
+                            $table,
+                            $uid,
+                            GeneralUtility::_POST('_flush') ? true : false
+                        );
                         if (!GeneralUtility::_POST('_flush')) {
                             $output .= 'To flush the translations shown below, press the "Flush" button below:<br /><input type="submit" name="_flush" value="FLUSH" /><br /><br />';
                         } else {
@@ -141,8 +141,6 @@ class Cm3 extends BaseModule
 
     /**
      * Printing output content
-     *
-     * @return void
      */
     public function printContent()
     {

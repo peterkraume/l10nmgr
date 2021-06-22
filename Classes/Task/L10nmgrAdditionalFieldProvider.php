@@ -21,9 +21,9 @@ namespace Localizationteam\L10nmgr\Task;
  ***************************************************************/
 
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Scheduler\AbstractAdditionalFieldProvider;
 use TYPO3\CMS\Scheduler\AdditionalFieldProviderInterface;
 use TYPO3\CMS\Scheduler\Controller\SchedulerModuleController;
@@ -36,8 +36,6 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
  * Credits: most of the code taken from task tx_scheduler_RecyclerGarbageCollection_AdditionalFieldProvider by Kai Vogel
  *
  * @author 2011 Francois Suter <typo3@cobweb.ch>
- * @package TYPO3
- * @subpackage tx_l10nmgr
  */
 class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider implements AdditionalFieldProviderInterface
 {
@@ -46,7 +44,7 @@ class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider imp
      */
     protected $languageService;
     /**
-     * @var integer Default age
+     * @var int Default age
      */
     protected $defaultAge = 30;
     /**
@@ -109,7 +107,7 @@ class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider imp
      * @param array $submittedData Reference to the array containing the data submitted by the user
      * @param SchedulerModuleController $parentObject Reference to the calling object (Scheduler's BE module)
      *
-     * @return boolean TRUE if validation was ok (or selected class is not relevant), FALSE otherwise
+     * @return bool TRUE if validation was ok (or selected class is not relevant), FALSE otherwise
      */
     public function validateAdditionalFields(array &$submittedData, SchedulerModuleController $parentObject)
     {
@@ -159,7 +157,6 @@ class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider imp
      * @param array $submittedData Contains data submitted by the user
      *
      * @param L10nmgrFileGarbageCollection|AbstractTask $task
-     * @return void
      */
     public function saveAdditionalFields(array $submittedData, AbstractTask $task)
     {

@@ -358,25 +358,38 @@ class Export extends L10nCommand
         if (count($recipients) > 0) {
             $fullFilename = Environment::getPublicPath() . '/' . 'uploads/tx_l10nmgr/jobs/out/' . $xmlFileName;
             // Get source & target language ISO codes
-            $sourceStaticLangArr = BackendUtility::getRecord('static_languages',
-                $l10nmgrCfgObj->l10ncfg['sourceLangStaticId'], 'lg_iso_2');
+            $sourceStaticLangArr = BackendUtility::getRecord(
+                'static_languages',
+                $l10nmgrCfgObj->l10ncfg['sourceLangStaticId'],
+                'lg_iso_2'
+            );
             $targetStaticLang = BackendUtility::getRecord('sys_language', $tlang, 'static_lang_isocode');
-            $targetStaticLangArr = BackendUtility::getRecord('static_languages',
-                $targetStaticLang['static_lang_isocode'], 'lg_iso_2');
+            $targetStaticLangArr = BackendUtility::getRecord(
+                'static_languages',
+                $targetStaticLang['static_lang_isocode'],
+                'lg_iso_2'
+            );
             $sourceLang = $sourceStaticLangArr['lg_iso_2'];
             $targetLang = $targetStaticLangArr['lg_iso_2'];
             // Collect mail data
             $fromMail = $this->extensionConfiguration['email_sender'];
             $fromName = $this->extensionConfiguration['email_sender_name'];
-            $subject = sprintf($this->getLanguageService()->getLL('email.suject.msg'), $sourceLang, $targetLang,
-                $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
+            $subject = sprintf(
+                $this->getLanguageService()->getLL('email.suject.msg'),
+                $sourceLang,
+                $targetLang,
+                $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']
+            );
             // Assemble message body
             $message = [
                 'msg1' => $this->getLanguageService()->getLL('email.greeting.msg'),
                 'msg2' => '',
-                'msg3' => sprintf($this->getLanguageService()->getLL('email.new_translation_job.msg'), $sourceLang,
+                'msg3' => sprintf(
+                    $this->getLanguageService()->getLL('email.new_translation_job.msg'),
+                    $sourceLang,
                     $targetLang,
-                    $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']),
+                    $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']
+                ),
                 'msg4' => $this->getLanguageService()->getLL('email.info.msg'),
                 'msg5' => $this->getLanguageService()->getLL('email.info.import.msg'),
                 'msg6' => '',
@@ -387,8 +400,12 @@ class Export extends L10nCommand
                 'msg11' => $xmlFileName,
             ];
             if ($this->extensionConfiguration['email_attachment']) {
-                $message['msg3'] = sprintf($this->getLanguageService()->getLL('email.new_translation_job_attached.msg'),
-                    $sourceLang, $targetLang, $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
+                $message['msg3'] = sprintf(
+                    $this->getLanguageService()->getLL('email.new_translation_job_attached.msg'),
+                    $sourceLang,
+                    $targetLang,
+                    $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']
+                );
             }
             $msg = implode(chr(10), $message);
             // Instantiate the mail object, set all necessary properties and send the mail
@@ -420,23 +437,30 @@ class Export extends L10nCommand
         $error = '';
         $connection = ftp_connect($this->extensionConfiguration['ftp_server']) or die('Connection failed');
         if ($connection) {
-            if (@ftp_login($connection, $this->extensionConfiguration['ftp_server_username'],
-                $this->extensionConfiguration['ftp_server_password'])) {
-                if (ftp_put($connection, $this->extensionConfiguration['ftp_server_path'] . $filename, $xmlFileName,
-                    FTP_BINARY)) {
+            if (@ftp_login(
+                $connection,
+                $this->extensionConfiguration['ftp_server_username'],
+                $this->extensionConfiguration['ftp_server_password']
+            )) {
+                if (ftp_put(
+                    $connection,
+                    $this->extensionConfiguration['ftp_server_path'] . $filename,
+                    $xmlFileName,
+                    FTP_BINARY
+                )) {
                     ftp_close($connection) or die("Couldn't close connection");
                 } else {
                     $error .= sprintf(
-                            $this->getLanguageService()->getLL('error.ftp.connection.msg'),
-                            $this->extensionConfiguration['ftp_server_path'],
-                            $filename
-                        ) . "\n";
+                        $this->getLanguageService()->getLL('error.ftp.connection.msg'),
+                        $this->extensionConfiguration['ftp_server_path'],
+                        $filename
+                    ) . "\n";
                 }
             } else {
                 $error .= sprintf(
-                        $this->getLanguageService()->getLL('error.ftp.connection_user.msg'),
-                        $this->extensionConfiguration['ftp_server_username']
-                    ) . "\n";
+                    $this->getLanguageService()->getLL('error.ftp.connection_user.msg'),
+                    $this->extensionConfiguration['ftp_server_username']
+                ) . "\n";
                 ftp_close($connection) or die("Couldn't close connection");
             }
         } else {

@@ -16,8 +16,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * a patch from Peter Listiak <mlady@users.sourceforge.net> for last modified
  * date and time of the compressed file
  * Official ZIP file format: http://www.pkware.com/appnote.txt
- *
- * @access public
  */
 class Zip
 {
@@ -42,7 +40,7 @@ class Zip
     /**
      * Last offset position
      *
-     * @var integer $old_offset
+     * @var int $old_offset
      */
     protected $old_offset = 0;
     /**
@@ -61,8 +59,7 @@ class Zip
      *
      * @param string $data file contents
      * @param string $name name of the file in the archive (may contains the path)
-     * @param integer $time the current timestamp
-     * @access public
+     * @param int $time the current timestamp
      */
     public function addFile($data, $name, $time = 0)
     {
@@ -123,9 +120,8 @@ class Zip
      * Converts an Unix timestamp to a four byte DOS date and time format (date
      * in high two bytes, time in low two bytes allowing magnitude comparison).
      *
-     * @param integer $unixtime the current Unix timestamp
-     * @return integer the current date in a four byte DOS format
-     * @access private
+     * @param int $unixtime the current Unix timestamp
+     * @return int the current date in a four byte DOS format
      */
     protected function unix2DosTime($unixtime = 0)
     {
@@ -145,15 +141,16 @@ class Zip
      * Dumps out file
      *
      * @return string the zipped file
-     * @access public
      */
     public function file()
     {
         $data = implode('', $this->datasec);
         $ctrldir = implode('', $this->ctrl_dir);
-        return $data . $ctrldir . $this->eof_ctrl_dir . pack('v',
-                sizeof($this->ctrl_dir)) . // total # of entries "on this disk"
-            pack('v', sizeof($this->ctrl_dir)) . // total # of entries overall
+        return $data . $ctrldir . $this->eof_ctrl_dir . pack(
+            'v',
+            count($this->ctrl_dir)
+        ) . // total # of entries "on this disk"
+            pack('v', count($this->ctrl_dir)) . // total # of entries overall
             pack('V', strlen($ctrldir)) . // size of central dir
             pack('V', strlen($data)) . // offset to start of central dir
             "\x00\x00"; // .zip file comment length
@@ -165,7 +162,6 @@ class Zip
      *
      * @param $file
      * @return mixed
-     * @access private
      */
     public function extractFile($file)
     {
@@ -174,9 +170,9 @@ class Zip
             GeneralUtility::mkdir($tempDir);
             if (is_dir($tempDir)) {
                 // This is if I want to check the content:
-                #$cmd = $this->unzipAppPath.' -t '.$this->file;
-                #exec($cmd,$dat);
-                #debug($dat);
+                //$cmd = $this->unzipAppPath.' -t '.$this->file;
+                //exec($cmd,$dat);
+                //debug($dat);
                 // Unzip the files inside: **MODIFIED RL, 15.08.03
                 $cmd = $this->unzipAppCmd;
                 $cmd = str_replace('###ARCHIVENAME###', $file, $cmd);
@@ -185,12 +181,10 @@ class Zip
                 $out['fileArr'] = $this->getAllFilesAndFoldersInPath([], $tempDir);
                 $out['tempDir'] = $tempDir;
                 return $out;
-            } else {
-                return 'No dir: ' . $tempDir;
             }
-        } else {
-            return 'No file: ' . $file;
+            return 'No dir: ' . $tempDir;
         }
+        return 'No file: ' . $file;
     }
 
     /**
@@ -199,7 +193,6 @@ class Zip
      * @param string $extPath
      *
      * @return array Array with files and folders
-     * @access private
      */
     protected function getAllFilesAndFoldersInPath($fileArr, $extPath)
     {
@@ -208,7 +201,7 @@ class Zip
         $fileArr = array_merge($fileArr, GeneralUtility::getFilesInDir($extPath, $extList, 1, 1));
         $dirs = GeneralUtility::get_dirs($extPath);
         if (is_array($dirs)) {
-            foreach($dirs as $subdirs) {
+            foreach ($dirs as $subdirs) {
                 if ($subdirs) {
                     $fileArr = $this->getAllFilesAndFoldersInPath($fileArr, $extPath . $subdirs . '/');
                 }
@@ -222,8 +215,6 @@ class Zip
      * $tempDir must be a subfolder to typo3temp/
      *
      * @param string $tempDir
-     * @return void
-     * @access private
      */
     public function removeDir($tempDir)
     {
@@ -234,7 +225,7 @@ class Zip
         // Go through dirs:
         $dirs = GeneralUtility::get_dirs($tempDir);
         if (is_array($dirs)) {
-            foreach($dirs as $subdirs) {
+            foreach ($dirs as $subdirs) {
                 if ($subdirs) {
                     $this->removeDir($tempDir . $subdirs . '/');
                 }
@@ -243,7 +234,7 @@ class Zip
         // Then files in this dir:
         $fileArr = GeneralUtility::getFilesInDir($tempDir, '', 1);
         if (is_array($fileArr)) {
-            foreach($fileArr as $file) {
+            foreach ($fileArr as $file) {
                 if (!GeneralUtility::isFirstPartOfStr($file, $testDir)) {
                     die($file . ' was not within ' . $testDir);
                 }

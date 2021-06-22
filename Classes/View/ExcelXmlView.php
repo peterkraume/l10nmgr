@@ -28,8 +28,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * excelXML: Renders the excel XML
  *
  * @authorKasper Skaarhoj <kasperYYYY@typo3.com>
- * @package TYPO3
- * @subpackage tx_l10nmgr
  */
 class ExcelXmlView extends AbstractExportView implements ExportViewInterface
 {
@@ -116,8 +114,10 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
                                         $sourceColState = 'ss:AutoFitWidth="0" ss:Width="233.0"';
                                         $altSourceColState = 'ss:Hidden="1" ss:AutoFitWidth="0"';
                                     }
-                                    $noChangeFlag = !strcmp(trim($tData['diffDefaultValue']),
-                                        trim($tData['defaultValue']));
+                                    $noChangeFlag = !strcmp(
+                                        trim($tData['diffDefaultValue']),
+                                        trim($tData['defaultValue'])
+                                    );
                                     if ($uidValue === 'NEW') {
                                         $diff = htmlspecialchars('[New value]');
                                     } elseif (!$tData['diffDefaultValue']) {
@@ -125,14 +125,20 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
                                     } elseif ($noChangeFlag) {
                                         $diff = htmlspecialchars('[No change]');
                                     } else {
-                                        $diff = html_entity_decode($this->diffCMP($tData['diffDefaultValue'],
-                                            $tData['defaultValue']));
-                                        $diff = str_replace('<del>',
+                                        $diff = html_entity_decode($this->diffCMP(
+                                            $tData['diffDefaultValue'],
+                                            $tData['defaultValue']
+                                        ));
+                                        $diff = str_replace(
+                                            '<del>',
                                             '<Font ss:Color="#FF0000" xmlns="http://www.w3.org/TR/REC-html40">',
-                                            $diff);
-                                        $diff = str_replace('<ins>',
+                                            $diff
+                                        );
+                                        $diff = str_replace(
+                                            '<ins>',
                                             '<Font ss:Color="#00FF00" xmlns="http://www.w3.org/TR/REC-html40">',
-                                            $diff);
+                                            $diff
+                                        );
                                         $diff = str_replace(['</del>', '</ins>'], ['</Font>', '</Font>'], $diff);
                                     }
                                     $diff .= ($tData['msg'] ? '[NOTE: ' . htmlspecialchars($tData['msg']) . ']' : '');
@@ -145,12 +151,21 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
 	<Row ss:StyleID="s25">
 	<Cell><Data ss:Type="String">' . htmlspecialchars('translation[' . $table . '][' . $elementUid . '][' . $key . ']') . '</Data></Cell>
 	<Cell ss:StyleID="s26"><Data ss:Type="String">' . htmlspecialchars($fieldName) . '</Data></Cell>
-	<Cell ss:StyleID="s27"><Data ss:Type="String">' . str_replace(chr(10), '&#10;',
-                                                htmlspecialchars($tData['defaultValue'])) . '</Data></Cell>
-	<Cell ss:StyleID="s27"><Data ss:Type="String">' . str_replace(chr(10), '&#10;',
-                                                is_array($tData['previewLanguageValues']) ? htmlspecialchars(current($tData['previewLanguageValues'])) : '') . '</Data></Cell>
-	<Cell ss:StyleID="s39"><Data ss:Type="String">' . str_replace(chr(10), '&#10;',
-                                                htmlspecialchars($tData['translationValue'])) . '</Data></Cell>
+	<Cell ss:StyleID="s27"><Data ss:Type="String">' . str_replace(
+                                            chr(10),
+                                            '&#10;',
+                                            htmlspecialchars($tData['defaultValue'])
+                                        ) . '</Data></Cell>
+	<Cell ss:StyleID="s27"><Data ss:Type="String">' . str_replace(
+                                            chr(10),
+                                            '&#10;',
+                                            is_array($tData['previewLanguageValues']) ? htmlspecialchars(current($tData['previewLanguageValues'])) : ''
+                                        ) . '</Data></Cell>
+	<Cell ss:StyleID="s39"><Data ss:Type="String">' . str_replace(
+                                                    chr(10),
+                                                    '&#10;',
+                                                    htmlspecialchars($tData['translationValue'])
+                                                ) . '</Data></Cell>
 	<Cell ss:StyleID="s27"><Data ss:Type="String">' . $diff . '</Data></Cell>
 	</Row>
 	';
@@ -164,9 +179,11 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
 <Cell ss:StyleID="s40"><Data ss:Type="String">' . $this->getLanguageService()->getLL('export.process.error.empty.message') . '!</Data></Cell>
 <Cell ss:StyleID="s39"><Data ss:Type="String"></Data></Cell>
 <Cell ss:StyleID="s27"><Data ss:Type="String"></Data></Cell>
-' . ($page['header']['prevLang'] ? '<Cell ss:StyleID="s27"><Data ss:Type="String">' . str_replace(chr(10),
-                                                '&#10;',
-                                                is_array($tData['previewLanguageValues']) ? htmlspecialchars(current($tData['previewLanguageValues'])) : '') . '</Data></Cell>' : '') . '
+' . ($page['header']['prevLang'] ? '<Cell ss:StyleID="s27"><Data ss:Type="String">' . str_replace(
+                                        chr(10),
+                                        '&#10;',
+                                        is_array($tData['previewLanguageValues']) ? htmlspecialchars(current($tData['previewLanguageValues'])) : ''
+                                    ) . '</Data></Cell>' : '') . '
 </Row>
 ';
                                 }
@@ -230,10 +247,7 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
     /**
      * Force a new source language to export the content to translate
      *
-     * @param integer $id
-     *
-     * @access public
-     * @return void
+     * @param int $id
      */
     public function setForcedSourceLanguage($id)
     {

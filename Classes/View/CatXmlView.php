@@ -36,13 +36,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @author Daniel Zielinski <d.zielinski@L10Ntech.de>
  * @author Fabian Seltmann <fs@marketing-factory.de>
  * @author Andreas Otto <andreas.otto@dkd.de>
- * @package TYPO3
- * @subpackage tx_l10nmgr
  */
 class CatXmlView extends AbstractExportView implements ExportViewInterface
 {
     /**
-     * @var integer $forcedSourceLanguage Overwrite the default language uid with the desired language to export
+     * @var int $forcedSourceLanguage Overwrite the default language uid with the desired language to export
      */
     protected $forcedSourceLanguage = 0;
     /**
@@ -93,7 +91,7 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
         $output = [];
         $targetIso = '';
         if (empty($this->baseUrl)) {
-            $this->baseUrl = GeneralUtility::getIndpEnv("TYPO3_SITE_URL");
+            $this->baseUrl = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
         }
         // Traverse the structure and generate XML output:
         foreach ($accum as $pId => $page) {
@@ -111,8 +109,10 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
                         if (is_array($data['fields'])) {
                             foreach ($data['fields'] as $key => $tData) {
                                 if (is_array($tData)) {
-                                    $noChangeFlag = !strcmp(trim($tData['diffDefaultValue']),
-                                        trim($tData['defaultValue']));
+                                    $noChangeFlag = !strcmp(
+                                        trim($tData['diffDefaultValue']),
+                                        trim($tData['defaultValue'])
+                                    );
                                     if (!$this->modeOnlyChanged || !$noChangeFlag) {
                                         // @DP: Why this check?
                                         if ((int)$this->forcedSourceLanguage === 0 || ($this->forcedSourceLanguage && isset($tData['previewLanguageValues'][$this->forcedSourceLanguage]))) {
@@ -148,20 +148,33 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
                                                     'UTF-8'
                                                 );
                                                 //Substitute & with &amp; in non-RTE fields
-                                                $dataForTranslation = preg_replace('/&(?!(amp|nbsp|quot|apos|lt|gt);)/',
-                                                    '&amp;', $dataForTranslation);
+                                                $dataForTranslation = preg_replace(
+                                                    '/&(?!(amp|nbsp|quot|apos|lt|gt);)/',
+                                                    '&amp;',
+                                                    $dataForTranslation
+                                                );
                                                 //Substitute > and < in non-RTE fields
                                                 $dataForTranslation = str_replace(' < ', ' &lt; ', $dataForTranslation);
                                                 $dataForTranslation = str_replace(' > ', ' &gt; ', $dataForTranslation);
-                                                $dataForTranslation = str_replace('<br>', '<br />',
-                                                    $dataForTranslation);
-                                                $dataForTranslation = str_replace('<hr>', '<hr />',
-                                                    $dataForTranslation);
+                                                $dataForTranslation = str_replace(
+                                                    '<br>',
+                                                    '<br />',
+                                                    $dataForTranslation
+                                                );
+                                                $dataForTranslation = str_replace(
+                                                    '<hr>',
+                                                    '<hr />',
+                                                    $dataForTranslation
+                                                );
                                                 if (empty($this->params)) {
-                                                    $this->params = $this->getBackendUser()->getModuleData('l10nmgr/cm1/prefs',
-                                                            'prefs') ?? [];
-                                                    ArrayUtility::mergeRecursiveWithOverrule($this->params,
-                                                        $this->overrideParams);
+                                                    $this->params = $this->getBackendUser()->getModuleData(
+                                                        'l10nmgr/cm1/prefs',
+                                                        'prefs'
+                                                    ) ?? [];
+                                                    ArrayUtility::mergeRecursiveWithOverrule(
+                                                        $this->params,
+                                                        $this->overrideParams
+                                                    );
                                                 }
                                                 if ($this->params['utf8']) {
                                                     $dataForTranslation = Utf8Tools::utf8_bad_strip($dataForTranslation);
@@ -245,7 +258,7 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
         $XML .= $this->additionalHeaderData();
         $XML .= "\t" . '</head>' . "\n";
         $XML .= implode('', $output) . "\n";
-        $XML .= "</TYPO3L10N>";
+        $XML .= '</TYPO3L10N>';
         return $this->saveExportFile($XML);
     }
 
@@ -291,10 +304,7 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
     /**
      * Force a new source language to export the content to translate
      *
-     * @param integer $id
-     *
-     * @access public
-     * @return void
+     * @param int $id
      */
     public function setForcedSourceLanguage($id)
     {
@@ -303,7 +313,6 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
 
     /**
      * @param string $baseUrl
-     * @return void
      */
     public function setBaseUrl(string $baseUrl)
     {
@@ -312,7 +321,6 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
 
     /**
      * @param array $overrideParams
-     * @return void
      */
     public function setOverrideParams(array $overrideParams)
     {

@@ -24,7 +24,6 @@ use PDO;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
@@ -398,7 +397,7 @@ class L10nBaseService implements LoggerAwareInterface
     /**
      * Getter for $importAsDefaultLanguage
      *
-     * @return boolean
+     * @return bool
      */
     public function getImportAsDefaultLanguage()
     {
@@ -408,9 +407,7 @@ class L10nBaseService implements LoggerAwareInterface
     /**
      * Setter for $importAsDefaultLanguage
      *
-     * @param boolean $importAsDefaultLanguage
-     *
-     * @return void
+     * @param bool $importAsDefaultLanguage
      */
     public function setImportAsDefaultLanguage($importAsDefaultLanguage)
     {
@@ -519,8 +516,10 @@ class L10nBaseService implements LoggerAwareInterface
                 $tce->process_datamap();
             }
             if (count($tce->errorLog)) {
-                $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TCEmain update errors: ' . implode(', ',
-                        $tce->errorLog));
+                $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TCEmain update errors: ' . implode(
+                    ', ',
+                    $tce->errorLog
+                ));
             }
             if (count($tce->autoVersionIdMap) && count($_flexFormDiffArray)) {
                 foreach ($_flexFormDiffArray as $key => $value) {
@@ -774,8 +773,10 @@ class L10nBaseService implements LoggerAwareInterface
                 }
             }
             // Before remapping
-            $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TCEmain_data before remapping: ' . implode(', ',
-                    $TCEmain_data));
+            $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TCEmain_data before remapping: ' . implode(
+                ', ',
+                $TCEmain_data
+            ));
             // Remapping those elements which are new:
             $this->lastTCEMAINCommandsCount = 0;
             $slugFields = [];
@@ -851,8 +852,10 @@ class L10nBaseService implements LoggerAwareInterface
                 }
             }
             // After remapping
-            $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TCEmain_data after remapping: ' . implode(', ',
-                    $TCEmain_data));
+            $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TCEmain_data after remapping: ' . implode(
+                ', ',
+                $TCEmain_data
+            ));
             // Now, submitting translation data:
             /** @var DataHandler $tce */
             $tce = GeneralUtility::makeInstance(DataHandler::class);
@@ -870,12 +873,16 @@ class L10nBaseService implements LoggerAwareInterface
             }
             self::$targetLanguageID = null;
             if (count($tce->errorLog)) {
-                $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TCEmain update errors: ' . implode(', ',
-                        $tce->errorLog));
+                $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TCEmain update errors: ' . implode(
+                    ', ',
+                    $tce->errorLog
+                ));
             }
             if (count($tce->autoVersionIdMap) && count($_flexFormDiffArray)) {
-                $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': flexFormDiffArry: ' . implode(', ',
-                        $this->flexFormDiffArray));
+                $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': flexFormDiffArry: ' . implode(
+                    ', ',
+                    $this->flexFormDiffArray
+                ));
                 foreach ($_flexFormDiffArray as $key => $value) {
                     list($Ttable, $Tuid, $Trest) = explode(':', $key, 3);
                     if ($tce->autoVersionIdMap[$Ttable][$Tuid]) {
@@ -884,8 +891,10 @@ class L10nBaseService implements LoggerAwareInterface
                     }
                 }
                 $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': autoVersionIdMap: ' . $tce->autoVersionIdMap);
-                $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': _flexFormDiffArray: ' . implode(', ',
-                        $_flexFormDiffArray));
+                $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': _flexFormDiffArray: ' . implode(
+                    ', ',
+                    $_flexFormDiffArray
+                ));
             }
             // Should be empty now - or there were more information in the incoming array than there should be!
             if (count($inputArray)) {

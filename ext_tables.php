@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('TYPO3_MODE')) {
     die('Access denied.');
 }
@@ -77,7 +78,7 @@ if (!defined('TYPO3_MODE')) {
     'EXT:l10nmgr/Resources/Private/Language/Task/locallang_csh_tasks.xlf'
 );
 
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::allowTableOnStandardPages("tx_l10nmgr_cfg");
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::allowTableOnStandardPages('tx_l10nmgr_cfg');
 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr(
     'tx_l10nmgr_cfg',
     'EXT:l10nmgr/Resources/Private/Language/locallang_csh_l10nmgr.xlf'

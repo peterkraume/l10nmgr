@@ -33,7 +33,6 @@ use Localizationteam\L10nmgr\Model\Tools\Tools;
 use PDO;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
-use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -45,7 +44,6 @@ use TYPO3\CMS\Core\Utility\PathUtility;
  *
  * @authorKasper Skaarhoj <kasperYYYY@typo3.com>
  * @packageTYPO3
- * @subpackage tx_l10nmgr
  */
 class Tcemain
 {
@@ -63,7 +61,7 @@ class Tcemain
         // Check if
         // debug(array($status, $table, $id));
         // Map id for new records:
-        if ($status == "new") {
+        if ($status == 'new') {
             $id = $pObj->substNEWwithIDs[$id];
             // echo "New fixed<br>";
         }
@@ -81,8 +79,11 @@ class Tcemain
         // Now, see if this record is a translation of another one:
         if ($liveRecord[$GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField']]) {
             // So it had a translation pointer - lets look for the root record then:
-            $liveRecord = BackendUtility::getRecord($table,
-                $liveRecord[$GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField']], 'uid');
+            $liveRecord = BackendUtility::getRecord(
+                $table,
+                $liveRecord[$GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField']],
+                'uid'
+            );
             // echo "Finding root version<br>";
         }
         $languageID = L10nBaseService::getTargetLanguageID();
@@ -93,8 +94,11 @@ class Tcemain
             $t8Tools = GeneralUtility::makeInstance(Tools::class);
             $t8Tools->verbose = false; // Otherwise it will show records which has fields but none editable.
             // debug($t8Tools->indexDetailsRecord($table,$liveRecord['uid']));
-            $t8Tools->updateIndexTableFromDetailsArray($t8Tools->indexDetailsRecord($table, $liveRecord['uid'],
-                $languageID));
+            $t8Tools->updateIndexTableFromDetailsArray($t8Tools->indexDetailsRecord(
+                $table,
+                $liveRecord['uid'],
+                $languageID
+            ));
         }
     }
 
@@ -215,8 +219,10 @@ class Tcemain
                 . htmlspecialchars(
                     'parent.list_frame.location.href="' . $GLOBALS['BACK_PATH']
                     . $this->siteRelPath('l10nmgr')
-                    . 'cm2/index.php?table=' . $p[0] . '&uid=' . $p[1] . '&languageList=' . rawurlencode(implode(',',
-                        $languageList))
+                    . 'cm2/index.php?table=' . $p[0] . '&uid=' . $p[1] . '&languageList=' . rawurlencode(implode(
+                        ',',
+                        $languageList
+                    ))
                     . '"; return false;'
                 ) . '" target="listframe">' . $output . '</a>'
                 : $output;

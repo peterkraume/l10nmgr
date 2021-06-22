@@ -32,12 +32,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * @author Kasper Skaarhoj <kasperYYYY@typo3.com>
  * @author Daniel Pötzinger <ext@aoemedia.de>
- * @package TYPO3
- * @subpackage tx_l10nmgr
  */
 class TranslationDataFactory implements LoggerAwareInterface
 {
-
     use LoggerAwareTrait;
 
     /**

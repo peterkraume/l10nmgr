@@ -33,15 +33,14 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Imaging\IconFactory;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Translation management tool
  *
  * @authorKasper Skaarhoj <kasperYYYY@typo3.com>
  * @packageTYPO3
- * @subpackage tx_l10nmgr
  */
 class Cm2 extends BaseModule
 {
@@ -74,8 +73,6 @@ class Cm2 extends BaseModule
 
     /**
      * Main function of the module. Write the content to
-     *
-     * @return void
      */
     protected function main()
     {
@@ -98,8 +95,10 @@ class Cm2 extends BaseModule
         $this->content .= $this->module->header($this->getLanguageService()->getLL('title'));
         $this->content .= '<hr />';
         // Render the module content (for all modes):
-        $this->content .= '<div class="bottomspace10">' . $this->moduleContent((string)GeneralUtility::_GP('table'),
-                (int)GeneralUtility::_GP('uid')) . '</div>';
+        $this->content .= '<div class="bottomspace10">' . $this->moduleContent(
+            (string)GeneralUtility::_GP('table'),
+            (int)GeneralUtility::_GP('uid')
+        ) . '</div>';
     }
 
     /**
@@ -110,7 +109,6 @@ class Cm2 extends BaseModule
      * @return string [type]...
      * @internal param $ [type]$table: ...
      * @internal param $ [type]$uid: ...
-     *
      */
     protected function moduleContent($table, $uid)
     {
@@ -125,9 +123,13 @@ class Cm2 extends BaseModule
             $inputRecord = BackendUtility::getRecord($table, $uid, 'pid');
             $pathShown = BackendUtility::getRecordPath($table == 'pages' ? $uid : $inputRecord['pid'], '', 20);
             $this->sysLanguages = $this->l10nMgrTools->t8Tools->getSystemLanguages($table == 'pages' ? $uid : $inputRecord['pid']);
-            $languageListArray = explode(',',
-                $this->getBackendUser()->groupData['allowed_languages'] ? $this->getBackendUser()->groupData['allowed_languages'] : implode(',',
-                    array_keys($this->sysLanguages)));
+            $languageListArray = explode(
+                ',',
+                $this->getBackendUser()->groupData['allowed_languages'] ? $this->getBackendUser()->groupData['allowed_languages'] : implode(
+                    ',',
+                    array_keys($this->sysLanguages)
+                )
+            );
             $limitLanguageList = trim(GeneralUtility::_GP('languageList'));
             foreach ($languageListArray as $kkk => $val) {
                 if ($limitLanguageList && !GeneralUtility::inList($limitLanguageList, $val)) {
@@ -216,8 +218,10 @@ class Cm2 extends BaseModule
                     $tRows[] = $this->makeTableRow($rec);
                 }
             }
-            $output .= 'Path: <i>' . $pathShown . '</i><br /><table border="0" cellpadding="1" cellspacing="1">' . implode('',
-                    $tRows) . '</table>';
+            $output .= 'Path: <i>' . $pathShown . '</i><br /><table border="0" cellpadding="1" cellspacing="1">' . implode(
+                '',
+                $tRows
+            ) . '</table>';
             // Updating index
             if ($this->getBackendUser()->isAdmin()) {
                 $output .= '<br /><br />Functions for "' . $table . ':' . $uid . '":<br />
@@ -236,7 +240,6 @@ class Cm2 extends BaseModule
      * @param $rec
      * @return string [type]...
      * @internal param $ [type]$rec: ...
-     *
      */
     protected function makeTableRow($rec)
     {
@@ -246,29 +249,39 @@ class Cm2 extends BaseModule
         $title = BackendUtility::getRecordTitle($rec['tablename'], $baseRecord, 1);
         $baseRecordFlag = '<img src="' . htmlspecialchars($GLOBALS['BACK_PATH'] . $this->sysLanguages[$rec['sys_language_uid']]['flagIcon']) . '" alt="" title="" />';
         $tFlag = '<img src="' . htmlspecialchars($GLOBALS['BACK_PATH'] . $this->sysLanguages[$rec['translation_lang']]['flagIcon']) . '" alt="' . htmlspecialchars($this->sysLanguages[$rec['translation_lang']]['title']) . '" title="' . htmlspecialchars($this->sysLanguages[$rec['translation_lang']]['title']) . '" />';
-        $baseRecordStr = '<a href="#" onclick="' . htmlspecialchars(BackendUtility::editOnClick('&edit[' . $rec['tablename'] . '][' . $rec['recuid'] . ']=edit',
-                $this->module->backPath)) . '">' . $icon . $title . '</a>';
+        $baseRecordStr = '<a href="#" onclick="' . htmlspecialchars(BackendUtility::editOnClick(
+            '&edit[' . $rec['tablename'] . '][' . $rec['recuid'] . ']=edit',
+            $this->module->backPath
+        )) . '">' . $icon . $title . '</a>';
         // Render for translation if any:
         $translationTable = '';
         $translationRecord = false;
         if ($rec['translation_recuid']) {
             $translationTable = $this->l10nMgrTools->t8Tools->getTranslationTable($rec['tablename']);
             $translationRecord = BackendUtility::getRecordWSOL($translationTable, $rec['translation_recuid']);
-            $icon = GeneralUtility::makeInstance(IconFactory::class)->getIconForRecord($translationTable,
-                $translationRecord);
+            $icon = GeneralUtility::makeInstance(IconFactory::class)->getIconForRecord(
+                $translationTable,
+                $translationRecord
+            );
             $title = BackendUtility::getRecordTitle($translationTable, $translationRecord, 1);
-            $translationRecStr = '<a href="#" onclick="' . htmlspecialchars(BackendUtility::editOnClick('&edit[' . $translationTable . '][' . $translationRecord['uid'] . ']=edit',
-                    $this->module->backPath)) . '">' . $icon . $title . '</a>';
+            $translationRecStr = '<a href="#" onclick="' . htmlspecialchars(BackendUtility::editOnClick(
+                '&edit[' . $translationTable . '][' . $translationRecord['uid'] . ']=edit',
+                $this->module->backPath
+            )) . '">' . $icon . $title . '</a>';
         } else {
             $translationRecStr = '';
         }
         // Action:
         if (is_array($translationRecord)) {
-            $action = '<a href="#" onclick="' . htmlspecialchars(BackendUtility::editOnClick('&edit[' . $translationTable . '][' . $translationRecord['uid'] . ']=edit',
-                    $this->module->backPath)) . '"><em>[Edit]</em></a>';
+            $action = '<a href="#" onclick="' . htmlspecialchars(BackendUtility::editOnClick(
+                '&edit[' . $translationTable . '][' . $translationRecord['uid'] . ']=edit',
+                $this->module->backPath
+            )) . '"><em>[Edit]</em></a>';
         } elseif ($rec['sys_language_uid'] == -1) {
-            $action = '<a href="#" onclick="' . htmlspecialchars(BackendUtility::editOnClick('&edit[' . $rec['tablename'] . '][' . $rec['recuid'] . ']=edit',
-                    $this->module->backPath)) . '"><em>[Edit]</em></a>';
+            $action = '<a href="#" onclick="' . htmlspecialchars(BackendUtility::editOnClick(
+                '&edit[' . $rec['tablename'] . '][' . $rec['recuid'] . ']=edit',
+                $this->module->backPath
+            )) . '"><em>[Edit]</em></a>';
         } else {
             $action = '<a href="' . htmlspecialchars(BackendUtility::getLinkToDataHandlerAction('&cmd[' . $rec['tablename'] . '][' . $rec['recuid'] . '][localize]=' . $rec['translation_lang'])) . '"><em>[Localize]</em></a>';
         }
@@ -288,8 +301,6 @@ class Cm2 extends BaseModule
 
     /**
      * Printing output content
-     *
-     * @return void
      */
     protected function printContent()
     {
@@ -299,8 +310,6 @@ class Cm2 extends BaseModule
 
     /**
      * Adds items to the ->MOD_MENU array. Used for the function menu selector.
-     *
-     * @return void
      */
     public function menuConfig()
     {

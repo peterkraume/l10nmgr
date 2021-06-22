@@ -1,4 +1,5 @@
 <?php
+
 $l10n = 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf';
 return [
     'ctrl'        => [

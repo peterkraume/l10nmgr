@@ -69,7 +69,7 @@ class TranslationTasks extends BaseModule
     {
         $this->MCONF['name'] = 'LocalizationManager_TranslationTasks';
         $this->getBackendUser()->modAccess($this->MCONF, 1);
-        $this->getLanguageService()->includeLLFile("EXT:l10nmgr/Resources/Private/Language/Modules/Module2/locallang.xlf");
+        $this->getLanguageService()->includeLLFile('EXT:l10nmgr/Resources/Private/Language/Modules/Module2/locallang.xlf');
         parent::init();
     }
 
@@ -94,22 +94,23 @@ class TranslationTasks extends BaseModule
 	';
         // Setting up the context sensitive menu:
         $this->getPageRenderer()->loadRequireJsModule('TYPO3/CMS/Backend/ClickMenu');
-        $this->content .= $this->module->startPage($this->getLanguageService()->getLL("title"));
+        $this->content .= $this->module->startPage($this->getLanguageService()->getLL('title'));
         $this->content .= '<div class="topspace5"></div>';
         // Render content:
         $this->moduleContent();
         // ShortCut
         if ($this->getBackendUser()->mayMakeShortcut()) {
-            $this->content .= '<hr /><div>' . $this->module->makeShortcutIcon("id",
-                    implode(",", array_keys($this->MOD_MENU)), $this->MCONF["name"]) . '</div>';
+            $this->content .= '<hr /><div>' . $this->module->makeShortcutIcon(
+                'id',
+                implode(',', array_keys($this->MOD_MENU)),
+                $this->MCONF['name']
+            ) . '</div>';
         }
         $this->content .= '<div class="bottomspace10"></div>';
     }
 
     /**
      * Generates the module content
-     *
-     * @return void
      */
     protected function moduleContent()
     {
@@ -182,11 +183,15 @@ class TranslationTasks extends BaseModule
                     // If another page module was specified, replace the default Page module with the new one
                     $newPageModule = trim($this->getBackendUser()->getTSConfig()['options.']['overridePageModule']);
                     $pageModule = BackendUtility::isModuleSetInTBE_MODULES($newPageModule) ? $newPageModule : 'web_layout';
-                    $path_module_path = GeneralUtility::resolveBackPath($GLOBALS['BACK_PATH'] . '../' . substr($GLOBALS['TBE_MODULES']['_PATHS'][$pageModule],
-                            strlen(Environment::getPublicPath() . '/')));
+                    $path_module_path = GeneralUtility::resolveBackPath($GLOBALS['BACK_PATH'] . '../' . substr(
+                        $GLOBALS['TBE_MODULES']['_PATHS'][$pageModule],
+                        strlen(Environment::getPublicPath() . '/')
+                    ));
                     $onclick = 'parent.list_frame.location.href="' . $path_module_path . '?id=' . $el[1] . '"; return false;';
-                    $path_module_path = GeneralUtility::resolveBackPath($GLOBALS['BACK_PATH'] . '../' . substr($GLOBALS['TBE_MODULES']['_PATHS'][$pageModule],
-                            strlen(Environment::getPublicPath())));
+                    $path_module_path = GeneralUtility::resolveBackPath($GLOBALS['BACK_PATH'] . '../' . substr(
+                        $GLOBALS['TBE_MODULES']['_PATHS'][$pageModule],
+                        strlen(Environment::getPublicPath())
+                    ));
                     $pmLink = '<a href="#" onclick="' . htmlspecialchars($onclick) . '" target="listframe"><i>[Edit page]</i></a>';
                 } else {
                     $pmLink = '';
@@ -199,11 +204,12 @@ class TranslationTasks extends BaseModule
                 }
                 $tRows[] = $cells;
             }
-            return '<table border="0" cellpadding="0" cellspacing="0"><tr>' . implode('</tr><tr>',
-                    $tRows) . '</tr></table>';
-        } else {
-            return '';
+            return '<table border="0" cellpadding="0" cellspacing="0"><tr>' . implode(
+                '</tr><tr>',
+                $tRows
+            ) . '</tr></table>';
         }
+        return '';
     }
 
     /**
@@ -226,9 +232,13 @@ class TranslationTasks extends BaseModule
      */
     protected function getLanguages($limitLanguageList, $sysLanguages)
     {
-        $languageListArray = explode(',',
-            $this->getBackendUser()->groupData['allowed_languages'] ? $this->getBackendUser()->groupData['allowed_languages'] : implode(',',
-                array_keys($sysLanguages)));
+        $languageListArray = explode(
+            ',',
+            $this->getBackendUser()->groupData['allowed_languages'] ? $this->getBackendUser()->groupData['allowed_languages'] : implode(
+                ',',
+                array_keys($sysLanguages)
+            )
+        );
         foreach ($languageListArray as $kkk => $val) {
             if ($limitLanguageList && !GeneralUtility::inList($limitLanguageList, $val)) {
                 unset($languageListArray[$kkk]);
@@ -250,8 +260,6 @@ class TranslationTasks extends BaseModule
 
     /**
      * Adds items to the ->MOD_MENU array. Used for the function menu selector.
-     *
-     * @return void
      */
     public function menuConfig()
     {

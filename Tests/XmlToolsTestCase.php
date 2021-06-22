@@ -35,24 +35,19 @@ class XmlToolsTestCase extends tx_phpunit_testcase
     /**
      * @var XmlTools
      */
-    protected $XMLtools = null;
+    protected $XMLtools;
 
     /**
      * setUp
      * Create the XMLtools object
-     *
-     * @return void
      */
     public function setUp()
     {
-
         $this->XMLtools = GeneralUtility::makeInstance(XmlTools::class);
     }
 
     /**
      * test_isXMLString
-     *
-     * @return void
      */
     public function test_isXMLString()
     {
@@ -63,15 +58,13 @@ class XmlToolsTestCase extends tx_phpunit_testcase
         $_fixture_validXML = '<a>my test</a><p>test</p><strong>&amp;<i></i><br /></strong>';
 
         //do the Tests
-        $this->assertFalse($this->XMLtools->isValidXMLString($_fixture_noXML), "invalid xml is detected as XML!");
-        $this->assertFalse($this->XMLtools->isValidXMLString($_fixture_noXML2), "invalid xml 2 is detected as XML!");
-        $this->assertTrue($this->XMLtools->isValidXMLString($_fixture_validXML), "XML should be valid");
+        self::assertFalse($this->XMLtools->isValidXMLString($_fixture_noXML), 'invalid xml is detected as XML!');
+        self::assertFalse($this->XMLtools->isValidXMLString($_fixture_noXML2), 'invalid xml 2 is detected as XML!');
+        self::assertTrue($this->XMLtools->isValidXMLString($_fixture_validXML), 'XML should be valid');
     }
 
     /**
      * test_simpleTransformationTest
-     *
-     * @return void
      */
     public function test_simpleTransformationTest()
     {
@@ -81,14 +74,15 @@ class XmlToolsTestCase extends tx_phpunit_testcase
 
         //do the test:
         $transformed = $this->XMLtools->XML2RTE($this->XMLtools->RTE2XML($fixtureRTE));
-        $this->assertEquals($transformed, $fixtureRTE,
-            "transformationresult:" . $transformed . " is not equal to source.");
+        self::assertEquals(
+            $transformed,
+            $fixtureRTE,
+            'transformationresult:' . $transformed . ' is not equal to source.'
+        );
     }
 
     /**
      * test_transformationLinkTagTest
-     *
-     * @return void
      */
     public function test_transformationLinkTagTest()
     {
@@ -99,14 +93,15 @@ class XmlToolsTestCase extends tx_phpunit_testcase
         //do the test:
         $transformed = $this->XMLtools->XML2RTE($this->XMLtools->RTE2XML($fixtureRTE));
 
-        $this->assertEquals($transformed, $fixtureRTE,
-            "transformationresult:" . $transformed . " is not equal to source.");
+        self::assertEquals(
+            $transformed,
+            $fixtureRTE,
+            'transformationresult:' . $transformed . ' is not equal to source.'
+        );
     }
 
     /**
      * test_transformationEntityTest
-     *
-     * @return void
      */
     public function test_transformationEntityTest()
     {
@@ -116,18 +111,16 @@ class XmlToolsTestCase extends tx_phpunit_testcase
         $transfxml = $this->XMLtools->RTE2XML($fixtureRTE);
 
         //test if entities and & were transformed correct
-        $this->assertEquals($transfxml, '<p>&amp; &amp;amp; &nbsp; ich&amp;du</p>', "entities transformed incorrect");
+        self::assertEquals($transfxml, '<p>&amp; &amp;amp; &nbsp; ich&amp;du</p>', 'entities transformed incorrect');
 
         //do the test:
         $transformed = $this->XMLtools->XML2RTE($transfxml);
 
-        $this->assertEquals($transformed, $fixtureRTE, "transformationresult is not equal to source.");
+        self::assertEquals($transformed, $fixtureRTE, 'transformationresult is not equal to source.');
     }
 
     /**
      * test_keepXHTMLValidBRTest
-     *
-     * @return void
      */
     public function test_keepXHTMLValidBRTest()
     {
@@ -138,13 +131,11 @@ class XmlToolsTestCase extends tx_phpunit_testcase
         $fixtureXML = $this->XMLtools->RTE2XML($fixtureRTE);
         $transformed = $this->XMLtools->XML2RTE($fixtureXML);
 
-        $this->assertEquals($transformed, $fixtureRTE, 'transformation result is not as expected ');
+        self::assertEquals($transformed, $fixtureRTE, 'transformation result is not as expected ');
     }
 
     /**
      * testr_keepXHMLValidBRInnerList
-     *
-     * @return void
      */
     public function testr_keepXHMLValidBRInnerList()
     {
@@ -155,13 +146,11 @@ class XmlToolsTestCase extends tx_phpunit_testcase
         $fixtureXML = $this->XMLtools->RTE2XML($fixtureRTE);
         $transformed = $this->XMLtools->XML2RTE($fixtureXML);
 
-        $this->assertEquals($transformed, $fixtureRTE, 'transformation result is not as expected ');
+        self::assertEquals($transformed, $fixtureRTE, 'transformation result is not as expected ');
     }
 
     /**
      * test_removeDeadLinkHandlingTest
-     *
-     * @return void
      */
     public function test_removeDeadLinkHandlingTest()
     {
@@ -171,6 +160,6 @@ class XmlToolsTestCase extends tx_phpunit_testcase
 
         $transformed = $this->XMLtools->XML2RTE($this->XMLtools->RTE2XML($fixtureRTE));
 
-        $this->assertEquals($transformed, $fixtureRTE, 'transformation result is not as expected ');
+        self::assertEquals($transformed, $fixtureRTE, 'transformation result is not as expected ');
     }
 }

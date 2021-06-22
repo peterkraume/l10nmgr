@@ -25,7 +25,6 @@ namespace Localizationteam\L10nmgr\Model;
  *
  * @authorDaniel Poetzinger <development@aoemedia.de>
  * @packageTYPO3
- * @subpackage tx_l10nmgr
  */
 class TranslationData
 {

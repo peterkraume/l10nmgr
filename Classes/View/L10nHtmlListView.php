@@ -32,8 +32,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * @author Kasper Skaarhoj <kasperYYYY@typo3.com>
  * @author Daniel Pötzinger <development@aoemedia.de>
- * @package TYPO3
- * @subpackage tx_l10nmgr
  */
 class L10nHtmlListView extends AbstractExportView
 {
@@ -76,17 +74,11 @@ class L10nHtmlListView extends AbstractExportView
         parent::__construct($l10ncfgObj, $sysLang);
     }
 
-    /**
-     * @return void
-     */
     public function setModeWithInlineEdit()
     {
         $this->modeWithInlineEdit = true;
     }
 
-    /**
-     * @return void
-     */
     public function setModeShowEditLinks()
     {
         $this->modeShowEditLinks = true;
@@ -179,17 +171,17 @@ class L10nHtmlListView extends AbstractExportView
                                         ? $data['translationInfo']['translations'][$sysLang]['uid']
                                         : $data['translationInfo']['uid'];
                                     $editLink = ' - <a href="#" onclick="' . htmlspecialchars(
-                                            BackendUtility::editOnClick(
-                                                '&edit[' . $data['translationInfo']['translation_table'] . '][' . $editId . ']=edit',
-                                                $this->module->backPath
-                                            )
-                                        ) . '"><em>[' . $this->getLanguageService()->getLL('render_overview.clickedit.message') . ']</em></a>';
+                                        BackendUtility::editOnClick(
+                                            '&edit[' . $data['translationInfo']['translation_table'] . '][' . $editId . ']=edit',
+                                            $this->module->backPath
+                                        )
+                                    ) . '"><em>[' . $this->getLanguageService()->getLL('render_overview.clickedit.message') . ']</em></a>';
                                 } else {
                                     $editLink = ' - <a href="' . htmlspecialchars(
-                                            BackendUtility::getLinkToDataHandlerAction(
-                                                '&cmd[' . $table . '][' . $data['translationInfo']['uid'] . '][localize]=' . $sysLang
-                                            )
-                                        ) . '"><em>[' . $this->getLanguageService()->getLL('render_overview.clicklocalize.message') . ']</em></a>';
+                                        BackendUtility::getLinkToDataHandlerAction(
+                                            '&cmd[' . $table . '][' . $data['translationInfo']['uid'] . '][localize]=' . $sysLang
+                                        )
+                                    ) . '"><em>[' . $this->getLanguageService()->getLL('render_overview.clicklocalize.message') . ']</em></a>';
                                 }
                             } else {
                                 $editLink = '';
@@ -237,12 +229,12 @@ class L10nHtmlListView extends AbstractExportView
         $valListCnt = count($valueList);
         foreach ($arr as $key => $value) {
             if (!$valListCnt || in_array($key, $valueList)) {
-                $str .= (string)$key . trim(': ' . GeneralUtility::fixed_lgd_cs(str_replace(LF, '|', (string)$value),
-                            $valueLength)) . '; ';
+                $str .= (string)$key . trim(': ' . GeneralUtility::fixed_lgd_cs(
+                    str_replace(LF, '|', (string)$value),
+                    $valueLength
+                )) . '; ';
             }
         }
         return $str;
     }
-
 }
-

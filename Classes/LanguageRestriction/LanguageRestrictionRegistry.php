@@ -5,18 +5,17 @@
  * Date: 25.10.2018
  * Time: 11:34
  */
-
 namespace Localizationteam\L10nmgr\LanguageRestriction;
 
 use InvalidArgumentException;
 use Localizationteam\L10nmgr\Constants;
 use RuntimeException;
 use TYPO3\CMS\Core\Database\Event\AlterTableDefinitionStatementsEvent;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Localization\LanguageService;
 
 class LanguageRestrictionRegistry implements SingletonInterface
 {
@@ -91,8 +90,11 @@ class LanguageRestrictionRegistry implements SingletonInterface
         );
         foreach ($defaultTranslationRestrictableTables as $defaultTranslationRestrictedTable) {
             if (!$this->isRegistered($defaultTranslationRestrictedTable)) {
-                $this->add('core', $defaultTranslationRestrictedTable,
-                    Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME);
+                $this->add(
+                    'core',
+                    $defaultTranslationRestrictedTable,
+                    Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME
+                );
             }
         }
     }
@@ -139,8 +141,10 @@ class LanguageRestrictionRegistry implements SingletonInterface
             throw new InvalidArgumentException('No or invalid table name "' . $tableName . '" given.', 1540460445);
         }
         if (empty($extensionKey) || !is_string($extensionKey)) {
-            throw new InvalidArgumentException('No or invalid extension key "' . $extensionKey . '" given.',
-                1540460446);
+            throw new InvalidArgumentException(
+                'No or invalid extension key "' . $extensionKey . '" given.',
+                1540460446
+            );
         }
 
         if ($override) {
@@ -182,7 +186,6 @@ class LanguageRestrictionRegistry implements SingletonInterface
                 }
             }
         }
-
     }
 
     /**
@@ -401,5 +404,4 @@ class LanguageRestrictionRegistry implements SingletonInterface
     {
         return $GLOBALS['LANG'];
     }
-
 }

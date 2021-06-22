@@ -29,8 +29,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Function for generating preview links during import
  *
  * @author Daniel Zielinski <d.zielinski@L10Ntech.de>
- * @package TYPO3
- * @subpackage tx_l10nmgr
  */
 class MkPreviewLinkService
 {
@@ -81,10 +79,10 @@ class MkPreviewLinkService
         $ttlHours = ($ttlHours ? $ttlHours : 24 * 2);
         $params = 'id=' . $this->pageIds[0] . '&L=' . $srcLang . '&ADMCMD_previewWS=' . $this->workspaceId;
         return $baseUrl . 'index.php?ADMCMD_prev=' . $this->compilePreviewKeyword(
-                $params,
-                $this->getBackendUser()->user['uid'],
-                60 * 60 * $ttlHours
-            );
+            $params,
+            $this->getBackendUser()->user['uid'],
+            60 * 60 * $ttlHours
+        );
     }
 
     /**
@@ -150,10 +148,10 @@ class MkPreviewLinkService
         //no_cache=1 ???
         $params = 'id=' . $this->pageIds[0] . '&L=' . $this->sysLang . '&ADMCMD_previewWS=' . $this->workspaceId . '&serverlink=' . $serverlink;
         return $baseUrl . 'index.php?ADMCMD_prev=' . $this->compilePreviewKeyword(
-                $params,
-                $this->getBackendUser()->user['uid'],
-                60 * 60 * $ttlHours
-            );
+            $params,
+            $this->getBackendUser()->user['uid'],
+            60 * 60 * $ttlHours
+        );
     }
 
     /**
@@ -167,10 +165,10 @@ class MkPreviewLinkService
             $ttlHours = ($ttlHours ? $ttlHours : 24 * 2);
             $params = 'id=' . $pageId . '&L=' . $this->sysLang . '&ADMCMD_previewWS=' . $this->workspaceId;
             $previewUrls[$pageId] = GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . 'index.php?ADMCMD_prev=' . $this->compilePreviewKeyword(
-                    $params,
-                    $this->getBackendUser()->user['uid'],
-                    60 * 60 * $ttlHours
-                );
+                $params,
+                $this->getBackendUser()->user['uid'],
+                60 * 60 * $ttlHours
+            );
         }
         return $previewUrls;
     }

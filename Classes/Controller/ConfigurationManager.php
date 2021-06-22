@@ -43,11 +43,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @authorKasper Skaarhoj <kasperYYYY@typo3.com>
  * @authorJo Hasenau <info@cybercraft.de>
  * @packageTYPO3
- * @subpackage tx_l10nmgr
  */
 class ConfigurationManager extends BaseModule
 {
-    var $pageinfo;
+    public $pageinfo;
     /**
      * Document Template Object
      *
@@ -98,7 +97,7 @@ class ConfigurationManager extends BaseModule
      *
      * @return ResponseInterface the response with the content
      */
-    public function mainAction() : ResponseInterface
+    public function mainAction(): ResponseInterface
     {
         /** @var ResponseInterface $response */
         $response = func_num_args() === 2 ? func_get_arg(1) : null;
@@ -121,8 +120,6 @@ class ConfigurationManager extends BaseModule
 
     /**
      * Initializes the Module
-     *
-     * @return void
      */
     public function init()
     {
@@ -133,8 +130,6 @@ class ConfigurationManager extends BaseModule
     /**
      * Main function of the module. Write the content to $this->content
      * If you chose "web" as main module, you will need to consider the $this->id parameter which will contain the uid-number of the page clicked in the page tree
-     *
-     * @return void
      */
     public function main()
     {
@@ -160,7 +155,7 @@ class ConfigurationManager extends BaseModule
         // No configurations, issue a simple message
         if (count($l10nConfigurations) == 0) {
             $content .= '<div>' . nl2br($this->getLanguageService()->getLL('general.no_date')) . '</div>';
-            // List all configurations
+        // List all configurations
         } else {
             $content .= '<div><h2 class="uppercase">' . $this->getLanguageService()->getLL('general.list.configuration.manager') . '</h2>' . nl2br($this->getLanguageService()->getLL('general.description.message')) . '</div>';
             $content .= '<div><h2 class="uppercase">' . $this->getLanguageService()->getLL('general.list.configuration.title') . '</h2></div>';
@@ -188,12 +183,14 @@ class ConfigurationManager extends BaseModule
                 $content .= '<tr class="db_list_normal">';
                 $content .= '<td>' . $configurationDetails . '</td>';
                 $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-                $content .= '<td><a href="' . $uriBuilder->buildUriFromRoute('LocalizationManager',
-                        [
+                $content .= '<td><a href="' . $uriBuilder->buildUriFromRoute(
+                    'LocalizationManager',
+                    [
                             'id' => $record['pid'],
                             'srcPID' => $this->id,
                             'exportUID' => $record['uid'],
-                        ]) . '">' . $record['title'] . '</a>' . '</td>';
+                        ]
+                ) . '">' . $record['title'] . '</a>' . '</td>';
                 // Get the full page path
                 // If very long, make sure to still display the full path
                 $pagePath = BackendUtility::getRecordPath($record['pid'], '1', 20, 50);

@@ -35,8 +35,6 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
  * Credits: some code taken from task tx_scheduler_RecyclerGarbageCollection by Kai Vogel
  *
  * @author Francois Suter <typo3@cobweb.ch>
- * @package TYPO3
- * @subpackage tx_l10nmgr
  */
 class L10nmgrFileGarbageCollection extends AbstractTask
 {
@@ -86,11 +84,10 @@ class L10nmgrFileGarbageCollection extends AbstractTask
      * old ones.
      *
      * @param string $directory Path to the directory
-     * @param integer $timestamp Timestamp of the last file modification
+     * @param int $timestamp Timestamp of the last file modification
      *
-     * @return boolean TRUE if success
+     * @return bool TRUE if success
      * @throws RuntimeException If folders are not found or files can not be deleted
-     *
      */
     protected function cleanUpDirectory($directory, $timestamp)
     {
@@ -106,8 +103,10 @@ class L10nmgrFileGarbageCollection extends AbstractTask
         foreach ($directoryContent as $fileObject) {
             // Remove files that are older than given timestamp and don't match the exclude pattern
             if ($fileObject->isFile()
-                && !preg_match('/' . $this->excludePattern . '/i',
-                    $fileObject->getFilename()) && $fileObject->getCTime() < $timestamp
+                && !preg_match(
+                    '/' . $this->excludePattern . '/i',
+                    $fileObject->getFilename()
+                ) && $fileObject->getCTime() < $timestamp
             ) {
                 if (!(@unlink($fileObject->getRealPath()))) {
                     throw new RuntimeException(

@@ -27,15 +27,13 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Function for managing the Import of CAT XML
  *
  * @author Daniel Poetzinger <ext@aoemedia.de>
- * @package TYPO3
- * @subpackage tx_l10nmgr
  */
 class CatXmlImportManager
 {
@@ -56,7 +54,7 @@ class CatXmlImportManager
      */
     protected $xmlNodes;
     /**
-     * @var integer $sysLang selected import language (for check purposes - sys_language_uid)
+     * @var int $sysLang selected import language (for check purposes - sys_language_uid)
      */
     protected $sysLang;
     /**

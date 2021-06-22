@@ -23,8 +23,8 @@ namespace Localizationteam\L10nmgr\View;
 use Localizationteam\L10nmgr\Model\L10nConfiguration;
 use TYPO3\CMS\Backend\Template\DocumentTemplate;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * l10nmgr detail view:
@@ -32,8 +32,6 @@ use TYPO3\CMS\Core\Localization\LanguageService;
  *
  * @author Kasper Skaarhoj <kasperYYYY@typo3.com>
  * @author Daniel Pötzinger <development@aoemedia.de>
- * @package TYPO3
- * @subpackage tx_l10nmgr
  */
 class L10nConfigurationDetailView
 {
@@ -44,7 +42,7 @@ class L10nConfigurationDetailView
     /**
      * @var DocumentTemplate
      */
-    protected $module = null;
+    protected $module;
     /**
      * @var LanguageService
      */
@@ -92,8 +90,11 @@ class L10nConfigurationDetailView
 	<td>' . htmlspecialchars($this->l10ncfgObj->getData('include')) . '&nbsp;</td>
 	</tr>
 	</table>';
-        $content .= '<div><h2 class="uppercase">' . $this->getLanguageService()->getLL('general.export.configuration.title') . '</h2>' . str_replace(',',
-                ', ', $configurationSettings);
+        $content .= '<div><h2 class="uppercase">' . $this->getLanguageService()->getLL('general.export.configuration.title') . '</h2>' . str_replace(
+            ',',
+            ', ',
+            $configurationSettings
+        );
         return $content;
     }
 
@@ -106,9 +107,8 @@ class L10nConfigurationDetailView
     {
         if (is_object($this->l10ncfgObj) && $this->l10ncfgObj->isLoaded()) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**

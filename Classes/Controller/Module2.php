@@ -34,7 +34,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * @authorKasper Skaarhoj <kasperYYYY@typo3.com>
  * @packageTYPO3
- * @subpackage tx_l10nmgr
  */
 class Module2
 {
@@ -51,8 +50,6 @@ class Module2
 
     /**
      * Creates the header and frameset for the module/submodules
-     *
-     * @return void
      */
     public function main()
     {
@@ -71,8 +68,6 @@ class Module2
 
     /**
      * Outputting the accumulated content to screen
-     *
-     * @return void
      */
     protected function printContent()
     {
