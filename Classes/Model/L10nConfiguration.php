@@ -137,6 +137,9 @@ class L10nConfiguration
             $tree = GeneralUtility::makeInstance(PageTreeView::class);
             $tree->init('AND ' . $this->getBackendUser()->getPagePermsClause(1));
             $tree->addField('l18n_cfg');
+            $tree->addField('l10nmgr_configuration');
+            $tree->addField('l10nmgr_configuration_next_level');
+            $tree->addField('l10nmgr_language_restriction');
             /** @var IconFactory $iconFactory */
             $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
             $page = array_shift($treeStartingRecords);
