@@ -98,7 +98,7 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
             if (empty($accum[$pId]['items'])) {
                 continue;
             }
-            $output[] = "\t" . '<pageGrp id="' . $pId . '" sourceUrl="' . $this->baseUrl . 'index.php?id=' . $pId . '">' . "\n";
+            $output[] = "\t" . '<pageGrp id="' . $pId . '" sourceUrl="' . $page['header']['url'] . '">' . "\n";
             foreach ($accum[$pId]['items'] as $table => $elements) {
                 foreach ($elements as $elementUid => $data) {
                     if (!$this->modeOnlyNew || empty($data['translationInfo']['translations'])) {

@@ -30,6 +30,7 @@ use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
 
@@ -168,6 +169,7 @@ class L10nAccumulatedInformation
         $this->excludeIndex = array_flip(GeneralUtility::trimExplode(',', $l10ncfg['exclude'], true));
         $tableUidConstraintIndex = array_flip(GeneralUtility::trimExplode(',', $l10ncfg['tableUidConstraint'], 1));
         // Init:
+        $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
         /** @var Tools $t8Tools */
         $t8Tools = GeneralUtility::makeInstance(Tools::class);
         $t8Tools->verbose = false; // Otherwise it will show records which has fields but none editable.
@@ -233,6 +235,7 @@ class L10nAccumulatedInformation
                 $accum[$pageId]['header']['title'] = $treeElement['row']['title'];
                 $accum[$pageId]['header']['icon'] = $treeElement['HTML'];
                 $accum[$pageId]['header']['prevLang'] = $previewLanguage;
+                $accum[$pageId]['header']['url'] = (string)$siteFinder->getSiteByPageId($pageId)->getRouter()->generateUri($pageId);
                 $accum[$pageId]['items'] = [];
                 // Traverse tables:
                 foreach ($GLOBALS['TCA'] as $table => $cfg) {
