@@ -21,9 +21,11 @@ namespace Localizationteam\L10nmgr\Model;
  ***************************************************************/
 
 use Localizationteam\L10nmgr\Constants;
+use Localizationteam\L10nmgr\Event\L10nAccumulatedInformationIsProcessed;
 use Localizationteam\L10nmgr\LanguageRestriction\Collection\LanguageRestrictionCollection;
 use Localizationteam\L10nmgr\Model\Tools\Tools;
 use PDO;
+use TYPO3\CMS\Adminpanel\Service\EventDispatcher;
 use TYPO3\CMS\Backend\Tree\View\PageTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
@@ -149,6 +151,10 @@ class L10nAccumulatedInformation
     {
         if ($this->objectStatus != 'processed') {
             $this->_calculateInternalAccumulatedInformationsArray();
+            $event = new L10nAccumulatedInformationIsProcessed($this->_accumulatedInformations, $this->l10ncfg);
+            $eventDispatcher = GeneralUtility::makeInstance(EventDispatcher::class);
+            $eventDispatcher->dispatch($event);
+            $this->_accumulatedInformations = $event->getAccumulatedInformation();
         }
         $this->objectStatus = 'processed';
     }
