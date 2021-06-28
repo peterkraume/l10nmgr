@@ -229,9 +229,9 @@ class BaseModule
                     $v['ws'],
                     'offline'
                 ) || $this->getBackendUser()->workspace > 0 && GeneralUtility::inList(
-                                $v['ws'],
-                                'custom'
-                            )) {
+                    $v['ws'],
+                    'custom'
+                )) {
                     $menuArr[$k] = $this->getLanguageService()->sL($v['title']);
                 }
             }
