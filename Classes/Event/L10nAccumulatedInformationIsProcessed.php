@@ -6,9 +6,9 @@ namespace Localizationteam\L10nmgr\Event;
 
 class L10nAccumulatedInformationIsProcessed
 {
-    private array $accumulatedInformation;
+    private $accumulatedInformation;
 
-    private array $l10nConfiguration;
+    private $l10nConfiguration;
 
     public function __construct(array $accumulatedInformation, array $l10nConfiguration)
     {
