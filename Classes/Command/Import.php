@@ -523,7 +523,7 @@ class Import extends L10nCommand
                 $downloadFolder = 'uploads/tx_l10nmgr/jobs/in/';
                 $downloadPath = Environment::getPublicPath() . '/' . $downloadFolder;
                 if (!is_dir(GeneralUtility::getFileAbsFileName($downloadPath))) {
-                    GeneralUtility::mkdir_deep(Environment::getPublicPath() . '/' . $downloadFolder);
+                    GeneralUtility::mkdir_deep($downloadPath);
                 }
                 foreach ($filesToDownload as $aFile) {
                     // Ignore current directory and reference to upper level

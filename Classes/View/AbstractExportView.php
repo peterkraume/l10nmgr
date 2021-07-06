@@ -440,8 +440,13 @@ abstract class AbstractExportView
      */
     public function saveExportFile($fileContent)
     {
-        $fileExportName = 'uploads/tx_l10nmgr/jobs/out/' . $this->getFilename();
-        GeneralUtility::writeFile(Environment::getPublicPath() . '/' . $fileExportName, $fileContent);
+        $outPath = Environment::getPublicPath() . '/uploads/tx_l10nmgr/jobs/out/';
+        if (!is_dir(GeneralUtility::getFileAbsFileName($outPath))) {
+            GeneralUtility::mkdir_deep($outPath);
+        }
+
+        $fileExportName = $outPath . $this->getFilename();
+        GeneralUtility::writeFile($fileExportName, $fileContent);
         return $fileExportName;
     }
 

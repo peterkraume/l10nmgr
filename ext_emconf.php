@@ -13,7 +13,9 @@ $EM_CONF['l10nmgr'] = [
     'version'          => '10.1.2',
     'state'            => 'stable',
     'uploadfolder'     => false,
-    'createDirs'       => 'uploads/tx_l10nmgr/settings,uploads/tx_l10nmgr/saved_files,uploads/tx_l10nmgr/jobs,uploads/tx_l10nmgr/jobs/out,uploads/tx_l10nmgr/jobs/in,uploads/tx_l10nmgr/jobs/done,uploads/tx_l10nmgr/jobs/_cmd',
+    // TODO: The option `createDirs` is not supported in v10 anymore and should be removed. If the extension needs folders, they must created via `GeneralUtility::mkdir_deep()`.
+    // see: https://docs.typo3.org/c/typo3/cms-core/master/en-us/Changelog/10.0/Breaking-88525-RemoveCreateDirsDirectiveOfExtensionInstallationEm_confphp.html
+    'createDirs'       => 'uploads/tx_l10nmgr/settings,uploads/tx_l10nmgr/saved_files,uploads/tx_l10nmgr/jobs,uploads/tx_l10nmgr/jobs/in,uploads/tx_l10nmgr/jobs/done,uploads/tx_l10nmgr/jobs/_cmd',
     'clearCacheOnLoad' => true,
     'author'           => 'Kasper Skaarhoej, Daniel Zielinski, Daniel Poetzinger, Fabian Seltmann, Andreas Otto, Jo Hasenau, Peter Russ',
     'author_email'     => 'kasperYYYY@typo3.com, info@loctimize.com, info@cybercraft.de, pruss@uon.li',
