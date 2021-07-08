@@ -743,8 +743,7 @@ class Import extends L10nCommand
                 $mailObject->setFrom([$this->extensionConfiguration['email_sender'] => $this->extensionConfiguration['email_sender_name']]);
                 $mailObject->setTo($recipients);
                 $mailObject->setSubject($subject);
-                $mailObject->setFormat('text/plain');
-                $mailObject->setBody($message);
+                $mailObject->text($message);
                 $mailObject->send();
             }
         }

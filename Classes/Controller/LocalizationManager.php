@@ -1091,11 +1091,9 @@ return false;
             $mailObject->setFrom([$fromMail => $fromName]);
             $mailObject->setTo($recipients);
             $mailObject->setSubject($subject);
-            $mailObject->setFormat('text/plain');
-            $mailObject->setBody($msg);
+            $mailObject->text($msg);
             if ($this->extensionConfiguration['email_attachment']) {
-                $attachment = Swift_Attachment::fromPath($fullFilename, 'text/xml');
-                $mailObject->attach($attachment);
+                $mailObject->attachFromPath($fullFilename);
             }
             $mailObject->send();
         }

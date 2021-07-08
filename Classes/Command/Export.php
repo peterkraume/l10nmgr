@@ -24,7 +24,6 @@ namespace Localizationteam\L10nmgr\Command;
 use Localizationteam\L10nmgr\Model\L10nConfiguration;
 use Localizationteam\L10nmgr\View\CatXmlView;
 use Localizationteam\L10nmgr\View\ExcelXmlView;
-use Swift_Attachment;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -414,11 +413,9 @@ class Export extends L10nCommand
             $mailObject->setFrom([$fromMail => $fromName]);
             $mailObject->setTo($recipients);
             $mailObject->setSubject($subject);
-            $mailObject->setFormat('text/plain');
-            $mailObject->setBody($msg);
+            $mailObject->text($msg);
             if ($this->extensionConfiguration['email_attachment']) {
-                $attachment = Swift_Attachment::fromPath($fullFilename, 'text/xml');
-                $mailObject->attach($attachment);
+                $mailObject->attach($fullFilename);
             }
             $mailObject->send();
         }
