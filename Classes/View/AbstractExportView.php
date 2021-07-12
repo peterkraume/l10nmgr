@@ -37,6 +37,7 @@ use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\DiffUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\PathUtility;
 
 /**
  * Abstract class for all export views
@@ -447,7 +448,7 @@ abstract class AbstractExportView
 
         $fileExportName = $outPath . $this->getFilename();
         GeneralUtility::writeFile($fileExportName, $fileContent);
-        return $fileExportName;
+        return PathUtility::getAbsoluteWebPath($fileExportName);
     }
 
     /**

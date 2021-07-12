@@ -576,7 +576,7 @@ return false;
                     // Prepare a success message for display
                     $link = sprintf(
                         '<a href="%s" target="_blank">%s</a>',
-                        GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . $filename,
+                        $filename,
                         $filename
                     );
                     $title = $this->getLanguageService()->getLL('export.download.success');
@@ -835,7 +835,7 @@ return false;
                         // Prepare a success message for display
                         $link = sprintf(
                             '<a href="%s" target="_blank">%s</a>',
-                            GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . $filename,
+                            $filename,
                             $filename
                         );
                         $title = $this->getLanguageService()->getLL('export.download.success');
