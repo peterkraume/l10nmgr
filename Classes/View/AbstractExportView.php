@@ -243,9 +243,9 @@ abstract class AbstractExportView
                 $targetLang = $targetLangArr['lg_iso_2'];
             }
         } else {
-            $sourceLanguageConfiguration = $this->site->getLanguages()[0];
+            $sourceLanguageConfiguration = $this->site->getAvailableLanguages($this->getBackendUser())[0];
             $sourceLang = $sourceLanguageConfiguration->getHreflang() ?: $sourceLanguageConfiguration->getTwoLetterIsoCode();
-            $targetLanguageConfiguration = $this->site->getLanguages()[$this->sysLang];
+            $targetLanguageConfiguration =  $this->site->getAvailableLanguages($this->getBackendUser())[$this->sysLang];
             $targetLang = $targetLanguageConfiguration->getHreflang() ?: $targetLanguageConfiguration->getTwoLetterIsoCode();
         }
         $fileNamePrefix = (trim($this->l10ncfgObj->getData('filenameprefix'))) ? $this->l10ncfgObj->getData('filenameprefix') . '_' . $fileType : $fileType;

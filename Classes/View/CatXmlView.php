@@ -150,9 +150,9 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
             $XML .= "\t\t" . '<t3_sourceLang>' . $staticLangArr['lg_iso_2'] . '</t3_sourceLang>' . "\n";
             $XML .= "\t\t" . '<t3_targetLang>' . $targetIso . '</t3_targetLang>' . "\n";
         } else {
-            $sourceLanguageConfiguration = $this->site->getLanguages()[0];
+            $sourceLanguageConfiguration = $this->site->getAvailableLanguages($this->getBackendUser())[0];
             $sourceLang = $sourceLanguageConfiguration->getHreflang() ?: $sourceLanguageConfiguration->getTwoLetterIsoCode();
-            $targetLanguageConfiguration = $this->site->getLanguages()[$this->sysLang];
+            $targetLanguageConfiguration = $this->site->getAvailableLanguages($this->getBackendUser())[$this->sysLang];
             $targetLang = $targetLanguageConfiguration->getHreflang() ?: $targetLanguageConfiguration->getTwoLetterIsoCode();
             $XML .= "\t\t" . '<t3_sourceLang>' . $sourceLang . '</t3_sourceLang>' . "\n";
             $XML .= "\t\t" . '<t3_targetLang>' . $targetLang . '</t3_targetLang>' . "\n";
