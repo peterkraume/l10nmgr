@@ -316,11 +316,26 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
     public function getItems()
     {
         $itemArray = [];
-        /** @var $item File */
         foreach ($this->storage as $item) {
             $itemArray[] = $item;
         }
         return $itemArray;
+    }
+
+    /**
+     * Gets the current available items.
+     *
+     * @param int $uid
+     * @return bool
+     */
+    public function hasItem(int $uid)
+    {
+        foreach ($this->storage as $item) {
+            if ($item['uid'] === $uid) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
