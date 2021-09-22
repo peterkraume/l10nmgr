@@ -286,6 +286,9 @@ class L10nAccumulatedInformation
                                         }
                                     }
                                 }
+                                if (isset($this->excludeIndex[$table . ':' . $row['uid']])) {
+                                    continue;
+                                }
                                 BackendUtility::workspaceOL($table, $row);
                                 if (!is_array($row)) {
                                     continue;
