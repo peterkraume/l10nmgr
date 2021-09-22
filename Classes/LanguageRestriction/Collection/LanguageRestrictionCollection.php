@@ -324,6 +324,22 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
     }
 
     /**
+     * Gets the current available items.
+     *
+     * @param int $uid
+     * @return bool
+     */
+    public function hasItem(int $uid)
+    {
+        foreach ($this->storage as $item) {
+            if ($item['uid'] === $uid) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Returns an array of the persistable properties and contents
      * which are processable by DataHandler.
      * for internal usage in persist only.
