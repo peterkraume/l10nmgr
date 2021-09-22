@@ -225,7 +225,7 @@ class L10nAccumulatedInformation
                     'pages',
                     Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME
                 );
-                if (count($languageIsRestricted) > 0) {
+                if ($languageIsRestricted->count() > 0) {
                     $this->excludeIndex['pages:' . $pageId] = 1;
                 }
             }
@@ -268,7 +268,7 @@ class L10nAccumulatedInformation
                                                 $table,
                                                 Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME
                                             );
-                                            if (count($languageIsRestricted) > 0) {
+                                            if ($languageIsRestricted->count() > 0) {
                                                 $this->excludeIndex[$table . ':' . (int)$row['uid']] = 1;
                                                 continue;
                                             }
