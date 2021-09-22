@@ -225,8 +225,11 @@ class L10nAccumulatedInformation
                     'pages',
                     Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME
                 );
-                if ($languageIsRestricted->count() > 0) {
-                    $this->excludeIndex['pages:' . $pageId] = 1;
+                foreach ($languageIsRestricted->getItems() as $page) {
+                    if ((int)$page['uid'] === (int)$pageId) {
+                        $this->excludeIndex['pages:' . $pageId] = 1;
+                        break;
+                    }
                 }
             }
             if (!isset($this->excludeIndex['pages:' . $pageId]) && !in_array(
@@ -261,6 +264,9 @@ class L10nAccumulatedInformation
                                 if (count($allRows)) {
                                     // Now, for each record, look for localization:
                                     foreach ($allRows as $row) {
+                                        if (isset($this->excludeIndex[$table . ':' . $row['uid']])) {
+                                            continue;
+                                        }
                                         if (!empty($row[Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME])) {
                                             $languageIsRestricted = LanguageRestrictionCollection::load(
                                                 (int)$sysLang,
@@ -268,10 +274,15 @@ class L10nAccumulatedInformation
                                                 $table,
                                                 Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME
                                             );
-                                            if ($languageIsRestricted->count() > 0) {
-                                                $this->excludeIndex[$table . ':' . (int)$row['uid']] = 1;
-                                                continue;
+                                            foreach ($languageIsRestricted->getItems() as $record) {
+                                                if ((int)$record['uid'] === (int)$row['uid']) {
+                                                    $this->excludeIndex[$table . ':' . (int)$row['uid']] = 1;
+                                                    break;
+                                                }
                                             }
+                                        }
+                                        if (isset($this->excludeIndex[$table . ':' . $row['uid']])) {
+                                            continue;
                                         }
                                         BackendUtility::workspaceOL($table, $row);
                                         if ($table === 'sys_file_reference') {
