@@ -228,8 +228,11 @@ class L10nAccumulatedInformation
                     'pages',
                     Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME
                 );
-                if ($languageIsRestricted->count() > 0) {
-                    $this->excludeIndex['pages:' . $pageId] = 1;
+                foreach ($languageIsRestricted->getItems() as $page) {
+                    if ((int)$page['uid'] === (int)$pageId) {
+                        $this->excludeIndex['pages:' . $pageId] = 1;
+                        break;
+                    }
                 }
             }
             if (!isset($this->excludeIndex['pages:' . $pageId]) && !in_array(
@@ -276,9 +279,11 @@ class L10nAccumulatedInformation
                                         $table,
                                         Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME
                                     );
-                                    if ($languageIsRestricted->count() > 0) {
-                                        $this->excludeIndex[$table . ':' . (int)$row['uid']] = 1;
-                                        continue;
+                                    foreach ($languageIsRestricted->getItems() as $record) {
+                                        if ((int)$record['uid'] === (int)$row['uid']) {
+                                            $this->excludeIndex[$table . ':' . (int)$row['uid']] = 1;
+                                            break;
+                                        }
                                     }
                                 }
                                 BackendUtility::workspaceOL($table, $row);
