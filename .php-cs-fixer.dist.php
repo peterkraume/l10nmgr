@@ -1,7 +1,7 @@
 <?php
 // The following rule set is taken from TYPO3 10.4.
 // Keep up to date with most recent supported TYPO3 version.
-// See: https://github.com/TYPO3/TYPO3.CMS/blob/10.4/Build/.php_cs
+// See: https://github.com/TYPO3/typo3/blob/10.4/Build/php-cs-fixer.php
 $config = new \PhpCsFixer\Config();
 $config->setRiskyAllowed(true)
     ->setRules([
@@ -56,6 +56,7 @@ $config->setRiskyAllowed(true)
     ])
     ->setFinder(
         PhpCsFixer\Finder::create()
+            ->exclude(['vendor', 'public'])
             ->in(__DIR__)
     );
 

@@ -145,7 +145,7 @@ class TranslationDataFactory implements LoggerAwareInterface
      *
      * @param string $fileContent String with XML
      *
-     * @return array | bool with translated information
+     * @return array|bool with translated information
      **/
     protected function getParsedExcelXML($fileContent)
     {
@@ -214,7 +214,7 @@ class TranslationDataFactory implements LoggerAwareInterface
      *
      * @param string $fileContent String with XML
      *
-     * @return array | bool with translated information
+     * @return array|bool with translated information
      **/
     protected function getParsedCATXMLFromOldFormat($fileContent)
     {

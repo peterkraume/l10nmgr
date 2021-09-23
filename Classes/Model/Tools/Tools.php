@@ -617,7 +617,7 @@ class Tools
      * @param string $table Table name
      * @param int $uid Record uid
      * @param int $previewLanguage
-     * @return array | bool Record array if found, otherwise FALSE
+     * @return array|bool Record array if found, otherwise FALSE
      */
     protected function getSingleRecordToTranslate($table, $uid, $previewLanguage = 0)
     {
@@ -901,7 +901,7 @@ class Tools
      * @param array $row The record to be translated
      * @param array|string $selFieldList Select fields for the query which fetches the translations of the current record
      * @param int $previewLanguage
-     * @return array | string Array with information. Errors will return string with message.
+     * @return array|string Array with information. Errors will return string with message.
      * @todo Define visibility
      */
     public function translationInfo(

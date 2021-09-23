@@ -108,7 +108,7 @@ class LocalizationManager extends BaseModule
      */
     protected $iconFactory;
     /**
-     * @var array | bool
+     * @var array|bool
      */
     protected $pageinfo;
 
@@ -649,7 +649,7 @@ return false;
      * Sends download header and calls render method of the view.
      * Used for excelXML and CATXML.
      *
-     * @param CatXmlView | ExcelXmlView $xmlView Object for generating the XML export
+     * @param CatXmlView|ExcelXmlView $xmlView Object for generating the XML export
      *
      * @return string $filename
      */

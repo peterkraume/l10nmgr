@@ -45,7 +45,7 @@ class L10nBaseService implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    protected static $targetLanguageID = null;
+    protected static $targetLanguageID;
     public $lastTCEMAINCommandsCount;
     /**
      * @var bool Translate even if empty.
