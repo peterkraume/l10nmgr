@@ -1,13 +1,27 @@
 stages:
   - lint
 
+# Speed up builds
+cache:
+  key: $CI_BUILD_REF_NAME
+  paths:
+    - .Build/vendor
+    - public
+
+default:
+  image: edbizarro/gitlab-ci-pipeline-php:7.4-alpine
+
+php-lint:
+  stage: lint
+  script:
+    - composer run ci:php:lint
+  rules:
+    - allow_failure: false
+
 php-cs-fixer:
-  image: composer:2.1
   stage: lint
   before_script:
     - export COMPOSER_ALLOW_SUPERUSER=1
-    - export COMPOSER_CACHE_DIR=/cache/composer
-    - export COMPOSER_NO_INTERACTION=1
-    - composer req --ignore-platform-reqs --update-no-dev friendsofphp/php-cs-fixer ^3.0
+    - composer install --prefer-dist --no-ansi --no-interaction --no-progress
   script:
-    - ./vendor/bin/php-cs-fixer fix --dry-run
+    - composer run ci:php:fixer

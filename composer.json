@@ -25,6 +25,9 @@
     "typo3/cms-lang": "^10.0.0",
     "typo3/cms-scheduler": "^10.0.0"
   },
+  "require-dev": {
+ 		"friendsofphp/php-cs-fixer": "^3.1.0"
+  },
   "autoload": {
     "psr-4": {
       "Localizationteam\\L10nmgr\\": "Classes"
@@ -33,6 +36,19 @@
   "replace": {
     "localizationteam/l10nmgr": "self.version",
     "typo3-ter/l10nmgr": "self.version"
+  },
+  "config": {
+    "preferred-install": {
+      "*": "dist"
+    },
+    "sort-packages": true,
+    "process-timeout": 1000,
+    "vendor-dir": ".Build/vendor"
+  },
+  "scripts": {
+    "php:fix": ".Build/vendor/bin/php-cs-fixer --config=Configuration/php-cs-fixer.php fix Classes Tests",
+    "ci:php:lint": "find *.php Classes Configuration Tests -name '*.php' -print0 | xargs -0 -n 1 -P 4 php -l",
+    "ci:php:fixer": ".Build/vendor/bin/php-cs-fixer --config=Configuration/php-cs-fixer.php fix --dry-run -v --show-progress=dots Classes Configuration Tests"
   },
   "extra": {
     "typo3/cms": {

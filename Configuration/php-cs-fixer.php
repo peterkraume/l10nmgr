@@ -1,4 +1,11 @@
 <?php
+
+declare(strict_types=1);
+
+if (PHP_SAPI !== 'cli') {
+    die('This script supports command line usage only. Please check your command.');
+}
+
 // The following rule set is taken from TYPO3 10.4.
 // Keep up to date with most recent supported TYPO3 version.
 // See: https://github.com/TYPO3/typo3/blob/10.4/Build/php-cs-fixer.php
