@@ -140,7 +140,7 @@ class XmlTools implements LoggerAwareInterface
             'link' => 1,
             'meta' => 1,
             'param' => 1,
-            'source' => 1
+            'source' => 1,
         ];
         foreach ($vals as $val) {
             $type = $val['type'];

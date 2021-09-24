@@ -23,7 +23,7 @@ $EM_CONF['l10nmgr'] = [
     'constraints'      => [
         'depends'   => [
             'typo3'              => '10.0.0-10.99.99',
-            'scheduler'          => '10.0.0-10.99.99'
+            'scheduler'          => '10.0.0-10.99.99',
         ],
         'conflicts' => [],
         'suggests'  => [],

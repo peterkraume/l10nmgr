@@ -75,7 +75,7 @@ class Tools
         'fieldTypes' => 'text,input',
         'noEmptyValues' => true,
         'noIntegers' => true,
-        'l10n_categories' => '' // could be "text,media" for instance.
+        'l10n_categories' => '', // could be "text,media" for instance.
     ]; // If TRUE, when fields are not included there will be shown a detailed explanation.
     /**
      * @var array
@@ -445,7 +445,7 @@ class Tools
                     'title' => $vArray[1] ?? null,
                     'palette' => $vArray[2] ?? null,
                     'spec' => [],
-                    'origString' => $v
+                    'origString' => $v,
                 ];
                 if ($useFieldNameAsKey) {
                     $altFieldList[$fieldList[$k]['field']] = $fieldList[$k];
