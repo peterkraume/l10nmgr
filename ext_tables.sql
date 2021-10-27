@@ -34,7 +34,7 @@ CREATE TABLE tx_l10nmgr_cfg
 CREATE TABLE tx_l10nmgr_index
 (
     hash               varchar(32) DEFAULT ''  NOT NULL,
-    tablename          varchar(40) DEFAULT ''  NOT NULL,
+    tablename          varchar(64) DEFAULT ''  NOT NULL,
     recuid             int(11)     DEFAULT '0' NOT NULL,
     recpid             int(11)     DEFAULT '0' NOT NULL,
     sys_language_uid   int(11)     DEFAULT '0' NOT NULL,
