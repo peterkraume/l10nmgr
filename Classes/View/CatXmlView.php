@@ -42,6 +42,7 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
      * @var int $forcedSourceLanguage Overwrite the default language uid with the desired language to export
      */
     protected $forcedSourceLanguage = 0;
+
     /**
      * @var int
      */

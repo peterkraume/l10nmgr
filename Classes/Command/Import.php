@@ -46,14 +46,17 @@ class Import extends L10nCommand
      * @var int ID of the language being handled
      */
     protected $sysLanguage;
+
     /**
      * @var int ID of the forced source language being handled
      */
     protected $previewLanguage;
+
     /**
      * @var string Path to temporary de-archiving directory, to be removed after import
      */
     protected $directoryToCleanUp;
+
     /**
      * @var array List of files that were imported, with additional information, used for reporting after import
      */

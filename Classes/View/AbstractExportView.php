@@ -50,14 +50,17 @@ abstract class AbstractExportView
      * @var string
      */
     public $filename = '';
+
     /**
      * @var Site The site configuration object
      */
     protected $site;
+
     /**
      * @var L10nConfiguration The language configuration object
      */
     protected $l10ncfgObj;
+
     /**
      *flags for controlling the fields which should render in the output:
      */
@@ -65,34 +68,42 @@ abstract class AbstractExportView
      * @var int The sys_language_uid of language to export
      */
     protected $sysLang;
+
     /**
      * @var bool
      */
     protected $modeOnlyChanged = false;
+
     /**
      * @var bool
      */
     protected $modeOnlyNew = false;
+
     /**
      * @var bool
      */
     protected $modeNoHidden = false;
+
     /**
      * @var string
      */
     protected $customer;
+
     /**
      * @var int
      */
     protected $exportType;
+
     /**
      * @var LanguageService
      */
     protected $languageService;
+
     /**
      * @var array List of messages issued during rendering
      */
     protected $internalMessages = [];
+
     /**
      * @var int
      */

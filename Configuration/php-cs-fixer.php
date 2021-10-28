@@ -18,6 +18,7 @@ $config->setRiskyAllowed(true)
         'blank_line_after_opening_tag' => true,
         'braces' => ['allow_single_line_closure' => true],
         'cast_spaces' => ['space' => 'none'],
+        'class_attributes_separation' => true,
         'compact_nullable_typehint' => true,
         'concat_space' => ['spacing' => 'one'],
         'declare_equal_normalize' => ['space' => 'none'],

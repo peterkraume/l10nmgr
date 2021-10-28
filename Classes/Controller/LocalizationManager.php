@@ -75,38 +75,46 @@ class LocalizationManager extends BaseModule
      * @var DocumentTemplate
      */
     public $doc;
+
     /**
      * @var array
      */
     protected $flexFormDiffArray = []; // Internal
+
     /**
      * @var int Default language to export
      */
     protected $sysLanguage = '0'; // Internal
+
     /**
      * @var int Forced source language to export
      */
     protected $previewLanguage = '0';
+
     /**
      * @var array Extension configuration
      */
     protected $extensionConfiguration = [];
+
     /**
      * ModuleTemplate Container
      *
      * @var ModuleTemplate
      */
     protected $moduleTemplate;
+
     /**
      * The name of the module
      *
      * @var string
      */
     protected $moduleName = 'LocalizationManager';
+
     /**
      * @var IconFactory
      */
     protected $iconFactory;
+
     /**
      * @var array|bool
      */

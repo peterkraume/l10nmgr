@@ -47,32 +47,38 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class ConfigurationManager extends BaseModule
 {
     public $pageinfo;
+
     /**
      * Document Template Object
      *
      * @var DocumentTemplate
      */
     public $doc;
+
     /**
      * @var array Cache of the page details already fetched from the database
      */
     protected $pageDetails = [];
+
     /**
      * @var array Cache of the language records already fetched from the database
      */
     protected $languageDetails = [];
+
     /**
      * ModuleTemplate Container
      *
      * @var ModuleTemplate
      */
     protected $moduleTemplate;
+
     /**
      * The name of the module
      *
      * @var string
      */
     protected $moduleName = 'web_ConfigurationManager';
+
     /**
      * @var IconFactory
      */

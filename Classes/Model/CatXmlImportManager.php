@@ -41,26 +41,32 @@ class CatXmlImportManager
      * @var array $headerData headerData of the XML
      */
     public $headerData = [];
+
     /**
      * @var string $file filepath with XML
      */
     protected $file = '';
+
     /**
      * @var string $xml CATXML
      */
     protected $xmlString = '';
+
     /**
      * @var array $xmlNodes parsed XML
      */
     protected $xmlNodes;
+
     /**
      * @var int $sysLang selected import language (for check purposes - sys_language_uid)
      */
     protected $sysLang;
+
     /**
      * @var array $_errorMsg accumulated errormessages
      */
     protected $_errorMsg = [];
+
     /**
      * @var LanguageService
      */

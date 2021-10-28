@@ -36,10 +36,12 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
      * @var bool
      */
     protected $modeOnlyChanged = false;
+
     /**
      * @var int
      */
     protected $exportType = 0;
+
     /**
      * @var int $forcedSourceLanguage Overwrite the default language uid with the desired language to export
      */

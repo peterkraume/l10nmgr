@@ -51,46 +51,57 @@ class L10nAccumulatedInformation
      * @var string The status of this object, set to processed if internal variables are calculated.
      */
     protected $objectStatus = 'new';
+
     /**
      * @var PageTreeView
      */
     protected $tree;
+
     /**
      * @var array Selected l10nmgr configuration
      */
     protected $l10ncfg = [];
+
     /**
      * @var array List of not allowed doktypes
      */
     protected $disallowDoktypes = ['--div--', '255'];
+
     /**
      * @var int sys_language_uid of target language
      */
     protected $sysLang;
+
     /**
      * @var int sys_language_uid of forced source language
      */
     protected $forcedPreviewLanguage;
+
     /**
      * @var array Information about collected data for translation
      */
     protected $_accumulatedInformations = [];
+
     /**
      * @var int Field count, might be needed by translation agencies
      */
     protected $_fieldCount = 0;
+
     /**
      * @var int Word count, might be needed by translation agencies
      */
     protected $_wordCount = 0;
+
     /**
      * @var array Extension's configuration as from the EM
      */
     protected $extensionConfiguration = [];
+
     /**
      * @var array Index of pages to be excluded from translation
      */
     protected $excludeIndex = [];
+
     /**
      * @var array Index of pages to be included with translation
      */

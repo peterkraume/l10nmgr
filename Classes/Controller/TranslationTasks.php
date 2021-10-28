@@ -45,10 +45,12 @@ class TranslationTasks extends BaseModule
      * @var DocumentTemplate
      */
     protected $module;
+
     /**
      * @var Tools
      */
     protected $l10nMgrTools;
+
     /**
      * @var array
      */

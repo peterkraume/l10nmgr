@@ -44,6 +44,7 @@ class Cm3 extends BaseModule
      * @var DocumentTemplate
      */
     protected $module;
+
     /**
      * @var Tools
      */

@@ -60,6 +60,7 @@ class Tools
      * @var array
      */
     public static $systemLanguages;
+
     /**
      * Cache the TCA configuration of tables with their types during runtime
      *
@@ -67,6 +68,7 @@ class Tools
      * @see self::getTCAtypes()
      */
     protected static $tcaTableTypeConfigurationCache = [];
+
     // Array of sys_language_uids, eg. array(1,2)
     /**
      * @var array
@@ -76,64 +78,80 @@ class Tools
         'noEmptyValues' => true,
         'noIntegers' => true,
         'l10n_categories' => '', // could be "text,media" for instance.
-    ]; // If TRUE, when fields are not included there will be shown a detailed explanation.
+    ];
+
+    // If TRUE, when fields are not included there will be shown a detailed explanation.
     /**
      * @var array
      */
     public $previewLanguages = []; // If TRUE, do not call filter function
+
     /**
      * @var bool
      */
     public $verbose = true; //if set to true also FCE with language setting default will be included (not only All)
+
     /**
      * @var bool
      */
     public $bypassFilter = false; // Object to t3lib_transl8tools, set in constructor
+
     /**
      * @var bool
      */
     public $includeFceWithDefaultLanguage = false; // Output for translation details
+
     // Internal:
     /**
      * @var TranslationConfigurationProvider|null
      */
     public $t8Tools;
+
     /**
      * @var array
      */
     protected $detailsOutput = []; // System languages initialized
+
     /**
      * @var array
      */
     protected $sysLanguages = []; // FlexForm diff data
+
     /**
      * @var array
      */
     protected $flexFormDiff = []; // System languages records, loaded by constructor
+
     /**
      * @var array|null
      */
     protected $sys_languages = [];
+
     /**
      * @var array
      */
     protected $indexFilterObjects = [];
+
     /**
      * @var array
      */
     protected $_callBackParams_translationDiffsourceXMLArray;
+
     /**
      * @var array
      */
     protected $_callBackParams_translationXMLArray;
+
     /**
      * @var array
      */
     protected $_callBackParams_previewLanguageXMLArrays;
+
     /**
      * @var string
      */
     protected $_callBackParams_keyForTranslationDetails;
+
     /**
      * @var array
      */

@@ -39,23 +39,28 @@ class L10nHtmlListView extends AbstractExportView
      * @var L10nConfiguration
      */
     protected $l10ncfgObj; //
+
     /**
      * @var DocumentTemplate
      */
     protected $module;
+
     /**
      * @var array
      */
     protected $l10ncfg;
+
     /**
      * @var int
      */
     protected $sysLang;
+
     //internal flags:
     /**
      * @var bool
      */
     protected $modeWithInlineEdit = false;
+
     /**
      * @var bool
      */

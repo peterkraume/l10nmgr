@@ -43,10 +43,12 @@ class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider imp
      * @var LanguageService
      */
     protected $languageService;
+
     /**
      * @var int Default age
      */
     protected $defaultAge = 30;
+
     /**
      * @var string Default pattern of files to exclude from cleanup
      */

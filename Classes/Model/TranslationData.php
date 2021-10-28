@@ -32,10 +32,12 @@ class TranslationData
      * @var array
      */
     protected $data = [];
+
     /**
      * @var int
      */
     protected $sysLang;
+
     /**
      * @var int
      */

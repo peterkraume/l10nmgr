@@ -46,39 +46,49 @@ class L10nBaseService implements LoggerAwareInterface
     use LoggerAwareTrait;
 
     protected static $targetLanguageID;
+
     public $lastTCEMAINCommandsCount;
+
     /**
      * @var bool Translate even if empty.
      */
     protected $createTranslationAlsoIfEmpty = false;
+
     /**
      * @var bool Import as default language.
      */
     protected $importAsDefaultLanguage = false;
+
     /**
      * @var array Extension's configuration as from the EM
      */
     protected $extensionConfiguration = [];
+
     /**
      * @var array
      */
     protected $TCEmain_cmd = [];
+
     /**
      * @var array
      */
     protected $TCEmain_data = [];
+
     /**
      * @var array
      */
     protected $checkedParentRecords = [];
+
     /**
      * @var array
      */
     protected $childMappingArray = [];
+
     /**
      * @var int
      */
     protected $depthCounter = 0;
+
     /**
      * @var array
      */

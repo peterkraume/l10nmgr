@@ -26,7 +26,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class L10nmgrExtensionManagementUtility
 {
-
     /**
      * Makes translations of a table restrictable by adding value of restricted languages into the registry.
      * FOR USE IN ext_localconf.php FILES or files in Configuration/TCA/Overrides/*.php Use the latter to benefit from TCA caching!

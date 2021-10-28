@@ -31,7 +31,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class XmlToolsTestCase extends tx_phpunit_testcase
 {
-
     /**
      * @var XmlTools
      */

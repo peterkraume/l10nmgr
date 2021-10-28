@@ -48,14 +48,17 @@ class Cm2 extends BaseModule
      * @var LanguageService
      */
     protected $languageService;
+
     /**
      * @var DocumentTemplate
      */
     protected $module;
+
     /**
      * @var Tools
      */
     protected $l10nMgrTools;
+
     /**
      * @var array
      */

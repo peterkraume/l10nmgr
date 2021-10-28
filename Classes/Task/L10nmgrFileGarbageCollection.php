@@ -46,10 +46,12 @@ class L10nmgrFileGarbageCollection extends AbstractTask
         'uploads/tx_l10nmgr/jobs/out',
         'uploads/tx_l10nmgr/jobs/in',
     ];
+
     /**
      * @var int Age of files to delete
      */
     public $age = 30;
+
     /**
      * @var string Pattern for files to exclude from clean up
      */

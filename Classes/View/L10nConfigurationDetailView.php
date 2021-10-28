@@ -39,10 +39,12 @@ class L10nConfigurationDetailView
      * @var L10nConfiguration
      */
     protected $l10ncfgObj;
+
     /**
      * @var DocumentTemplate
      */
     protected $module;
+
     /**
      * @var LanguageService
      */

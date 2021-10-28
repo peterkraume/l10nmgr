@@ -25,24 +25,28 @@ class Zip
      * @var array $datasec
      */
     protected $datasec = [];
+
     /**
      * Central directory
      *
      * @var array $ctrl_dir
      */
     protected $ctrl_dir = [];
+
     /**
      * End of central directory record
      *
      * @var string $eof_ctrl_dir
      */
     protected $eof_ctrl_dir = "\x50\x4b\x05\x06\x00\x00\x00\x00";
+
     /**
      * Last offset position
      *
      * @var int $old_offset
      */
     protected $old_offset = 0;
+
     /**
      * Unzip Application
      *
