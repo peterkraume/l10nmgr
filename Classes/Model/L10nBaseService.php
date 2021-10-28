@@ -27,8 +27,8 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
-use TYPO3\CMS\Core\Database\Query\Restriction\BackendWorkspaceRestriction;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\Database\Query\Restriction\WorkspaceRestriction;
 use TYPO3\CMS\Core\Database\RelationHandler;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -292,7 +292,7 @@ class L10nBaseService implements LoggerAwareInterface
 
             $queryBuilder->getRestrictions()
                 ->removeAll()
-                ->add(GeneralUtility::makeInstance(BackendWorkspaceRestriction::class))
+                ->add(GeneralUtility::makeInstance(WorkspaceRestriction::class))
                 ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
 
             $queryBuilder
