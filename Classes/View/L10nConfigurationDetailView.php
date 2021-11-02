@@ -80,7 +80,7 @@ class L10nConfigurationDetailView
 	<th colspan="4">' . htmlspecialchars($this->l10ncfgObj->getData('title')) . ' [' . $this->l10ncfgObj->getData('uid') . ']</th>
 	</tr>
 	<tr class="db_list_normal">
-	<th>' . $this->getLanguageService()->getLL('general.list.headline.depth.title') . ':</h>
+	<th>' . $this->getLanguageService()->getLL('general.list.headline.depth.title') . ':</th>
 	<td>' . htmlspecialchars($this->l10ncfgObj->getData('depth')) . '&nbsp;</td>
 	<th>' . $this->getLanguageService()->getLL('general.list.headline.tables') . ':</th>
 	<td>' . htmlspecialchars($this->l10ncfgObj->getData('tablelist')) . '&nbsp;</td>

@@ -113,13 +113,10 @@
 				<source>Download settings file</source>
 			</trans-unit>
 			<trans-unit id="inlineedit.save.alert.title" xml:space="preserve">
-				<source>You are about to create/update ALL localizations in this form?
-				Continue?
-			</source>
+				<source>You are about to create/update ALL localizations in this form? Continue?</source>
 			</trans-unit>
 			<trans-unit id="inlineedit.cancel.alert.title" xml:space="preserve">
-				<source>You are about to discard any changes you made. Continue?
-			</source>
+				<source>You are about to discard any changes you made. Continue?</source>
 			</trans-unit>
 			<trans-unit id="export.xml.headline.title" xml:space="preserve">
 				<source>Export</source>

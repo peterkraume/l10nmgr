@@ -191,6 +191,7 @@ return false;
 }
 '
         );
+        $this->moduleTemplate->setTitle('L10N Manager');
         $this->moduleTemplate->setForm('<form action="" method="post" enctype="multipart/form-data">');
         // Find l10n configuration record
         /** @var L10nConfiguration $l10ncfgObj */
@@ -316,7 +317,7 @@ return false;
             ) . '</option>';
         }
         $label = $label !== '' ?
-            ('<label>' . htmlspecialchars($label) . '</label><br />') :
+            ('<label for="' . $elementName . '">' . htmlspecialchars($label) . '</label><br />') :
             '';
         if (!empty($options)) {
             $onChange = 'jumpToUrl(' . GeneralUtility::quoteJSvalue($scriptUrl . '&' . $elementName . '=') . '+this.options[this.selectedIndex].value,this);';
@@ -324,7 +325,7 @@ return false;
 	<!-- Function Menu of module -->
 <div class="form-group form-inline">' .
                 $label .
-                '<select class="form-control clear-both" name="' . $elementName . '" onchange="' . htmlspecialchars($onChange) . '">
+                '<select class="form-control clear-both" id="' . $elementName . '" name="' . $elementName . '" onchange="' . htmlspecialchars($onChange) . '">
 	' . implode('
 	', $options) . '
 	</select>

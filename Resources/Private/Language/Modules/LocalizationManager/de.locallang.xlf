@@ -134,19 +134,12 @@
 				<target>Einstellungsdatei herunterladen</target>
 			</trans-unit>
 			<trans-unit id="inlineedit.save.alert.title" xml:space="preserve" approved="yes">
-				<source>You are about to create/update ALL localizations in this form?
-				Continue?
-			</source>
-				<target>Sie sind dabei, ALLE Übersetzungen in diesem Formular zu
-				erstellen/aktualisieren! Möchten Sie fortfahren?
-			</target>
+				<source>You are about to create/update ALL localizations in this form? Continue?</source>
+				<target>Sie sind dabei, ALLE Übersetzungen in diesem Formular zu erstellen/aktualisieren! Möchten Sie fortfahren?</target>
 			</trans-unit>
 			<trans-unit id="inlineedit.cancel.alert.title" xml:space="preserve" approved="yes">
-				<source>You are about to discard any changes you made. Continue?
-			</source>
-				<target>Sie sind dabei, alle Änderungen zu verwerfen. Möchten Sie
-				fortfahren?
-			</target>
+				<source>You are about to discard any changes you made. Continue?</source>
+				<target>Sie sind dabei, alle Änderungen zu verwerfen. Möchten Sie fortfahren?</target>
 			</trans-unit>
 			<trans-unit id="export.xml.headline.title" xml:space="preserve" approved="yes">
 				<source>Export</source>
