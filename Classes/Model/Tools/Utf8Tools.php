@@ -210,7 +210,7 @@ class Utf8Tools
         $mBytes = 1; // cached expected number of octets in the current sequence
         $len = strlen($str);
         for ($i = 0; $i < $len; $i++) {
-            $in = ord($str{$i});
+            $in = ord($str[$i]);
             if ($mState == 0) {
                 // When mState is zero we expect either a US-ASCII character or a
                 // multi-octet sequence.
