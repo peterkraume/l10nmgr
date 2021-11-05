@@ -488,7 +488,7 @@ return false;
         $translationData->setPreviewLanguage($this->previewLanguage);
         // See, if incoming translation is available, if so, submit it
         if (GeneralUtility::_POST('saveInline')) {
-            $service->saveTranslation($l10ncfgObj, $translationData);
+            $service->saveTranslation($l10ncfgObj, $translationData, false);
         }
         return $info;
     }

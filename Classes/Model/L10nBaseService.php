@@ -118,8 +118,9 @@ class L10nBaseService implements LoggerAwareInterface
      *
      * @param L10nConfiguration $l10ncfgObj
      * @param TranslationData $translationObj
+     * @param bool $preTranslate
      */
-    public function saveTranslation(L10nConfiguration $l10ncfgObj, TranslationData $translationObj)
+    public function saveTranslation(L10nConfiguration $l10ncfgObj, TranslationData $translationObj, $preTranslate = true)
     {
         // Provide a hook for specific manipulations before saving
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['savePreProcess'])) {
@@ -128,8 +129,13 @@ class L10nBaseService implements LoggerAwareInterface
                 $processingObject->processBeforeSaving($l10ncfgObj, $translationObj, $this);
             }
         }
-        // make sure to translate all pages and content elements that are available on these pages
-        $this->preTranslateAllContent($l10ncfgObj, $translationObj);
+        if (!$l10ncfgObj->getData('pretranslatecontent')) {
+            $preTranslate = false;
+        }
+        if ($preTranslate) {
+            // make sure to translate all pages and content elements that are available on these pages
+            $this->preTranslateAllContent($l10ncfgObj, $translationObj);
+        }
         $this->remapInputDataForExistingTranslations($l10ncfgObj, $translationObj);
         $sysLang = $translationObj->getLanguage();
         $previewLanguage = $translationObj->getPreviewLanguage();
@@ -159,15 +165,10 @@ class L10nBaseService implements LoggerAwareInterface
      * Goes hand in hand with the remapInputDataForExistingTranslations() functionality, which then replaces the elements
      * which would be expected to be new)
      *
-     * @param L10nConfiguration $configurationObject
      * @param TranslationData $translationData
      */
-    protected function preTranslateAllContent(L10nConfiguration $configurationObject, TranslationData $translationData)
+    protected function preTranslateAllContent(TranslationData $translationData)
     {
-        // feature is not enabled
-        if (!$configurationObject->getData('pretranslatecontent')) {
-            return;
-        }
         $inputArray = $translationData->getTranslationData();
         $pageUids = array_keys((array)$inputArray['pages']);
         foreach ($pageUids as $pageUid) {
