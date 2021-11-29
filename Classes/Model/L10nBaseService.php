@@ -657,12 +657,12 @@ class L10nBaseService implements LoggerAwareInterface
                                         } elseif ($table === 'sys_file_reference') {
                                             $element = $this->getRawRecord($table, $elementUid);
                                             if ($element['uid_foreign'] && $element['tablenames'] && $element['fieldname']) {
-                                                if ($element['tablenames'] === 'pages') {
+                                                if ($GLOBALS['TCA'][$element['tablenames']]['columns'][$element['fieldname']]['config']['behaviour']['allowLanguageSynchronization']) {
                                                     if (isset($this->TCEmain_cmd[$table][$elementUid])) {
                                                         unset($this->TCEmain_cmd[$table][$elementUid]);
                                                     }
                                                     $this->TCEmain_cmd[$table][$elementUid]['localize'] = $Tlang;
-                                                    $TCEmain_data[$table][$TuidString]['tablenames'] = 'pages';
+                                                    $TCEmain_data[$table][$TuidString]['tablenames'] = $element['tablenames'];
                                                 } else {
                                                     $parent = [];
                                                     if ($GLOBALS['TCA'][$element['tablenames']]['ctrl']['transOrigPointerField']) {
