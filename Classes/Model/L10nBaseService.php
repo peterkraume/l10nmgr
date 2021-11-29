@@ -629,6 +629,31 @@ class L10nBaseService implements LoggerAwareInterface
                                                     );
                                                 }
                                             }
+                                        } elseif (is_array($inlineTablesConfig = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['inlineTablesConfig']) && array_key_exists($table, $inlineTablesConfig)) {
+                                            /*
+                                             * Special handling for 1:n relations
+                                             *
+                                             * Example: Inline elements (1:n) with tt_content as parent
+                                             *
+                                             * Config example:
+                                             * $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['inlineTablesConfig'] = [
+                                             *    'tx_myext_myelement' => [
+                                             *       'parentField' => 'content',
+                                             *       'childrenField' => 'myelements',
+                                             *   ]];
+                                             */
+                                            if (isset($this->TCEmain_cmd[$table][$elementUid])) {
+                                                unset($this->TCEmain_cmd[$table][$elementUid]);
+                                            }
+                                            if ($element[$inlineTablesConfig[$table]['parentField']] > 0) {
+                                                $this->depthCounter = 0;
+                                                $this->recursivelyCheckForRelationParents(
+                                                    $element,
+                                                    $Tlang,
+                                                    $inlineTablesConfig[$table]['parentField'],
+                                                    $inlineTablesConfig[$table]['childrenField'],
+                                                );
+                                            }
                                         } elseif ($table === 'sys_file_reference') {
                                             $element = $this->getRawRecord($table, $elementUid);
                                             if ($element['uid_foreign'] && $element['tablenames'] && $element['fieldname']) {
