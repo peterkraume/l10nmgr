@@ -668,7 +668,18 @@ class L10nBaseService implements LoggerAwareInterface
                                                         if (isset($this->TCEmain_cmd[$element['tablenames']][$element['uid_foreign']])) {
                                                             unset($this->TCEmain_cmd[$element['tablenames']][$element['uid_foreign']]);
                                                         }
-                                                        $this->TCEmain_cmd[$element['tablenames']][$element['uid_foreign']]['inlineLocalizeSynchronize'] = $element['fieldname'] . ',localize';
+                                                        // Save for localization
+                                                        if (empty($this->TCEmain_cmd[$element['tablenames']][$element['uid_foreign']]['inlineLocalizeSynchronize']['ids'])) {
+                                                            $this->TCEmain_cmd[$element['tablenames']][$element['uid_foreign']]['inlineLocalizeSynchronize'] = [
+                                                                'field' => $element['fieldname'],
+                                                                'language' => $Tlang,
+                                                                'action' => 'localize',
+                                                                'ids' => [$elementUid],
+                                                            ];
+                                                        } else {
+                                                            // Add element to existing localization array
+                                                            $this->TCEmain_cmd[$element['tablenames']][$element['uid_foreign']]['inlineLocalizeSynchronize']['ids'][] = $elementUid;
+                                                        }
                                                     }
                                                 }
                                             }
@@ -979,7 +990,18 @@ class L10nBaseService implements LoggerAwareInterface
                     ->fetch();
             }
             if ($translatedParent['uid'] > 0) {
-                $this->TCEmain_cmd['tt_content'][$translatedParent['uid']]['inlineLocalizeSynchronize'] = $childrenField . ',localize';
+                // Save for localization
+                if (empty($this->TCEmain_cmd['tt_content'][$translatedParent['uid']]['inlineLocalizeSynchronize']['ids'])) {
+                    $this->TCEmain_cmd['tt_content'][$translatedParent['uid']]['inlineLocalizeSynchronize'] = [
+                        'field' => $childrenField,
+                        'language' => $Tlang,
+                        'action' => 'localize',
+                        'ids' => [$element['uid']],
+                    ];
+                } else {
+                    // Add element to existing localization array
+                    $this->TCEmain_cmd['tt_content'][$translatedParent['uid']]['inlineLocalizeSynchronize']['ids'][] = $element['uid'];
+                }
             } else {
                 if ($element[$parentField] > 0) {
                     $parent = $this->getRawRecord('tt_content', (int)$element[$parentField]);
