@@ -33,10 +33,6 @@
       "Localizationteam\\L10nmgr\\": "Classes"
     }
   },
-  "replace": {
-    "localizationteam/l10nmgr": "self.version",
-    "typo3-ter/l10nmgr": "self.version"
-  },
   "config": {
     "preferred-install": {
       "*": "dist"
