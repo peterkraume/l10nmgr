@@ -639,28 +639,31 @@ class L10nBaseService implements LoggerAwareInterface
                                                     $this->TCEmain_cmd[$table][$elementUid]['localize'] = $Tlang;
                                                     $TCEmain_data[$table][$TuidString]['tablenames'] = 'pages';
                                                 } else {
-                                                    /** @var $queryBuilder QueryBuilder */
-                                                    $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($element['tablenames']);
-                                                    $parent = $queryBuilder->select('*')
-                                                        ->from($element['tablenames'])
-                                                        ->where(
-                                                            $queryBuilder->expr()->eq(
-                                                                $GLOBALS['TCA'][$element['tablenames']]['ctrl']['transOrigPointerField'],
-                                                                $queryBuilder->createNamedParameter(
-                                                                    (int)$element['uid_foreign'],
-                                                                    PDO::PARAM_INT
-                                                                )
-                                                            ),
-                                                            $queryBuilder->expr()->eq(
-                                                                'sys_language_uid',
-                                                                $queryBuilder->createNamedParameter(
-                                                                    (int)$Tlang,
-                                                                    PDO::PARAM_INT
+                                                    $parent = [];
+                                                    if ($GLOBALS['TCA'][$element['tablenames']]['ctrl']['transOrigPointerField']) {
+                                                        /** @var $queryBuilder QueryBuilder */
+                                                        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($element['tablenames']);
+                                                        $parent = $queryBuilder->select('*')
+                                                            ->from($element['tablenames'])
+                                                            ->where(
+                                                                $queryBuilder->expr()->eq(
+                                                                    $GLOBALS['TCA'][$element['tablenames']]['ctrl']['transOrigPointerField'],
+                                                                    $queryBuilder->createNamedParameter(
+                                                                        (int)$element['uid_foreign'],
+                                                                        PDO::PARAM_INT
+                                                                    )
+                                                                ),
+                                                                $queryBuilder->expr()->eq(
+                                                                    'sys_language_uid',
+                                                                    $queryBuilder->createNamedParameter(
+                                                                        (int)$Tlang,
+                                                                        PDO::PARAM_INT
+                                                                    )
                                                                 )
                                                             )
-                                                        )
-                                                        ->execute()
-                                                        ->fetch();
+                                                            ->execute()
+                                                            ->fetch();
+                                                    }
                                                     if ($parent['uid'] > 0) {
                                                         if (isset($this->TCEmain_cmd[$element['tablenames']][$element['uid_foreign']])) {
                                                             unset($this->TCEmain_cmd[$element['tablenames']][$element['uid_foreign']]);
