@@ -1,0 +1,23 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    parallel:
+        # Don't be overly greedy on machines with more CPU's to be a good neighbor especially on CI
+        maximumNumberOfProcesses: 5
+
+    level: 2
+
+    bootstrapFiles:
+        - .Build/vendor/autoload.php
+
+    scanFiles:
+        - ext_localconf.php
+    scanDirectories:
+        - public
+
+    paths:
+        - Classes
+
+    excludePaths:
+        - Classes/Controller/Cm3.php

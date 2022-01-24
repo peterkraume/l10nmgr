@@ -1,9 +1,13 @@
+variables:
+  COMPOSER_ALLOW_SUPERUSER: 1
+
 stages:
-  - lint
+  - build
+  - code-quality
 
 # Speed up builds
 cache:
-  key: $CI_BUILD_REF_NAME
+  key: $CI_COMMIT_REF_SLUG
   paths:
     - .Build/vendor
     - public
@@ -11,17 +15,22 @@ cache:
 default:
   image: edbizarro/gitlab-ci-pipeline-php:7.4-alpine
 
+create-extension:
+  stage: build
+  script:
+    - composer install --prefer-dist --no-ansi --no-interaction --no-progress
+
 php-lint:
-  stage: lint
+  stage: code-quality
   script:
     - composer run ci:php:lint
-  rules:
-    - allow_failure: false
 
 php-cs-fixer:
-  stage: lint
-  before_script:
-    - export COMPOSER_ALLOW_SUPERUSER=1
-    - composer install --prefer-dist --no-ansi --no-interaction --no-progress
+  stage: code-quality
   script:
     - composer run ci:php:fixer
+
+php-stan:
+  stage: code-quality
+  script:
+    - composer run ci:php:stan
