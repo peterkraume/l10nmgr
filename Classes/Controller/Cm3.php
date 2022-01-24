@@ -35,8 +35,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Translation management tool
  *
- * @authorKasper Skaarhoj <kasperYYYY@typo3.com>
- * @packageTYPO3
+ * @author Kasper Skaarhoj <kasperYYYY@typo3.com>
  */
 class Cm3 extends BaseModule
 {

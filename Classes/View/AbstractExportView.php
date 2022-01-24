@@ -33,6 +33,7 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
+use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\DiffUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -181,7 +182,7 @@ abstract class AbstractExportView
             'exportType' => (int)$this->exportType,
         ];
 
-        /** @var $databaseConnection Connection */
+        /** @var Connection $databaseConnection */
         $databaseConnection = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getConnectionForTable('tx_l10nmgr_exportdata');
         $res = $databaseConnection->insert(
@@ -256,7 +257,7 @@ abstract class AbstractExportView
         } else {
             $sourceLanguageConfiguration = $this->site->getAvailableLanguages($this->getBackendUser())[0];
             $sourceLang = $sourceLanguageConfiguration->getHreflang() ?: $sourceLanguageConfiguration->getTwoLetterIsoCode();
-            $targetLanguageConfiguration =  $this->site->getAvailableLanguages($this->getBackendUser())[$this->sysLang];
+            $targetLanguageConfiguration = $this->site->getAvailableLanguages($this->getBackendUser())[$this->sysLang];
             $targetLang = $targetLanguageConfiguration->getHreflang() ?: $targetLanguageConfiguration->getTwoLetterIsoCode();
         }
         $fileNamePrefix = (trim($this->l10ncfgObj->getData('filenameprefix'))) ? $this->l10ncfgObj->getData('filenameprefix') . '_' . $fileType : $fileType;
@@ -272,7 +273,7 @@ abstract class AbstractExportView
      */
     public function checkExports()
     {
-        /** @var $queryBuilder QueryBuilder */
+        /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_l10nmgr_exportdata');
         $numRows = $queryBuilder->count('*')
             ->from('tx_l10nmgr_exportdata')
@@ -362,7 +363,7 @@ abstract class AbstractExportView
      */
     protected function fetchExports()
     {
-        /** @var $queryBuilder QueryBuilder */
+        /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getQueryBuilderForTable('tx_l10nmgr_exportdata');
         return $queryBuilder->select('crdate', 'l10ncfg_id', 'exportType', 'translation_lang', 'filename')

@@ -164,7 +164,7 @@ class Zip
      * This takes the ZIP file, unzips it, reads all documents, store them in database for next retrieval.
      * The file is libunzipped in Environment::getPublicPath() . 'typo3temp/' + a randomly named folder.
      *
-     * @param $file
+     * @param string $file
      * @return mixed
      */
     public function extractFile($file)

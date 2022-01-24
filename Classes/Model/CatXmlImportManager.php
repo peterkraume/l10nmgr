@@ -325,10 +325,10 @@ class CatXmlImportManager
         $dataHandler->start([], []);
         foreach ($delL10NData as $element) {
             list($table, $elementUid) = explode(':', $element);
-            /** @var $queryBuilder QueryBuilder */
+            /** @var QueryBuilder $queryBuilder */
             $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
 
-            /** @var $deletedRestriction DeletedRestriction */
+            /** @var DeletedRestriction $deletedRestriction */
             $deletedRestriction = GeneralUtility::makeInstance(DeletedRestriction::class);
 
             $queryBuilder

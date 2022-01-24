@@ -37,9 +37,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * baseService class for offering common services like saving translation etc...
  *
- * @authorKasper Skaarhoj <kasperYYYY@typo3.com>
- * @authorDaniel Pötzinger <development@aoemedia.de>
- * @packageTYPO3
+ * @author Kasper Skaarhoj <kasperYYYY@typo3.com>
+ * @author Daniel Pötzinger <development@aoemedia.de>
  */
 class L10nBaseService implements LoggerAwareInterface
 {
@@ -120,8 +119,11 @@ class L10nBaseService implements LoggerAwareInterface
      * @param TranslationData $translationObj
      * @param bool $preTranslate
      */
-    public function saveTranslation(L10nConfiguration $l10ncfgObj, TranslationData $translationObj, $preTranslate = true)
-    {
+    public function saveTranslation(
+        L10nConfiguration $l10ncfgObj,
+        TranslationData $translationObj,
+        $preTranslate = true
+    ) {
         // Provide a hook for specific manipulations before saving
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['savePreProcess'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['savePreProcess'] as $classReference) {
@@ -134,7 +136,7 @@ class L10nBaseService implements LoggerAwareInterface
         }
         if ($preTranslate) {
             // make sure to translate all pages and content elements that are available on these pages
-            $this->preTranslateAllContent($l10ncfgObj, $translationObj);
+            $this->preTranslateAllContent($translationObj);
         }
         $this->remapInputDataForExistingTranslations($l10ncfgObj, $translationObj);
         $sysLang = $translationObj->getLanguage();
@@ -298,7 +300,7 @@ class L10nBaseService implements LoggerAwareInterface
         string $orderBy = ''
     ): array {
         if (is_array($GLOBALS['TCA'][$theTable])) {
-            /** @var $queryBuilder QueryBuilder */
+            /** @var QueryBuilder $queryBuilder */
             $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($theTable);
 
             $queryBuilder->getRestrictions()
@@ -629,7 +631,10 @@ class L10nBaseService implements LoggerAwareInterface
                                                     );
                                                 }
                                             }
-                                        } elseif (is_array($inlineTablesConfig = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['inlineTablesConfig']) && array_key_exists($table, $inlineTablesConfig)) {
+                                        } elseif (is_array($inlineTablesConfig = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['inlineTablesConfig']) && array_key_exists(
+                                            $table,
+                                            $inlineTablesConfig
+                                        )) {
                                             /*
                                              * Special handling for 1:n relations
                                              *
@@ -651,7 +656,7 @@ class L10nBaseService implements LoggerAwareInterface
                                                     $element,
                                                     $Tlang,
                                                     $inlineTablesConfig[$table]['parentField'],
-                                                    $inlineTablesConfig[$table]['childrenField'],
+                                                    $inlineTablesConfig[$table]['childrenField']
                                                 );
                                             }
                                         } elseif ($table === 'sys_file_reference') {
@@ -666,7 +671,7 @@ class L10nBaseService implements LoggerAwareInterface
                                                 } else {
                                                     $parent = [];
                                                     if ($GLOBALS['TCA'][$element['tablenames']]['ctrl']['transOrigPointerField']) {
-                                                        /** @var $queryBuilder QueryBuilder */
+                                                        /** @var QueryBuilder $queryBuilder */
                                                         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($element['tablenames']);
                                                         $parent = $queryBuilder->select('*')
                                                             ->from($element['tablenames'])
@@ -723,7 +728,7 @@ class L10nBaseService implements LoggerAwareInterface
                                                     continue;
                                                 }
                                                 if ($configuration['foreign_table']) {
-                                                    /** @var $relationHandler RelationHandler */
+                                                    /** @var RelationHandler $relationHandler */
                                                     // integrators have to make sure to configure fields of parent elements properly
                                                     // so they will do translations of their children automatically when translated
                                                     $relationHandler = GeneralUtility::makeInstance(RelationHandler::class);
@@ -858,7 +863,7 @@ class L10nBaseService implements LoggerAwareInterface
                         } else {
                             if ($this->childMappingArray[$table][$TdefRecord]) {
                                 if ($this->childMappingArray[$table][$TdefRecord] === true) {
-                                    /** @var $queryBuilder QueryBuilder */
+                                    /** @var QueryBuilder $queryBuilder */
                                     $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
                                     $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
 
@@ -940,6 +945,7 @@ class L10nBaseService implements LoggerAwareInterface
                         unset($_flexFormDiffArray[$key]);
                     }
                 }
+                /** @phpstan-ignore-next-line */
                 $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': autoVersionIdMap: ' . $tce->autoVersionIdMap);
                 $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': _flexFormDiffArray: ' . implode(
                     ', ',
@@ -962,7 +968,7 @@ class L10nBaseService implements LoggerAwareInterface
      */
     protected function getRawRecord(string $table, int $elementUid): array
     {
-        /** @var $queryBuilder QueryBuilder */
+        /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
         $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
 
@@ -982,10 +988,10 @@ class L10nBaseService implements LoggerAwareInterface
     }
 
     /**
-     * @param $element
-     * @param $Tlang
-     * @param $parentField
-     * @param $childrenField
+     * @param array $element
+     * @param int $Tlang
+     * @param string $parentField
+     * @param string $childrenField
      */
     protected function recursivelyCheckForRelationParents($element, $Tlang, $parentField, $childrenField)
     {
@@ -994,7 +1000,7 @@ class L10nBaseService implements LoggerAwareInterface
             $this->checkedParentRecords[$parentField][$element['uid']] = true;
             $translatedParent = [];
             if ($element[$parentField] > 0) {
-                /** @var $queryBuilder QueryBuilder */
+                /** @var QueryBuilder $queryBuilder */
                 $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tt_content');
                 $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
 

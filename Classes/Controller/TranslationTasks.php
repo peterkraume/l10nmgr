@@ -70,7 +70,7 @@ class TranslationTasks extends BaseModule
     public function init()
     {
         $this->MCONF['name'] = 'LocalizationManager_TranslationTasks';
-        $this->getBackendUser()->modAccess($this->MCONF, 1);
+        $this->getBackendUser()->modAccess($this->MCONF);
         $this->getLanguageService()->includeLLFile('EXT:l10nmgr/Resources/Private/Language/Modules/Module2/locallang.xlf');
         parent::init();
     }
@@ -116,7 +116,7 @@ class TranslationTasks extends BaseModule
      */
     protected function moduleContent()
     {
-        /** @var $queryBuilder QueryBuilder */
+        /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_l10nmgr_priorities');
         // Selecting priorities:
         $priorities = $queryBuilder->select('*')

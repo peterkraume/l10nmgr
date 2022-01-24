@@ -78,6 +78,11 @@ class L10nAccumulatedInformation
     protected $forcedPreviewLanguage;
 
     /**
+     * @var bool
+     */
+    protected $noHidden;
+
+    /**
      * @var array Information about collected data for translation
      */
     protected $_accumulatedInformations = [];
@@ -111,9 +116,9 @@ class L10nAccumulatedInformation
      * Constructor
      * Check for deprecated configuration throws false positive in extension scanner.
      *
-     * @param $tree
-     * @param $l10ncfg
-     * @param $sysLang
+     * @param PageTreeView $tree
+     * @param array $l10ncfg
+     * @param int $sysLang
      */
     public function __construct($tree, $l10ncfg, $sysLang)
     {
@@ -140,10 +145,12 @@ class L10nAccumulatedInformation
      * This way client classes have access to the accumulated array directly.
      * And can read this array in order to create some output...
      *
+     * @param bool $noHidden
      * @return array Complete Information array
      */
-    public function getInfoArray()
+    public function getInfoArray($noHidden = false)
     {
+        $this->noHidden = $noHidden;
         $this->process();
         return $this->_accumulatedInformations;
     }
@@ -204,15 +211,17 @@ class L10nAccumulatedInformation
             );
         }
         if ($previewLanguage) {
+            if ((int)$l10ncfg['onlyForcedSourceLanguage'] === 1) {
+                $t8Tools->onlyForcedSourceLanguage = true;
+            }
             $t8Tools->previewLanguages = [$previewLanguage];
         }
+
         // Traverse tree elements:
-        /**
-         * @var $rootlineUtility RootlineUtility
-         */
         foreach ($tree->tree as $treeElement) {
             $pageId = $treeElement['row']['uid'];
             if ($treeElement['row']['l10nmgr_configuration'] === Constants::L10NMGR_CONFIGURATION_DEFAULT) {
+                /** @var RootlineUtility $rootlineUtility */
                 $rootlineUtility = GeneralUtility::makeInstance(RootlineUtility::class, $pageId);
                 $rootline = $rootlineUtility->get();
                 if (!empty($rootline)) {
@@ -233,6 +242,7 @@ class L10nAccumulatedInformation
                 $this->excludeIndex['pages:' . $pageId] = 1;
             }
             if (!empty($treeElement['row'][Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME])) {
+                /** @var LanguageRestrictionCollection $languageIsRestricted */
                 $languageIsRestricted = LanguageRestrictionCollection::load(
                     (int)$sysLang,
                     true,
@@ -272,7 +282,13 @@ class L10nAccumulatedInformation
                                 $this->_increaseInternalCounters($accum[$pageId]['items'][$table][$pageId]['fields']);
                             }
                         } else {
-                            $allRows = $t8Tools->getRecordsToTranslateFromTable($table, $pageId, 0, (bool)$l10ncfg['sortexports']);
+                            $allRows = $t8Tools->getRecordsToTranslateFromTable(
+                                $table,
+                                $pageId,
+                                0,
+                                (bool)$l10ncfg['sortexports'],
+                                $this->noHidden
+                            );
                             if (!is_array($allRows)) {
                                 continue;
                             }
@@ -282,6 +298,7 @@ class L10nAccumulatedInformation
                                     continue;
                                 }
                                 if (!empty($row[Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME])) {
+                                    /** @var LanguageRestrictionCollection $languageIsRestricted */
                                     $languageIsRestricted = LanguageRestrictionCollection::load(
                                         (int)$sysLang,
                                         true,
@@ -305,6 +322,11 @@ class L10nAccumulatedInformation
                                     $flexFormDiff,
                                     $previewLanguage
                                 );
+                                if (!$accum[$pageId]['items'][$table][$row['uid']]) {
+                                    // if there is no record available anymore, skip to the next row
+                                    // records might be disabled when onlyForcedSourceLanguage is set
+                                    continue;
+                                }
                                 if ($table === 'sys_file_reference') {
                                     $fileList .= $fileList ? ',' . (int)$row['uid_local'] : (int)$row['uid_local'];
                                 }
@@ -321,14 +343,14 @@ class L10nAccumulatedInformation
                             array_keys(array_flip(GeneralUtility::intExplode(',', $fileList, true)))
                         );
                         if (!empty($fileList)) {
-                            /** @var $queryBuilder QueryBuilder */
+                            /** @var QueryBuilder $queryBuilder */
                             $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_file_metadata');
                             $metaData = $queryBuilder->select('uid')
                                 ->from('sys_file_metadata')
                                 ->where(
                                     $queryBuilder->expr()->eq(
                                         'sys_language_uid',
-                                        $queryBuilder->createNamedParameter((int)$previewLanguage, PDO::PARAM_INT)
+                                        0
                                     ),
                                     $queryBuilder->expr()->in(
                                         'file',
@@ -406,7 +428,7 @@ class L10nAccumulatedInformation
         if ($indexList) {
             $this->includeIndex = array_flip(GeneralUtility::trimExplode(',', $indexList, true));
         }
-        /** @var $queryBuilder QueryBuilder */
+        /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
         $explicitlyIncludedPages = $queryBuilder->select('uid')
             ->from('pages')
@@ -431,7 +453,7 @@ class L10nAccumulatedInformation
                 }
             }
         }
-        /** @var $queryBuilder QueryBuilder */
+        /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
         $includingParentPages = $queryBuilder->select('uid')
             ->from('pages')
@@ -462,7 +484,7 @@ class L10nAccumulatedInformation
     {
         $level++;
         if ($uid > 0 && $level < 100) {
-            /** @var $queryBuilder QueryBuilder */
+            /** @var QueryBuilder $queryBuilder */
             $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
             $subPages = $queryBuilder->select('uid', 'pid', 'l10nmgr_configuration', 'l10nmgr_configuration_next_level')
                 ->from('pages')

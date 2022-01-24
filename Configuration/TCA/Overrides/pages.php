@@ -1,13 +1,13 @@
 <?php
 
 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('pages', [
-    'l10nmgr_configuration'            => [
+    'l10nmgr_configuration' => [
         'exclude' => 1,
-        'label'   => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf:pages.l10nmgr_configuration',
-        'config'  => [
-            'type'       => 'select',
+        'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf:pages.l10nmgr_configuration',
+        'config' => [
+            'type' => 'select',
             'renderType' => 'selectSingle',
-            'items'      => [
+            'items' => [
                 [
                     0 => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf:pages.l10nmgr_configuration.I.' . \Localizationteam\L10nmgr\Constants::L10NMGR_CONFIGURATION_DEFAULT,
                     1 => \Localizationteam\L10nmgr\Constants::L10NMGR_CONFIGURATION_DEFAULT,
@@ -25,16 +25,16 @@
                     1 => \Localizationteam\L10nmgr\Constants::L10NMGR_CONFIGURATION_INCLUDE,
                 ],
             ],
-            'default'    => \Localizationteam\L10nmgr\Constants::L10NMGR_CONFIGURATION_DEFAULT,
+            'default' => \Localizationteam\L10nmgr\Constants::L10NMGR_CONFIGURATION_DEFAULT,
         ],
     ],
     'l10nmgr_configuration_next_level' => [
         'exclude' => 1,
-        'label'   => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf:pages.l10nmgr_configuration_next_level',
-        'config'  => [
-            'type'       => 'select',
+        'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf:pages.l10nmgr_configuration_next_level',
+        'config' => [
+            'type' => 'select',
             'renderType' => 'selectSingle',
-            'items'      => [
+            'items' => [
                 [
                     0 => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf:pages.l10nmgr_configuration.I.' . \Localizationteam\L10nmgr\Constants::L10NMGR_CONFIGURATION_DEFAULT,
                     1 => \Localizationteam\L10nmgr\Constants::L10NMGR_CONFIGURATION_DEFAULT,
@@ -52,7 +52,7 @@
                     1 => \Localizationteam\L10nmgr\Constants::L10NMGR_CONFIGURATION_INCLUDE,
                 ],
             ],
-            'default'    => \Localizationteam\L10nmgr\Constants::L10NMGR_CONFIGURATION_DEFAULT,
+            'default' => \Localizationteam\L10nmgr\Constants::L10NMGR_CONFIGURATION_DEFAULT,
         ],
     ],
 ]);

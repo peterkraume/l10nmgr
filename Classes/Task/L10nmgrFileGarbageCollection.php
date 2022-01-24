@@ -100,7 +100,7 @@ class L10nmgrFileGarbageCollection extends AbstractTask
         }
         // Find all files in the directory
         $directoryContent = new DirectoryIterator($fullPathToDirectory);
-        /** @var $fileObject SplFileInfo */
+        /** @var SplFileInfo $fileObject */
         $fileObject = null;
         foreach ($directoryContent as $fileObject) {
             // Remove files that are older than given timestamp and don't match the exclude pattern

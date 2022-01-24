@@ -35,6 +35,7 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
+use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
@@ -42,19 +43,18 @@ use TYPO3\CMS\Core\Utility\PathUtility;
 /**
  * Hook for updating translation index
  *
- * @authorKasper Skaarhoj <kasperYYYY@typo3.com>
- * @packageTYPO3
+ * @author Kasper Skaarhoj <kasperYYYY@typo3.com>
  */
 class Tcemain
 {
     /**
      * Hook for updating translation index when records are edited (hooks into TCEmain)
      *
-     * @param $status
-     * @param $table
-     * @param $id
-     * @param $fieldArray
-     * @param $pObj
+     * @param string $status
+     * @param string $table
+     * @param int $id
+     * @param array $fieldArray
+     * @param DataHandler $pObj
      */
     public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, $pObj)
     {
@@ -105,9 +105,9 @@ class Tcemain
     /**
      * Hook for displaying small icon in page tree, web>List and page module.
      *
-     * @param $p
-     * @param $pObj
-     * @return string [type]...
+     * @param array $p
+     * @param DataHandler $pObj
+     * @return string
      */
     public function stat($p, $pObj)
     {
@@ -139,7 +139,7 @@ class Tcemain
     public function calcStat($p, $languageList, $noLink = false)
     {
         $output = '';
-        /** @var $queryBuilder QueryBuilder */
+        /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_l10nmgr_index');
         $queryBuilder->select('*')->from('tx_l10nmgr_index');
         $queryBuilder->where(

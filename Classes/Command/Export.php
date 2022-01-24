@@ -235,7 +235,7 @@ class Export extends L10nCommand
         $l10nmgrCfgObj->setSourcePid($sourcePid);
         if ($l10nmgrCfgObj->isLoaded()) {
             if ($format == 'CATXML') {
-                /** @var $l10nmgrGetXML CatXmlView */
+                /** @var CatXmlView $l10nmgrGetXML */
                 $l10nmgrGetXML = GeneralUtility::makeInstance(CatXmlView::class, $l10nmgrCfgObj, $tlang);
                 if ($input->hasOption('baseUrl')) {
                     $baseUrl = $input->getOption('baseUrl');
@@ -322,12 +322,12 @@ class Export extends L10nCommand
     }
 
     /**
-     * @param $sourceLangStaticId
+     * @param int $sourceLangStaticId
      * @return int
      */
     protected function getStaticLangUid($sourceLangStaticId)
     {
-        /** @var $queryBuilder QueryBuilder */
+        /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_language');
         $result = $queryBuilder->select('uid')
             ->from('sys_language')

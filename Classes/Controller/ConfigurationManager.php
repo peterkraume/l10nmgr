@@ -129,7 +129,7 @@ class ConfigurationManager extends BaseModule
      */
     public function init()
     {
-        $this->getBackendUser()->modAccess($this->MCONF, 1);
+        $this->getBackendUser()->modAccess($this->MCONF);
         parent::init();
     }
 
@@ -222,7 +222,7 @@ class ConfigurationManager extends BaseModule
     protected function getAllConfigurations()
     {
         // Read all l10nmgr configurations from the database
-        /** @var $queryBuilder QueryBuilder */
+        /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_l10nmgr_cfg');
         $configurations = $queryBuilder->select('*')
             ->from('tx_l10nmgr_cfg')

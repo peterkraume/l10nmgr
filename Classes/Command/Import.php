@@ -215,7 +215,7 @@ class Import extends L10nCommand
     /**
      * Imports a CATXML string
      *
-     * @param $callParameters
+     * @param array $callParameters
      * @return string Output
      * @throws Exception
      */
@@ -456,7 +456,7 @@ class Import extends L10nCommand
     /**
      * Gather all the files to be imported, depending on the call parameters
      *
-     * @param $file
+     * @param string $file
      * @return array List of files to import
      * @throws Exception
      */
@@ -654,7 +654,7 @@ class Import extends L10nCommand
             $recipients = GeneralUtility::trimExplode(',', $this->extensionConfiguration['email_recipient_import']);
             if (count($recipients) > 0) {
                 // First of all get a list of all workspaces and all l10nmgr configurations to use in the reporting
-                /** @var $queryBuilder QueryBuilder */
+                /** @var QueryBuilder $queryBuilder */
                 $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_workspace');
                 $records = $queryBuilder->select('uid', 'title')
                     ->from('sys_workspace')

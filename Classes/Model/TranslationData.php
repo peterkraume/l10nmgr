@@ -23,8 +23,7 @@ namespace Localizationteam\L10nmgr\Model;
 /**
  * translationData: encapsulates the data which are needed for saving a new translation.
  *
- * @authorDaniel Poetzinger <development@aoemedia.de>
- * @packageTYPO3
+ * @author Daniel Poetzinger <development@aoemedia.de>
  */
 class TranslationData
 {

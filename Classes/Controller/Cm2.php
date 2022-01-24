@@ -20,12 +20,6 @@ namespace Localizationteam\L10nmgr\Controller;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-/**
- * l10nmgr module cm2
- *
- * @author Kasper Skårhøj <kasperYYYY@typo3.com>
- */
-
 use Localizationteam\L10nmgr\Model\Tools\Tools;
 use PDO;
 use TYPO3\CMS\Backend\Template\DocumentTemplate;
@@ -39,8 +33,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Translation management tool
  *
- * @authorKasper Skaarhoj <kasperYYYY@typo3.com>
- * @packageTYPO3
+ * @author Kasper Skaarhoj <kasperYYYY@typo3.com>
  */
 class Cm2 extends BaseModule
 {
@@ -105,13 +98,9 @@ class Cm2 extends BaseModule
     }
 
     /**
-     * [Describe function...]
-     *
-     * @param $table
-     * @param $uid
-     * @return string [type]...
-     * @internal param $ [type]$table: ...
-     * @internal param $ [type]$uid: ...
+     * @param string $table
+     * @param int $uid
+     * @return string
      */
     protected function moduleContent($table, $uid)
     {
@@ -149,7 +138,7 @@ class Cm2 extends BaseModule
             } else {
                 $uidPid = 'recpid';
             }
-            /** @var $queryBuilder QueryBuilder */
+            /** @var QueryBuilder $queryBuilder */
             $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_l10nmgr_index');
             $records = $queryBuilder->select('*')
                 ->from('tx_l10nmgr_index')
@@ -238,11 +227,8 @@ class Cm2 extends BaseModule
     }
 
     /**
-     * [Describe function...]
-     *
-     * @param $rec
-     * @return string [type]...
-     * @internal param $ [type]$rec: ...
+     * @param array $rec
+     * @return string
      */
     protected function makeTableRow($rec)
     {

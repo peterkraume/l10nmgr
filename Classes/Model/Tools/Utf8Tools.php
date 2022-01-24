@@ -34,7 +34,7 @@ class Utf8Tools
      *
      * @see http://www.w3.org/International/questions/qa-forms-utf-8
      *
-     * @param string
+     * @param string $str
      *
      * @return mixed integer byte index or FALSE if no bad found
      */
@@ -70,7 +70,7 @@ class Utf8Tools
      *
      * @see http://www.w3.org/International/questions/qa-forms-utf-8
      *
-     * @param string
+     * @param string $str
      *
      * @return mixed array of integers or FALSE if no bad found
      */
@@ -109,7 +109,7 @@ class Utf8Tools
      *
      * @see http://www.w3.org/International/questions/qa-forms-utf-8
      *
-     * @param string
+     * @param string $str
      *
      * @return string
      */

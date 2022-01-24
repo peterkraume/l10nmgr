@@ -15,6 +15,7 @@ $config->setRiskyAllowed(true)
         '@DoctrineAnnotation' => true,
         '@PSR2' => true,
         'array_syntax' => ['syntax' => 'short'],
+        'binary_operator_spaces' => true,
         'blank_line_after_opening_tag' => true,
         'braces' => ['allow_single_line_closure' => true],
         'cast_spaces' => ['space' => 'none'],

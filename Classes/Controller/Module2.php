@@ -32,8 +32,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Script Class for rendering the frameset
  *
- * @authorKasper Skaarhoj <kasperYYYY@typo3.com>
- * @packageTYPO3
+ * @author Kasper Skaarhoj <kasperYYYY@typo3.com>
  */
 class Module2
 {

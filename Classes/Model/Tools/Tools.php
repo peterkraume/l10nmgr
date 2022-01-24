@@ -89,6 +89,11 @@ class Tools
     /**
      * @var bool
      */
+    public $onlyForcedSourceLanguage = false; //if set to true only records that exist also in the forced source language will be exported
+
+    /**
+     * @var bool
+     */
     public $verbose = true; //if set to true also FCE with language setting default will be included (not only All)
 
     /**
@@ -165,7 +170,7 @@ class Tools
     {
         $this->t8Tools = GeneralUtility::makeInstance(TranslationConfigurationProvider::class);
         // Find all system languages:
-        /** @var $queryBuilder QueryBuilder */
+        /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_language');
         $this->sys_languages = $queryBuilder->select('*')->from('sys_language')->execute()->fetchAll();
     }
@@ -656,7 +661,7 @@ class Tools
                 )
             );
         }
-        /** @var $queryBuilder QueryBuilder */
+        /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
         $queryBuilder->getRestrictions()
             ->removeAll()
@@ -710,6 +715,109 @@ class Tools
         // First, select all records that are default language OR international:
         $allRows = $queryBuilder->execute()->fetchAll();
         return is_array($allRows) && count($allRows) ? $allRows[0] : false;
+    }
+
+    /**
+     * Fetches allowed fields for the current Backend user. This function is public to allow using it from
+     * other classes and hooks.
+     *
+     * @param string $table
+     * @return string[]
+     */
+    public function getAllowedFieldsForTable($table)
+    {
+        $cache = GeneralUtility::makeInstance(CacheManager::class)->getCache('cache_runtime');
+        $key = 'l10nmgr-allowed-fields-' . $table;
+        if ($cache->has($key)) {
+            $allowedFields = $cache->get($key);
+        } else {
+            $configuredFields = array_keys($GLOBALS['TCA'][$table]['columns']);
+            $tableColumns = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getConnectionForTable($table)
+                ->getSchemaManager()
+                ->listTableColumns($table);
+            $fieldsInDatabase = [];
+            foreach ($tableColumns as $column) {
+                $fieldsInDatabase[] = $column->getName();
+            }
+            $allowedFields = array_intersect($configuredFields, $fieldsInDatabase);
+            if (!$GLOBALS['BE_USER']->isAdmin()) {
+                $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+                $dataHandler->start([], []);
+                $excludedFields = $dataHandler->getExcludeListArray();
+                unset($dataHandler);
+                // Filter elements for the current table only
+                $excludedFields = array_filter(
+                    $excludedFields,
+                    function ($element) use ($table) {
+                        return GeneralUtility::isFirstPartOfStr($element, $table);
+                    }
+                );
+                // Remove table prefix
+                array_walk(
+                    $excludedFields,
+                    function (&$element) use ($table) {
+                        $element = substr($element, strlen($table) + 1);
+                    }
+                );
+                $allowedFields = array_diff($allowedFields, $excludedFields);
+            }
+            $cache->set($key, $allowedFields);
+        }
+
+        return $allowedFields;
+    }
+
+    /**
+     * Checks if the user can edit the record. This function is public to allow using it from
+     * hooks or other classes.
+     *
+     * @param string $tableName
+     * @param array $record
+     * @return bool
+     */
+    public function canUserEditRecord($tableName, $record)
+    {
+        if ($GLOBALS['BE_USER']->isAdmin()) {
+            return true;
+        }
+
+        $cache = GeneralUtility::makeInstance(CacheManager::class)->getCache('cache_runtime');
+        $keyFormat = 'l10nmgr-allowed-state-%s-%d';
+        $key = sprintf($keyFormat, $tableName, $record['uid']);
+
+        if ($cache->has($key)) {
+            $result = $cache->get($key);
+        } else {
+            if ($tableName === 'pages') {
+                // See EXT:recordlist/Classes/RecordList::main()
+                $permissions = $GLOBALS['BE_USER']->calcPerms($record);
+                $result = ($permissions & Permission::PAGE_EDIT) && ($GLOBALS['BE_USER']->isAdmin() || (int)$record['editlock'] === 0);
+            } else {
+                $result = true;
+                if ($record['pid'] > 0) {
+                    $pageKey = sprintf($keyFormat, 'pages', $record['pid']);
+                    if ($cache->has($pageKey)) {
+                        $result = $cache->get($pageKey);
+                    } else {
+                        $pageRecord = BackendUtility::getRecord('pages', $record['pid']);
+                        $result = $this->canUserEditRecord('pages', $pageRecord);
+                    }
+                }
+                if ($result) {
+                    // Additional record check
+                    $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+                    $dataHandler->start([], []);
+                    $result = $dataHandler->checkRecordUpdateAccess(
+                        $tableName,
+                        $record['uid']
+                    ) && $GLOBALS['BE_USER']->recordEditAccessInternals($tableName, $record['uid']);
+                }
+            }
+            $cache->set($key, $result);
+        }
+
+        return $result;
     }
 
     /**
@@ -820,11 +928,19 @@ class Tools
                                     $prevLangInfo['translations'][$prevSysUid]['uid']
                                 );
                             } else {
+                                if ($this->onlyForcedSourceLanguage) {
+                                    continue;
+                                }
+                                // Use fallback to default language, if record does not exist in forced source language
                                 $prevLangRec[$prevSysUid] = BackendUtility::getRecordWSOL(
                                     $prevLangInfo['translation_table'],
                                     $row['uid']
                                 );
                             }
+                        }
+                        if (!empty($this->previewLanguages) && empty($prevLangRec)) {
+                            // only forced source language was set, but no translated record was available from that language
+                            break;
                         }
                         $allowedFields = $this->getAllowedFieldsForTable($tInfo['translation_table']);
                         foreach ($GLOBALS['TCA'][$tInfo['translation_table']]['columns'] as $field => $cfg) {
@@ -966,7 +1082,7 @@ class Tools
         $constraintsB = [];
 
         // Look for translations of this record, index by language field value:
-        /** @var $queryBuilder QueryBuilder */
+        /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
         $queryBuilder->getRestrictions()
             ->removeAll()
@@ -1287,15 +1403,21 @@ class Tools
      * @param int $pageId Page id
      * @param int $previewLanguage
      * @param bool $sortexports
+     * @param bool $noHidden
      * @return array Array of records from table (with all fields selected)
      */
-    public function getRecordsToTranslateFromTable($table, $pageId, $previewLanguage = 0, $sortexports = false)
-    {
+    public function getRecordsToTranslateFromTable(
+        $table,
+        $pageId,
+        $previewLanguage = 0,
+        $sortexports = false,
+        $noHidden = false
+    ) {
         if (!$this->canUserEditRecord('pages', BackendUtility::getRecord('pages', $pageId))) {
             return [];
         }
 
-        /** @var $queryBuilder QueryBuilder */
+        /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
         $queryBuilder->getRestrictions()
             ->removeAll()
@@ -1305,6 +1427,9 @@ class Tools
         // Check for disabled field settings
         // print "###".$this->getBackendUser()->uc['moduleData']['xMOD_tx_l10nmgr_cm1']['noHidden']."---";
         if (!empty($this->getBackendUser()->uc['moduleData']['LocalizationManager']['noHidden'])) {
+            $noHidden = true;
+        }
+        if ($noHidden) {
             $queryBuilder->getRestrictions()->add(GeneralUtility::makeInstance(HiddenRestriction::class));
         }
 
@@ -1378,7 +1503,7 @@ class Tools
 
         $resource = $queryBuilder->execute();
         $results = [];
-        while (($data = $resource->fetch(\PDO::FETCH_ASSOC))) {
+        while (($data = $resource->fetch(PDO::FETCH_ASSOC))) {
             if ($this->canUserEditRecord($table, $data)) {
                 $results[] = $data;
             }
@@ -1420,7 +1545,7 @@ class Tools
      */
     protected function updateIndexTable($record)
     {
-        /** @var $databaseConnection Connection */
+        /** @var Connection $databaseConnection */
         $databaseConnection = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getConnectionForTable('tx_l10nmgr_index');
 
@@ -1439,7 +1564,7 @@ class Tools
      */
     public function flushIndexOfWorkspace($ws)
     {
-        /** @var $queryBuilder QueryBuilder */
+        /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(
             'tx_l10nmgr_index'
         );
@@ -1534,109 +1659,5 @@ class Tools
             $errorLog = $tce->errorLog;
         }
         return [$remove, $TCEmain_cmd, $TCEmain_data, $errorLog];
-    }
-
-    /**
-     * Fetches allowed fields for the current Backend user. This function is public to allow using it from
-     * other classes and hooks.
-     *
-     * @param string $table
-     * @return string[]
-     */
-    public function getAllowedFieldsForTable($table)
-    {
-        $cache = GeneralUtility::makeInstance(CacheManager::class)->getCache('cache_runtime');
-        $key = 'l10nmgr-allowed-fields-' . $table;
-        if ($cache->has($key)) {
-            $allowedFields = $cache->get($key);
-        } else {
-            $configuredFields = array_keys($GLOBALS['TCA'][$table]['columns']);
-            $tableColumns = GeneralUtility::makeInstance(ConnectionPool::class)
-                ->getConnectionForTable($table)
-                ->getSchemaManager()
-                ->listTableColumns($table);
-            $fieldsInDatabase = [];
-            foreach ($tableColumns as $column) {
-                $fieldsInDatabase[] = $column->getName();
-            }
-            $allowedFields = array_intersect($configuredFields, $fieldsInDatabase);
-            if (!$GLOBALS['BE_USER']->isAdmin()) {
-                $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
-                $dataHandler->start([], []);
-                $excludedFields = $dataHandler->getExcludeListArray();
-                unset($dataHandler);
-                // Filter elements for the current table only
-                $excludedFields = array_filter(
-                    $excludedFields,
-                    function ($element) use ($table) {
-                        return GeneralUtility::isFirstPartOfStr($element, $table);
-                    }
-                );
-                // Remove table prefix
-                array_walk(
-                    $excludedFields,
-                    function (&$element) use ($table) {
-                        $element = substr($element, strlen($table) + 1);
-                    }
-                );
-                $allowedFields = array_diff($allowedFields, $excludedFields);
-            }
-            $cache->set($key, $allowedFields);
-        }
-
-        return $allowedFields;
-    }
-
-    /**
-     * Checks if the user can edit the record. This function is public to allow using it from
-     * hooks or other classes.
-     *
-     * @param string $tableName
-     * @param array $record
-     * @return bool
-     */
-    public function canUserEditRecord($tableName, $record)
-    {
-        if ($GLOBALS['BE_USER']->isAdmin()) {
-            return true;
-        }
-
-        $cache = GeneralUtility::makeInstance(CacheManager::class)->getCache('cache_runtime');
-        $keyFormat = 'l10nmgr-allowed-state-%s-%d';
-        $key = sprintf($keyFormat, $tableName, $record['uid']);
-
-        if ($cache->has($key)) {
-            $result = $cache->get($key);
-        } else {
-            if ($tableName === 'pages') {
-                // See EXT:recordlist/Classes/RecordList::main()
-                $permissions = $GLOBALS['BE_USER']->calcPerms($record);
-                $result = ($permissions & Permission::PAGE_EDIT) && ($GLOBALS['BE_USER']->isAdmin(
-                        ) || (int)$record['editlock'] === 0);
-            } else {
-                $result = true;
-                if ($record['pid'] > 0) {
-                    $pageKey = sprintf($keyFormat, 'pages', $record['pid']);
-                    if ($cache->has($pageKey)) {
-                        $result = $cache->get($pageKey);
-                    } else {
-                        $pageRecord = BackendUtility::getRecord('pages', $record['pid']);
-                        $result = $this->canUserEditRecord('pages', $pageRecord);
-                    }
-                }
-                if ($result) {
-                    // Additional record check
-                    $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
-                    $dataHandler->start([], []);
-                    $result = $dataHandler->checkRecordUpdateAccess(
-                        $tableName,
-                        $record['uid']
-                    ) && $GLOBALS['BE_USER']->recordEditAccessInternals($tableName, $record['uid']);
-                }
-            }
-            $cache->set($key, $result);
-        }
-
-        return $result;
     }
 }

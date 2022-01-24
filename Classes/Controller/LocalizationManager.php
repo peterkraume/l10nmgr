@@ -167,7 +167,7 @@ class LocalizationManager extends BaseModule
      */
     public function init()
     {
-        $this->getBackendUser()->modAccess($this->MCONF, 1);
+        $this->getBackendUser()->modAccess($this->MCONF);
         parent::init();
     }
 
@@ -244,7 +244,8 @@ return false;
                         $this->MOD_MENU['lang'],
                         '',
                         '&srcPID=' . rawurlencode(GeneralUtility::_GET('srcPID')) . '&exportUID=' . $l10ncfgObj->getId(),
-                        $this->getLanguageService()->getLL('export.overview.targetlanguage.label')
+                        $this->getLanguageService()->getLL('export.overview.targetlanguage.label'),
+                        $this->previewLanguage
                     ) .
                     '</div><div class="form-section">' .
                     $this->getFuncCheck(
@@ -301,7 +302,8 @@ return false;
         $menuItems,
         $script = '',
         $addParams = '',
-        $label = ''
+        $label = '',
+        $previewLanguage = ''
     ) {
         if (!is_array($menuItems)) {
             return '';
@@ -309,6 +311,9 @@ return false;
         $scriptUrl = self::buildScriptUrl($mainParams, $addParams, $script);
         $options = [];
         foreach ($menuItems as $value => $text) {
+            if ($elementName === 'SET[lang]' && (int)$value === (int)$previewLanguage) {
+                continue;
+            }
             $options[] = '<option value="' . htmlspecialchars($value) . '"' . ((string)$currentValue === (string)$value ? ' selected="selected"' : '') . '>' . htmlspecialchars(
                 $text,
                 ENT_COMPAT,
@@ -421,7 +426,7 @@ return false;
      *
      * @paramL10nConfiguration $l10ncfgObj Localization Configuration record
      *
-     * @param $l10ncfgObj
+     * @param L10nConfiguration $l10ncfgObj
      * @throws ResourceNotFoundException
      * @throws RouteNotFoundException
      */
@@ -524,7 +529,7 @@ return false;
             '</label></div></div>' .
             '</div><div class="form-section"><div class="form-group form-inline">
 <label>' . $this->getLanguageService()->getLL('export.xml.source-language.title') . '</label><br />' .
-            $this->_getSelectField('export_xml_forcepreviewlanguage', '0', $_selectOptions) .
+            $this->_getSelectField('export_xml_forcepreviewlanguage', $this->previewLanguage, $_selectOptions) .
             '</div></div><div class="form-section"><div class="form-group">
 <label>' . $this->getLanguageService()->getLL('general.action.import.upload.title') . '</label><br />' .
             '<input type="file" size="60" name="uploaded_import_file" />' .
@@ -632,6 +637,7 @@ return false;
     protected function _getSelectField($elementName, $currentValue, $menuItems)
     {
         $options = [];
+        $return = '';
         foreach ($menuItems as $value => $label) {
             $options[] = '<option value="' . htmlspecialchars($value) . '"' . (!strcmp(
                 $currentValue,
@@ -644,14 +650,19 @@ return false;
             ) . '</option>';
         }
         if (count($options) > 0) {
-            return '
-	<select class="form-control" name="' . $elementName . '" >
+            $return = '
+	<select class="form-control" name="' . $elementName . '" ' . ($currentValue ? 'disabled="disabled"' : '') . '>
 	' . implode('
 	', $options) . '
 	</select>
 	';
         }
-        return '';
+
+        if ($currentValue) {
+            $return .= '<input type="hidden" name="' . $elementName . '" value="' . $currentValue . '" />';
+        }
+
+        return $return;
     }
 
     /**
@@ -897,7 +908,7 @@ return false;
             '</div><div class="form-section">' .
             '<div class="form-group form-inline">' .
             '<label>' . $this->getLanguageService()->getLL('export.xml.source-language.title') . '</label><br />' .
-            $this->_getSelectField('export_xml_forcepreviewlanguage', '0', $_selectOptions) .
+            $this->_getSelectField('export_xml_forcepreviewlanguage', $this->previewLanguage, $_selectOptions) .
             '</div></div>';
         // Add the option to send to FTP server, if FTP information is defined
         if (!empty($this->extensionConfiguration['ftp_server']) && !empty($this->extensionConfiguration['ftp_server_username']) && !empty($this->extensionConfiguration['ftp_server_password'])) {
@@ -1042,7 +1053,11 @@ return false;
                 'lg_iso_2'
             );
             $targetStaticLang = BackendUtility::getRecord('sys_language', $tlang, 'static_lang_isocode');
-            $targetStaticLangArr = BackendUtility::getRecord('static_languages', $targetStaticLang['static_lang_isocode'], 'lg_iso_2');
+            $targetStaticLangArr = BackendUtility::getRecord(
+                'static_languages',
+                $targetStaticLang['static_lang_isocode'],
+                'lg_iso_2'
+            );
             $sourceLang = $sourceStaticLangArr['lg_iso_2'];
             $targetLang = $targetStaticLangArr['lg_iso_2'];
             // Collect mail data

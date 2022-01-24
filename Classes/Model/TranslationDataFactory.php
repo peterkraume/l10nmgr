@@ -23,7 +23,6 @@ namespace Localizationteam\L10nmgr\Model;
 use Localizationteam\L10nmgr\Model\Tools\XmlTools;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
-use TYPO3\CMS\Core\Html\RteHtmlParser;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -187,5 +186,4 @@ class TranslationDataFactory implements LoggerAwareInterface
         }
         return $translation;
     }
-
 }
