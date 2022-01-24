@@ -707,59 +707,48 @@ return false;
             if (GeneralUtility::_POST('import_asdefaultlanguage') == '1') {
                 $service->setImportAsDefaultLanguage(true);
             }
-            if (GeneralUtility::_POST('import_oldformat') == '1') {
-                //Support for the old Format of XML Import (without pageGrp element)
-                $actionInfo .= $this->getLanguageService()->getLL('import.xml.old-format.message');
-                $translationData = $factory->getTranslationDataFromOldFormatCATXMLFile($uploadedTempFile);
+            // Relevant processing of XML Import with the help of the Importmanager
+            /** @var CatXmlImportManager $importManager */
+            $importManager = GeneralUtility::makeInstance(
+                CatXmlImportManager::class,
+                $uploadedTempFile,
+                $this->sysLanguage,
+                $xmlString = ''
+            );
+            if ($importManager->parseAndCheckXMLFile() === false) {
+                $actionInfo .= '<br /><br />' . $this->moduleTemplate->header($this->getLanguageService()->getLL('import.error.title')) . $importManager->getErrorMessages();
+            } else {
+                if (GeneralUtility::_POST('import_delL10N') == '1') {
+                    $actionInfo .= $this->getLanguageService()->getLL('import.xml.delL10N.message') . '<br />';
+                    $delCount = $importManager->delL10N($importManager->getDelL10NDataFromCATXMLNodes($importManager->getXMLNodes()));
+                    $actionInfo .= sprintf(
+                        $this->getLanguageService()->getLL('import.xml.delL10N.count.message'),
+                        $delCount
+                    ) . '<br /><br />';
+                }
+                if (GeneralUtility::_POST('make_preview_link') == '1' && ExtensionManagementUtility::isLoaded('workspaces')) {
+                    $pageIds = $importManager->getPidsFromCATXMLNodes($importManager->getXmlNodes());
+                    $actionInfo .= '<b>' . $this->getLanguageService()->getLL('import.xml.preview_links.title') . '</b><br />';
+                    /** @var MkPreviewLinkService $mkPreviewLinks */
+                    $mkPreviewLinks = GeneralUtility::makeInstance(
+                        MkPreviewLinkService::class,
+                        $t3_workspaceId = $importManager->headerData['t3_workspaceId'],
+                        $t3_sysLang = $importManager->headerData['t3_sysLang'],
+                        $pageIds
+                    );
+                    $actionInfo .= $mkPreviewLinks->renderPreviewLinks($mkPreviewLinks->mkPreviewLinks());
+                }
+                if ($importManager->headerData['t3_sourceLang'] === $importManager->headerData['t3_targetLang']) {
+                    $this->previewLanguage = $this->sysLanguage;
+                }
+                $translationData = $factory->getTranslationDataFromCATXMLNodes($importManager->getXMLNodes());
                 $translationData->setLanguage($this->sysLanguage);
                 $translationData->setPreviewLanguage($this->previewLanguage);
+                //$actionInfo.="<pre>".var_export($GLOBALS['BE_USER'],true)."</pre>";
+                unset($importManager);
                 $service->saveTranslation($l10ncfgObj, $translationData);
-                $icon = $this->iconFactory->getIcon('status-dialog-notification', Icon::SIZE_SMALL)->render();
-                $actionInfo .= '<br /><br />' . $icon . 'Import done<br /><br />(Command count:' . $service->lastTCEMAINCommandsCount . ')';
-            } else {
-                // Relevant processing of XML Import with the help of the Importmanager
-                /** @var CatXmlImportManager $importManager */
-                $importManager = GeneralUtility::makeInstance(
-                    CatXmlImportManager::class,
-                    $uploadedTempFile,
-                    $this->sysLanguage,
-                    $xmlString = ''
-                );
-                if ($importManager->parseAndCheckXMLFile() === false) {
-                    $actionInfo .= '<br /><br />' . $this->moduleTemplate->header($this->getLanguageService()->getLL('import.error.title')) . $importManager->getErrorMessages();
-                } else {
-                    if (GeneralUtility::_POST('import_delL10N') == '1') {
-                        $actionInfo .= $this->getLanguageService()->getLL('import.xml.delL10N.message') . '<br />';
-                        $delCount = $importManager->delL10N($importManager->getDelL10NDataFromCATXMLNodes($importManager->getXMLNodes()));
-                        $actionInfo .= sprintf(
-                            $this->getLanguageService()->getLL('import.xml.delL10N.count.message'),
-                            $delCount
-                        ) . '<br /><br />';
-                    }
-                    if (GeneralUtility::_POST('make_preview_link') == '1' && ExtensionManagementUtility::isLoaded('workspaces')) {
-                        $pageIds = $importManager->getPidsFromCATXMLNodes($importManager->getXmlNodes());
-                        $actionInfo .= '<b>' . $this->getLanguageService()->getLL('import.xml.preview_links.title') . '</b><br />';
-                        /** @var MkPreviewLinkService $mkPreviewLinks */
-                        $mkPreviewLinks = GeneralUtility::makeInstance(
-                            MkPreviewLinkService::class,
-                            $t3_workspaceId = $importManager->headerData['t3_workspaceId'],
-                            $t3_sysLang = $importManager->headerData['t3_sysLang'],
-                            $pageIds
-                        );
-                        $actionInfo .= $mkPreviewLinks->renderPreviewLinks($mkPreviewLinks->mkPreviewLinks());
-                    }
-                    if ($importManager->headerData['t3_sourceLang'] === $importManager->headerData['t3_targetLang']) {
-                        $this->previewLanguage = $this->sysLanguage;
-                    }
-                    $translationData = $factory->getTranslationDataFromCATXMLNodes($importManager->getXMLNodes());
-                    $translationData->setLanguage($this->sysLanguage);
-                    $translationData->setPreviewLanguage($this->previewLanguage);
-                    //$actionInfo.="<pre>".var_export($GLOBALS['BE_USER'],true)."</pre>";
-                    unset($importManager);
-                    $service->saveTranslation($l10ncfgObj, $translationData);
-                    $icon = $this->iconFactory->getIcon('status-dialog-ok', Icon::SIZE_SMALL)->render();
-                    $actionInfo .= '<br />' . $icon . $this->getLanguageService()->getLL('import.xml.done.message') . '<br /><br />(Command count:' . $service->lastTCEMAINCommandsCount . ')';
-                }
+                $icon = $this->iconFactory->getIcon('status-dialog-ok', Icon::SIZE_SMALL)->render();
+                $actionInfo .= '<br />' . $icon . $this->getLanguageService()->getLL('import.xml.done.message') . '<br /><br />(Command count:' . $service->lastTCEMAINCommandsCount . ')';
             }
             GeneralUtility::unlink_tempfile($uploadedTempFile);
         }
