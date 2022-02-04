@@ -1126,6 +1126,9 @@ return false;
                 'export_xml' => $this->getLanguageService()->getLL('general.action.export.xml.title'),
             ],
             'lang' => [],
+        ];
+
+        $this->MOD_SETTINGS = [
             'onlyChangedContent' => '',
             'check_exports' => 1,
             'noHidden' => '',
