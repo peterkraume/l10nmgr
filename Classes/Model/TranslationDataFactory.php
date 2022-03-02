@@ -101,7 +101,7 @@ class TranslationDataFactory implements LoggerAwareInterface
                             ) {
                                 $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TAG found in: ' . $row['XMLvalue']);
                                 $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TAG found: ' . $row['values'][0]);
-                                $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = $row['values'][0] . $row['XMLvalue'];
+                                $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = $row['XMLvalue'];
                             } else {
                                 $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': No TAG found in: ' . $row['XMLvalue']);
                                 $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = $row['XMLvalue'];
