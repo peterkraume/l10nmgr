@@ -5,3 +5,15 @@ services:
         identifier: 'language-restriction-registry'
         method: 'addLanguageRestrictionDatabaseSchema'
         event: TYPO3\CMS\Core\Database\Event\AlterTableDefinitionStatementsEvent
+
+  Localizationteam\L10nmgr\Command\Export:
+    tags:
+      - name: 'console.command'
+        command: 'l10nmanager:export'
+        schedulable: true
+
+  Localizationteam\L10nmgr\Command\Import:
+    tags:
+      - name: 'console.command'
+        command: 'l10nmanager:import'
+        schedulable: true
