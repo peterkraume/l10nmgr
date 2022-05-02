@@ -87,7 +87,7 @@ class EmConfiguration
     protected $email_sender_organisation = '';
 
     /**
-     * @var string
+     * @var bool
      */
     protected $email_attachment = false;
 
