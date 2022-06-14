@@ -6,16 +6,6 @@ parameters:
 			path: Classes/ClickMenu.php
 
 		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$backRef\\)\\: Unexpected token \"\\$backRef\", expected type at offset 46$#"
-			count: 1
-			path: Classes/ClickMenu.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$uid\\)\\: Unexpected token \"\\$uid\", expected type at offset 128$#"
-			count: 1
-			path: Classes/ClickMenu.php
-
-		-
 			message: "#^Constant LF not found\\.$#"
 			count: 4
 			path: Classes/Command/Export.php
@@ -43,21 +33,6 @@ parameters:
 		-
 			message: "#^Access to an undefined property TYPO3\\\\CMS\\\\Core\\\\Configuration\\\\FlexForm\\\\FlexFormTools\\:\\:\\$traverseFlexFormXMLData_Data\\.$#"
 			count: 3
-			path: Classes/Model/Tools/Tools.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$pageId\\)\\: Unexpected token \"\\$pageId\", expected type at offset 125$#"
-			count: 1
-			path: Classes/Model/Tools/Tools.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$table\\)\\: Unexpected token \"\\$table\", expected type at offset 85$#"
-			count: 1
-			path: Classes/Model/Tools/Tools.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$uid\\)\\: Unexpected token \"\\$uid\", expected type at offset 106$#"
-			count: 1
 			path: Classes/Model/Tools/Tools.php
 
 		-
