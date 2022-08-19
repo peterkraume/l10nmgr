@@ -22,7 +22,6 @@
   "require": {
     "typo3/cms-core": "^10.4",
     "typo3/cms-backend": "^10.4",
-    "typo3/cms-lang": "^10.4",
     "typo3/cms-scheduler": "^10.4"
   },
   "require-dev": {
