@@ -397,7 +397,7 @@ abstract class AbstractExportView
     protected function getLanguageService()
     {
         if (!$this->languageService instanceof LanguageService) {
-            $this->languageService = GeneralUtility::makeInstance(LanguageService::class);
+            $this->languageService = $GLOBALS['LANG'];
             $this->languageService->includeLLFile('EXT:l10nmgr/Resources/Private/Language/Cli/locallang.xml');
         }
         if ($this->getBackendUser()) {
