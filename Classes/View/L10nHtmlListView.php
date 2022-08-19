@@ -314,8 +314,17 @@ class L10nHtmlListView extends AbstractExportView
                 : $data['translationInfo']['uid'];
 
             $linkText = '[' . $this->getLanguageService()->getLL('render_overview.clickedit.message') . ']';
-            $onClick = htmlspecialchars(BackendUtility::editOnClick('&edit[' . $data['translationInfo']['translation_table'] . '][' . $editId . ']=edit', $this->moduleTemplate->backPath));
-            $editLink = ' - <a href="#" onclick="' . $onClick . '"><em>' . $linkText . '</em></a>';
+            $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+            $params = [
+                'edit' => [
+                    $data['translationInfo']['translation_table'] => [
+                        $editId => 'edit',
+                    ],
+                ],
+                'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+            ];
+            $href = (string)$uriBuilder->buildUriFromRoute('record_edit', $params);
+            $editLink = ' - <a href="' . $href . '"><em>' . $linkText . '</em></a>';
         } else {
             $linkText = '[' . $this->getLanguageService()->getLL('render_overview.clicklocalize.message') . ']';
             $href = htmlspecialchars(
