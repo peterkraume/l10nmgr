@@ -157,7 +157,6 @@ class Import extends L10nCommand
      */
     protected function initializeCallParameters(InputInterface $input, OutputInterface $output)
     {
-
         // Get the task parameter from either the new or the old input style
         // The default is in the configure()
 
@@ -466,7 +465,7 @@ class Import extends L10nCommand
             if (!empty($this->getExtConf()->getFtpServer())) {
                 $files = $this->getFilesFromFtp();
             }
-            // Get list of files to import from given command-line parameter
+        // Get list of files to import from given command-line parameter
         } else {
             $fileInformation = pathinfo($file);
             // Unzip file if *.zip
@@ -556,8 +555,8 @@ class Import extends L10nCommand
                                 if (!$result) {
                                     throw new Exception('Could not remove file ' . $aFile . 'from FTP server');
                                 }
-                                // If getting the file failed, register error message
-                                // (don't throw exception as this does not need to interrupt the process)
+                            // If getting the file failed, register error message
+                            // (don't throw exception as this does not need to interrupt the process)
                             } else {
                                 throw new Exception('Problem getting file ' . $aFile . 'from server or saving it locally');
                             }

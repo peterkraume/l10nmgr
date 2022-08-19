@@ -317,7 +317,6 @@ class LanguageRestrictionRegistry implements SingletonInterface
      */
     protected function addToAllTCAtypes($tableName, array $options)
     {
-
         // Makes sure to add more TCA to an existing structure
         if (isset($GLOBALS['TCA'][$tableName]['columns'])) {
             $fieldList = $options['fieldList'];
