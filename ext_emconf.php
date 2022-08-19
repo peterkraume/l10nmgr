@@ -6,7 +6,7 @@
  * Only the data in the array - everything else is removed by next
  * writing. "version" and "dependencies" must not be touched!
  ***************************************************************/
-$EM_CONF['l10nmgr'] = [
+$EM_CONF[$_EXTKEY] = [
     'title'            => 'Localization Manager',
     'description'      => 'Module for managing localization import and export',
     'category'         => 'module',
