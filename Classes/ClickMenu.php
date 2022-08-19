@@ -38,6 +38,9 @@ use TYPO3\CMS\Core\Utility\PathUtility;
  * Context menu processing
  *
  * @author Kasper Skaarhoj <kasperYYYY@typo3.com>
+ *
+ * @todo This class was used in the hook `$GLOBALS['TBE_MODULES_EXT']['xMOD_alt_clickmenu']['extendCMclasses']`, which was removed in TYPO3 v8.
+ *       It needs to be migrated to the new ItemProvider API TYPO3\CMS\Backend\ContextMenu\ItemProviders\ProviderInterface.
  */
 class ClickMenu
 {
