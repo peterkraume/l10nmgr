@@ -195,7 +195,7 @@ class ConfigurationManager extends BaseModule
             ->from('tx_l10nmgr_cfg')
             ->orderBy('title')
             ->execute()
-            ->fetchAllAssociative();
+            ->fetchAll();
         // Filter out the configurations which the user is allowed to see, base on the page access rights
         $pagePermissionsClause = $this->getBackendUser()->getPagePermsClause(1);
         $allowedConfigurations = [];
