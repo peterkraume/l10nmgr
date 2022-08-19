@@ -323,10 +323,10 @@ return false;
                 $this->content .= '<div class="panel panel-default expanded">
     <div class="panel-heading" role="tab" id="headingL10nmgrPanel">
         <h2 class="panel-title">' . $title . '
-            <a role="button" data-toggle="collapse" href="#l10nmgrPanel" aria-expanded="true" aria-controls="l10nmgrPanel" class="pull-right"><span class="caret"></span></a>
+            <a role="button" data-toggle="collapse" data-bs-toggle="collapse" href="#l10nmgrPanel" aria-expanded="true" aria-controls="l10nmgrPanel" class="pull-right"><span class="caret"></span></a>
         </h2>
     </div>
-    <div id="l10nmgrPanel" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingL10nmgrPanel">
+    <div id="l10nmgrPanel" class="panel-collapse collapse in show" role="tabpanel" aria-labelledby="headingL10nmgrPanel">
         <div class="panel-body">
             <div class="row">';
                 $this->content .= '
@@ -468,7 +468,7 @@ return false;
             $onChange = 'jumpToUrl(' . GeneralUtility::quoteJSvalue($scriptUrl . '&' . $elementName . '=') . '+this.options[this.selectedIndex].value,this);';
             return '
 	<!-- Function Menu of module -->
-<div class="form-group">' .
+<div class="form-group mb-2">' .
                 $label .
                 '<select class="form-control clear-both" id="' . $elementName . '" name="' . $elementName . '" onchange="' . htmlspecialchars($onChange) . '">
 	' . implode('
@@ -580,7 +580,7 @@ return false;
         $scriptUrl = self::buildScriptUrl($mainParams, $addParams, $script);
         $onClick = 'jumpToUrl(' . GeneralUtility::quoteJSvalue($scriptUrl . '&' . $elementName . '=') . '+(this.checked?1:0),this);';
         return
-            '<div class="form-group">' .
+            '<div class="form-group mb-2">' .
             '<div class="checkbox">
 <label>
 <input' .
@@ -703,16 +703,16 @@ return false;
                 '',
                 $this->getLanguageService()->getLL('export.xml.check_exports.title')
             ) .
-            '<div class="form-group"><div class="checkbox"><label>' .
+            '<div class="form-group mb-2"><div class="checkbox"><label>' .
             '<input type="checkbox" value="1" name="import_asdefaultlanguage" /> ' . $this->getLanguageService()->getLL('import.xml.asdefaultlanguage.title') .
             '</label></div></div>' .
-            '</div><div class="form-section"><div class="form-group">
+            '</div><div class="form-section"><div class="form-group mb-2">
 <label>' . $this->getLanguageService()->getLL('export.xml.source-language.title') . '</label><br />' .
             $this->_getSelectField('export_xml_forcepreviewlanguage', $this->previewLanguage, $_selectOptions) .
-            '</div></div><div class="form-section"><div class="form-group">
+            '</div></div><div class="form-section"><div class="form-group mb-2">
 <label>' . $this->getLanguageService()->getLL('general.action.import.upload.title') . '</label><br />' .
             '<input type="file" size="60" name="uploaded_import_file" />' .
-            '</div></div><div class="form-section"><div class="form-group">' .
+            '</div></div><div class="form-section"><div class="form-group mb-2">' .
             '<input class="btn btn-default btn-info" type="submit" value="' . $this->getLanguageService()->getLL('general.action.refresh.button.title') . '" name="_" /> ' .
             '<input class="btn btn-default btn-success" type="submit" value="' . $this->getLanguageService()->getLL('general.action.export.xml.button.title') . '" name="export_excel" /> ' .
             '<input class="btn btn-default btn-warning" type="submit" value="' . $this->getLanguageService()->getLL('general.action.import.xml.button.title') . '" name="import_excel" />
@@ -1075,17 +1075,17 @@ return false;
         $_selectOptions = ['0' => '-default-'];
         $_selectOptions = $_selectOptions + $this->MOD_MENU['lang'];
         $tabContentXmlExport = '<div class="form-section">' .
-            '<div class="form-group"><div class="checkbox"><label>' .
+            '<div class="form-group mb-2"><div class="checkbox"><label>' .
             '<input type="checkbox" value="1" name="check_exports" /> ' . $this->getLanguageService()->getLL('export.xml.check_exports.title') .
             '</label></div></div>' .
-            '<div class="form-group"><div class="checkbox"><label>' .
+            '<div class="form-group mb-2"><div class="checkbox"><label>' .
             '<input type="checkbox" value="1" checked="checked" name="no_check_xml" /> ' . $this->getLanguageService()->getLL('export.xml.no_check_xml.title') .
             '</label></div></div>' .
-            '<div class="form-group"><div class="checkbox"><label>' .
+            '<div class="form-group mb-2"><div class="checkbox"><label>' .
             '<input type="checkbox" value="1" name="check_utf8" /> ' . $this->getLanguageService()->getLL('export.xml.checkUtf8.title') .
             '</label></div></div>' .
             '</div><div class="form-section">' .
-            '<div class="form-group">' .
+            '<div class="form-group mb-2">' .
             '<label>' . $this->getLanguageService()->getLL('export.xml.source-language.title') . '</label><br />' .
             $this->_getSelectField('export_xml_forcepreviewlanguage', $this->previewLanguage, $_selectOptions) .
             '</div></div>';
@@ -1107,18 +1107,18 @@ return false;
         return '<div class="form-section">' .
             (
                 ExtensionManagementUtility::isLoaded('workspaces') ? (
-                    '<div class="form-group"><div class="checkbox"><label>' .
+                    '<div class="form-group mb-2"><div class="checkbox"><label>' .
                 '<input type="checkbox" value="1" name="make_preview_link" /> ' . $this->getLanguageService()->getLL('import.xml.make_preview_link.title') .
                 '</label></div></div>'
                 ) : ''
             ) .
-            '<div class="form-group"><div class="checkbox"><label>' .
+            '<div class="form-group mb-2"><div class="checkbox"><label>' .
             '<input type="checkbox" value="1" name="import_delL10N" /> ' . $this->getLanguageService()->getLL('import.xml.delL10N.title') .
             '</label></div></div>' .
-            '<div class="form-group"><div class="checkbox"><label>' .
+            '<div class="form-group mb-2"><div class="checkbox"><label>' .
             '<input type="checkbox" value="1" name="import_asdefaultlanguage" /> ' . $this->getLanguageService()->getLL('import.xml.asdefaultlanguage.title') .
             '</label></div></div></div>' .
-            '<div class="form-section"><div class="form-group">' .
+            '<div class="form-section"><div class="form-group mb-2">' .
             '<input type="file" size="60" name="uploaded_import_file" />' .
             '</div></div>' .
             '<div class="form-section">' .
