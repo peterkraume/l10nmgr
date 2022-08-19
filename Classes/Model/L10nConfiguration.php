@@ -31,12 +31,13 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * l10nConfiguration
+ * L10nConfiguration
  * Capsulate a 10ncfg record.
  * Has factory method to get a relevant AccumulatedInformationsObject
  *
  * @author Kasper Skaarhoj <kasperYYYY@typo3.com>
  * @author Daniel Pötzinger <ext@aoemedia.de>
+ * @author Stefano Kowalke <info@arroba-it.de>
  */
 class L10nConfiguration
 {
@@ -56,25 +57,19 @@ class L10nConfiguration
      * loads internal array with l10nmgrcfg record
      *
      * @param int $id Id of the cfg record
-     *
      **/
-    public function load($id)
+    public function load(int $id): void
     {
         $this->l10ncfg = BackendUtility::getRecord('tx_l10nmgr_cfg', $id);
     }
 
     /**
-     * checks if configuration is valid
-     *
-     * @return bool
+     * Checks if configuration is valid
      **/
-    public function isLoaded()
+    public function isLoaded(): bool
     {
         // array must have values also!
-        if (is_array($this->l10ncfg) && (!empty($this->l10ncfg))) {
-            return true;
-        }
-        return false;
+        return is_array($this->l10ncfg) && (! empty($this->l10ncfg));
     }
 
     /**
@@ -87,6 +82,11 @@ class L10nConfiguration
         return $this->getData('uid');
     }
 
+    public function getPid(): int
+    {
+        return $this->getData('pid');
+    }
+
     /**
      * get a field of the current cfgr record
      *
@@ -94,22 +94,18 @@ class L10nConfiguration
      *
      * @return string Value of the field
      **/
-    public function getData($key)
+    public function getData(string $key)
     {
-        return $key === 'pid' && (int)$this->l10ncfg['depth'] === -1 && (int)$this->sourcePid
-            ? (int)$this->sourcePid
+        return $key === 'pid' && (int)$this->l10ncfg['depth'] === -1 && $this->sourcePid
+            ? $this->sourcePid
             : $this->l10ncfg[$key];
     }
 
     /**
      * Factory method to create AccumulatedInformation Object (e.g. build tree etc...)
-     * (Factorys should have all dependencies passed as parameter)
-     *
-     * @param int $sysLang sys_language_uid
-     *
-     * @return L10nAccumulatedInformation
+     * (Factories should have all dependencies passed as parameter)
      */
-    public function getL10nAccumulatedInformationsObjectForLanguage($sysLang)
+    public function getL10nAccumulatedInformationsObjectForLanguage(int $sysLang): L10nAccumulatedInformation
     {
         $l10ncfg = $this->l10ncfg;
         $depth = (int)$l10ncfg['depth'];
@@ -140,22 +136,24 @@ class L10nConfiguration
             /** @var IconFactory $iconFactory */
             $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
             $page = array_shift($treeStartingRecords);
-            $HTML = $iconFactory->getIconForRecord('pages', $page, Icon::SIZE_SMALL)->render();
-            $tree->tree[] = [
-                'row' => $page,
-                'HTML' => $HTML,
-            ];
-            // Create the tree from starting point or page list:
-            if ($depth > 0) {
-                $tree->getTree($page['uid'], $depth, '');
-            } else {
-                if (!empty($treeStartingRecords)) {
-                    foreach ($treeStartingRecords as $page) {
-                        $HTML = $iconFactory->getIconForRecord('pages', $page, Icon::SIZE_SMALL)->render();
-                        $tree->tree[] = [
-                            'row' => $page,
-                            'HTML' => $HTML,
-                        ];
+            if (!empty($page)) {
+                $HTML = $iconFactory->getIconForRecord('pages', $page, Icon::SIZE_SMALL)->render();
+                $tree->tree[] = [
+                    'row' => $page,
+                    'HTML' => $HTML,
+                ];
+                // Create the tree from starting point or page list:
+                if ($depth > 0) {
+                    $tree->getTree($page['uid'], $depth, '');
+                } else {
+                    if (!empty($treeStartingRecords)) {
+                        foreach ($treeStartingRecords as $page) {
+                            $HTML = $iconFactory->getIconForRecord('pages', $page, Icon::SIZE_SMALL)->render();
+                            $tree->tree[] = [
+                                'row' => $page,
+                                'HTML' => $HTML,
+                            ];
+                        }
                     }
                 }
             }
@@ -166,11 +164,7 @@ class L10nConfiguration
         return $accumObj;
     }
 
-    /**
-     * @param int $sysLang
-     * @param array $flexFormDiffArray
-     */
-    public function updateFlexFormDiff($sysLang, $flexFormDiffArray)
+    public function updateFlexFormDiff(int $sysLang, array $flexFormDiffArray): void
     {
         $l10ncfg = $this->l10ncfg;
         // Updating diff-data:
@@ -179,7 +173,7 @@ class L10nConfiguration
         if (!is_array($flexFormDiffForAllLanguages)) {
             $flexFormDiffForAllLanguages = [];
         }
-        // Set the data (
+        // Set the data
         $flexFormDiffForAllLanguages[$sysLang] = array_merge(
             (array)$flexFormDiffForAllLanguages[$sysLang],
             $flexFormDiffArray
@@ -200,11 +194,8 @@ class L10nConfiguration
             ->execute();
     }
 
-    /**
-     * @param int $id
-     */
-    public function setSourcePid($id)
+    public function setSourcePid(int $id): void
     {
-        $this->sourcePid = (int)$id;
+        $this->sourcePid = $id;
     }
 }

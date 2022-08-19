@@ -330,7 +330,7 @@ class L10nBaseService implements LoggerAwareInterface
                 );
 
                 foreach ($orderByNames as $orderPair) {
-                    list($fieldName, $order) = $orderPair;
+                    [$fieldName, $order] = $orderPair;
                     $queryBuilder->addOrderBy($fieldName, $order);
                 }
             }
@@ -366,8 +366,8 @@ class L10nBaseService implements LoggerAwareInterface
             foreach ($elementsInTable as $elementUid => $fields) {
                 foreach ($fields as $fieldKey => $translatedValue) {
                     // check if the record was marked as "new" but was translated already
-                    list($Ttable, $TuidString, $Tfield, $Tpath) = explode(':', $fieldKey);
-                    list($Tuid, $Tlang, $TdefRecord) = explode('/', $TuidString);
+                    [$Ttable, $TuidString, $Tfield, $Tpath] = explode(':', $fieldKey);
+                    [$Tuid, $Tlang, $TdefRecord] = explode('/', $TuidString);
                     if ($Tuid === 'NEW') {
                         $translatedRecord = BackendUtility::getRecordLocalization($Ttable, $TdefRecord, $Tlang);
                         if (!empty($translatedRecord)) {
@@ -458,8 +458,8 @@ class L10nBaseService implements LoggerAwareInterface
                                     && is_array($inputArray[$table][$elementUid])
                                     && array_key_exists($key, $inputArray[$table][$elementUid])
                                 ) {
-                                    list($Ttable, $TuidString, $Tfield, $Tpath) = explode(':', $key);
-                                    list($Tuid, $Tlang, $TdefRecord) = explode('/', $TuidString);
+                                    [$Ttable, $TuidString, $Tfield, $Tpath] = explode(':', $key);
+                                    [$Tuid, $Tlang, $TdefRecord] = explode('/', $TuidString);
                                     if (!$this->createTranslationAlsoIfEmpty
                                         && $inputArray[$table][$elementUid][$key] == ''
                                         && $Tuid == 'NEW'
@@ -532,7 +532,7 @@ class L10nBaseService implements LoggerAwareInterface
             }
             if (count($tce->autoVersionIdMap) && count($_flexFormDiffArray)) {
                 foreach ($_flexFormDiffArray as $key => $value) {
-                    list($Ttable, $Tuid, $Trest) = explode(':', $key, 3);
+                    [$Ttable, $Tuid, $Trest] = explode(':', $key, 3);
                     if ($tce->autoVersionIdMap[$Ttable][$Tuid]) {
                         $_flexFormDiffArray[$Ttable . ':' . $tce->autoVersionIdMap[$Ttable][$Tuid] . ':' . $Trest] = $_flexFormDiffArray[$key];
                         unset($_flexFormDiffArray[$key]);
@@ -588,8 +588,8 @@ class L10nBaseService implements LoggerAwareInterface
                                     && is_array($inputArray[$table][$elementUid])
                                     && array_key_exists($key, $inputArray[$table][$elementUid])
                                 ) {
-                                    list($Ttable, $TuidString, $Tfield, $Tpath) = explode(':', $key);
-                                    list($Tuid, $Tlang, $TdefRecord) = explode('/', $TuidString);
+                                    [$Ttable, $TuidString, $Tfield, $Tpath] = explode(':', $key);
+                                    [$Tuid, $Tlang, $TdefRecord] = explode('/', $TuidString);
                                     if (!$this->createTranslationAlsoIfEmpty
                                         && $inputArray[$table][$elementUid][$key] == ''
                                         && $Tuid == 'NEW'
@@ -842,7 +842,7 @@ class L10nBaseService implements LoggerAwareInterface
             }
             foreach ($TCEmain_data as $table => $items) {
                 foreach ($items as $TuidString => $fields) {
-                    list($Tuid, $Tlang, $TdefRecord) = explode('/', $TuidString);
+                    [$Tuid, $Tlang, $TdefRecord] = explode('/', $TuidString);
                     $this->lastTCEMAINCommandsCount++;
                     if ($Tuid === 'NEW') {
                         // if there are slug fields and there is no translation value for them
@@ -932,7 +932,7 @@ class L10nBaseService implements LoggerAwareInterface
                     $this->flexFormDiffArray
                 ));
                 foreach ($_flexFormDiffArray as $key => $value) {
-                    list($Ttable, $Tuid, $Trest) = explode(':', $key, 3);
+                    [$Ttable, $Tuid, $Trest] = explode(':', $key, 3);
                     if ($tce->autoVersionIdMap[$Ttable][$Tuid]) {
                         $_flexFormDiffArray[$Ttable . ':' . $tce->autoVersionIdMap[$Ttable][$Tuid] . ':' . $Trest] = $_flexFormDiffArray[$key];
                         unset($_flexFormDiffArray[$key]);

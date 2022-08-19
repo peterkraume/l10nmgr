@@ -27,8 +27,8 @@ namespace Localizationteam\L10nmgr\Controller;
  */
 
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
-use TYPO3\CMS\Backend\Template\DocumentTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -36,23 +36,18 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Fluid\View\StandaloneView;
 
 /**
  * Translation management tool
  *
- * @author Kasper Skaarhoj <kasperYYYY@typo3.com>
+ * @authorKasper Skaarhoj <kasperYYYY@typo3.com>
  * @author Jo Hasenau <info@cybercraft.de>
+ * @author Stefano Kowalke <info@arroba-it.de>
  */
 class ConfigurationManager extends BaseModule
 {
     public $pageinfo;
-
-    /**
-     * Document Template Object
-     *
-     * @var DocumentTemplate
-     */
-    public $doc;
 
     /**
      * @var array Cache of the page details already fetched from the database
@@ -72,6 +67,16 @@ class ConfigurationManager extends BaseModule
     protected $moduleTemplate;
 
     /**
+     * @var StandaloneView
+     */
+    protected $view;
+
+    /**
+     * @var UriBuilder
+     */
+    protected $uriBuilder;
+
+    /**
      * The name of the module
      *
      * @var string
@@ -83,14 +88,14 @@ class ConfigurationManager extends BaseModule
      */
     protected $iconFactory;
 
-    /**
-     * Constructor
-     */
     public function __construct()
     {
         $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         $this->moduleTemplate = GeneralUtility::makeInstance(ModuleTemplate::class);
-        $this->getLanguageService()->includeLLFile('EXT:l10nmgr/Resources/Private/Language/Modules/ConfigurationManager/locallang.xlf');
+        $this->uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+
+        $this->getLanguageService()
+            ->includeLLFile('EXT:l10nmgr/Resources/Private/Language/Modules/ConfigurationManager/locallang.xlf');
         $this->MCONF = [
             'name' => $this->moduleName,
         ];
@@ -102,25 +107,21 @@ class ConfigurationManager extends BaseModule
      *
      * @return ResponseInterface the response with the content
      */
-    public function mainAction(): ResponseInterface
+    public function mainAction(ServerRequestInterface $request): ResponseInterface
     {
-        /** @var ResponseInterface $response */
-        $response = func_num_args() === 2 ? func_get_arg(1) : null;
         $GLOBALS['SOBE'] = $this;
         $this->init();
+
         // Checking for first level external objects
         $this->checkExtObj();
+
         // Checking second level external objects
         $this->checkSubExtObj();
+
         $this->main();
+
         $this->moduleTemplate->setContent($this->content);
-        if ($response !== null) {
-            $response->getBody()->write($this->moduleTemplate->renderContent());
-        } else {
-            // Behaviour in TYPO3 v9
-            $response = new HtmlResponse($this->moduleTemplate->renderContent());
-        }
-        return $response;
+        return new HtmlResponse($this->moduleTemplate->renderContent());
     }
 
     /**
@@ -138,87 +139,54 @@ class ConfigurationManager extends BaseModule
      */
     public function main()
     {
-        // Get a template instance and load the template
-        $this->moduleTemplate->backPath = $GLOBALS['BACK_PATH'];
-        // NOTE: this module uses the same template as the CM1 module
-        $this->moduleTemplate->form = '<form action="" method="POST">';
-        // Get the actual content
-        $this->content = $this->moduleContent();
+        $backendUser = $this->getBackendUser();
+
+        // The page will show only if there is a valid page and if this page
+        // may be viewed by the user
+        $this->pageinfo = BackendUtility::readPageAccess($this->id, $this->perms_clause);
+        if ($this->pageinfo) {
+            $this->moduleTemplate->getDocHeaderComponent()->setMetaInformation($this->pageinfo);
+        }
+
+        $access = is_array($this->pageinfo);
+        if (($this->id && $access) || ($backendUser->isAdmin() && ! $this->id)) {
+            if (!$this->id && $backendUser->isAdmin()) {
+                $this->pageinfo = ['title' => '[root-level]', 'uid' => 0, 'pid' => 0];
+            }
+            $this->view = $this->getFluidTemplateObject();
+            $this->moduleContent();
+            $this->content .= $this->view->render();
+        }
     }
 
     /**
      * Generates and returns the content of the module
      *
-     * @return string HTML to display
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
-    protected function moduleContent()
+    protected function moduleContent(): void
     {
-        $content = '';
-        $content .= $this->moduleTemplate->header($this->getLanguageService()->getLL('general.title'));
         // Get the available configurations
         $l10nConfigurations = $this->getAllConfigurations();
-        // No configurations, issue a simple message
-        if (count($l10nConfigurations) == 0) {
-            $content .= '<div>' . nl2br($this->getLanguageService()->getLL('general.no_date')) . '</div>';
-        // List all configurations
-        } else {
-            $content .= '<div><h2 class="uppercase">' . $this->getLanguageService()->getLL('general.list.configuration.manager') . '</h2>' . nl2br($this->getLanguageService()->getLL('general.description.message')) . '</div>';
-            $content .= '<div><h2 class="uppercase">' . $this->getLanguageService()->getLL('general.list.configuration.title') . '</h2></div>';
-            $content .= '<div class="table-fit"><table class="table table-striped table-hover">';
-            // Assemble the header row
-            $content .= '<thead>';
-            $content .= '<tr>';
-            $content .= '<th nowrap="nowrap" class="col-info">' . $this->getLanguageService()->getLL('general.list.headline.info.title') . '</th>';
-            $content .= '<th nowrap="nowrap" class="col-title">' . $this->getLanguageService()->getLL('general.list.headline.title.title') . '</th>';
-            $content .= '<th nowrap="nowrap" class="col-path">' . $this->getLanguageService()->getLL('general.list.headline.path.title') . '</th>';
-            $content .= '<th nowrap="nowrap" class="col-depth">' . $this->getLanguageService()->getLL('general.list.headline.depth.title') . '</th>';
-            $content .= '<th class="col-tables">' . $this->getLanguageService()->getLL('general.list.headline.tables.title') . '</th>';
-            $content .= '<th class="col-exclude">' . $this->getLanguageService()->getLL('general.list.headline.exclude.title') . '</th>';
-            $content .= '<th class="col-include">' . $this->getLanguageService()->getLL('general.list.headline.include.title') . '</th>';
-            $content .= '<th class="col-incfcewithdefaultlanguage">' . $this->getLanguageService()->getLL('general.list.headline.incfcewithdefaultlanguage.title') . '</th>';
-            $content .= '</tr>';
-            $content .= '</thead>';
-            $content .= '<tbody>';
-            $informationIcon = $this->iconFactory->getIcon('actions-document-info');
-            foreach ($l10nConfigurations as $record) {
-                $configurationDetails = '<a class="tooltip" href="#tooltip_' . $record['uid'] . '">' . $informationIcon . '</a>';
-                $configurationDetails .= '<div style="display:none;" id="tooltip_' . $record['uid'] . '" class="infotip">';
-                $configurationDetails .= $this->renderConfigurationDetails($record);
-                $configurationDetails .= '</div>';
-                $content .= '<tr class="db_list_normal">';
-                $content .= '<td>' . $configurationDetails . '</td>';
-                $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-                $content .= '<td><a href="' . $uriBuilder->buildUriFromRoute(
-                    'LocalizationManager',
-                    [
-                            'id' => $record['pid'],
-                            'srcPID' => $this->id,
-                            'exportUID' => $record['uid'],
-                        ]
-                ) . '">' . $record['title'] . '</a>' . '</td>';
-                // Get the full page path
-                // If very long, make sure to still display the full path
-                $pagePath = BackendUtility::getRecordPath($record['pid'], '1', 20, 50);
-                $path = (is_array($pagePath)) ? $pagePath[1] : $pagePath;
-                $content .= '<td>' . $path . '</td>';
-                $content .= '<td>' . $record['depth'] . '</td>';
-                $content .= '<td>' . $record['tablelist'] . '</td>';
-                $content .= '<td>' . $record['exclude'] . '</td>';
-                $content .= '<td>' . $record['include'] . '</td>';
-                $content .= '<td>' . $record['incfcewithdefaultlanguage'] . '</td>';
-                $content .= '</tr>';
-            }
-            $content .= '</tbody></table></div>';
+        foreach ($l10nConfigurations as $key => $l10nConfiguation) {
+            $l10nConfigurations[$key]['link'] = (string)$this->uriBuilder->buildUriFromRoute('LocalizationManager', [
+                    'id' => $l10nConfiguation['pid'],
+                    'srcPID' => $this->id,
+                    'exportUID' => $l10nConfiguation['uid'],
+                ]);
+            $pagePath = BackendUtility::getRecordPath($l10nConfiguation['pid'], '1', 20, 50);
+            $l10nConfigurations[$key]['path'] = (is_array($pagePath)) ? $pagePath[1] : $pagePath;
         }
-        return $content;
+        $this->view->assign('configurations', $l10nConfigurations);
     }
 
     /**
      * Returns all l10nmgr configurations to which the current user has access, based on page permissions
      *
      * @return array List of l10nmgr configurations
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
-    protected function getAllConfigurations()
+    protected function getAllConfigurations(): array
     {
         // Read all l10nmgr configurations from the database
         /** @var QueryBuilder $queryBuilder */
@@ -227,7 +195,7 @@ class ConfigurationManager extends BaseModule
             ->from('tx_l10nmgr_cfg')
             ->orderBy('title')
             ->execute()
-            ->fetchAll();
+            ->fetchAllAssociative();
         // Filter out the configurations which the user is allowed to see, base on the page access rights
         $pagePermissionsClause = $this->getBackendUser()->getPagePermsClause(1);
         $allowedConfigurations = [];
@@ -304,5 +272,19 @@ class ConfigurationManager extends BaseModule
             $this->pageDetails[$uid] = $record;
         }
         return $record;
+    }
+
+    protected function getFluidTemplateObject(): StandaloneView
+    {
+        $view = GeneralUtility::makeInstance(StandaloneView::class);
+        $view->setLayoutRootPaths([GeneralUtility::getFileAbsFileName('EXT:l10nmgr/Resources/Private/Layouts')]);
+        $view->setPartialRootPaths([GeneralUtility::getFileAbsFileName('EXT:l10nmgr/Resources/Private/Partials')]);
+        $view->setTemplateRootPaths([GeneralUtility::getFileAbsFileName('EXT:l10nmgr/Resources/Private/Templates')]);
+
+        $view->setTemplatePathAndFilename(GeneralUtility::getFileAbsFileName('EXT:l10nmgr/Resources/Private/Templates/ConfigurationManager/Index.html'));
+
+        $view->getRequest()->setControllerExtensionName('l10nmgr');
+
+        return $view;
     }
 }

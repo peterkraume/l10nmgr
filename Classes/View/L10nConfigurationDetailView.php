@@ -22,7 +22,6 @@ namespace Localizationteam\L10nmgr\View;
 
 use Localizationteam\L10nmgr\Model\L10nConfiguration;
 use Localizationteam\L10nmgr\Traits\BackendUserTrait;
-use TYPO3\CMS\Backend\Template\DocumentTemplate;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -32,6 +31,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * @author Kasper Skaarhoj <kasperYYYY@typo3.com>
  * @author Daniel Pötzinger <development@aoemedia.de>
+ * @author Stefano Kowalke <info@arroba-it.de>
  */
 class L10nConfigurationDetailView
 {
@@ -43,88 +43,47 @@ class L10nConfigurationDetailView
     protected $l10ncfgObj;
 
     /**
-     * @var DocumentTemplate
-     */
-    protected $module;
-
-    /**
      * @var LanguageService
      */
     protected $languageService;
 
-    /**
-     * constructor. Set the internal required objects as parameter in constructor (kind of dependency injection, and communicate the dependencies)
-     *
-     * @param L10nConfiguration $l10ncfgObj
-     * @param DocumentTemplate $module Reference to the calling template object
-     */
-    public function __construct($l10ncfgObj, $module)
+    public function __construct(L10nConfiguration $l10ncfgObj)
     {
         $this->l10ncfgObj = $l10ncfgObj;
-        $this->module = $module;
     }
 
-    /**
-     * returns HTML table with infos for the l10nmgr config.
-     * (needs valid configuration to be set)
-     *
-     * @return string HTML to display
-     **/
-    public function render()
+    public function render(): array
     {
-        $content = '';
-        if (!$this->_hasValidConfig()) {
-            return $this->getLanguageService()->getLL('general.export.configuration.error.title');
+        if (!$this->hasValidConfig()) {
+            return [
+                'isInvalid' => true,
+                'error' => $this->getLanguageService()->getLL('general.export.configuration.error.title'),
+            ];
         }
-        $configurationSettings = '
-	<table class="table table-striped table-hover">
-	<tr class="t3-row-header">
-	<th colspan="4">' . htmlspecialchars($this->l10ncfgObj->getData('title')) . ' [' . $this->l10ncfgObj->getData('uid') . ']</th>
-	</tr>
-	<tr class="db_list_normal">
-	<th>' . $this->getLanguageService()->getLL('general.list.headline.depth.title') . ':</th>
-	<td>' . htmlspecialchars($this->l10ncfgObj->getData('depth')) . '&nbsp;</td>
-	<th>' . $this->getLanguageService()->getLL('general.list.headline.tables') . ':</th>
-	<td>' . htmlspecialchars($this->l10ncfgObj->getData('tablelist')) . '&nbsp;</td>
-	</tr>
-	<tr class="db_list_normal">
-	<th>' . $this->getLanguageService()->getLL('general.list.headline.exclude.title') . ':</th>
-	<td>' . htmlspecialchars($this->l10ncfgObj->getData('exclude')) . '&nbsp;</td>
-	<th>' . $this->getLanguageService()->getLL('general.list.headline.include.title') . ':</th>
-	<td>' . htmlspecialchars($this->l10ncfgObj->getData('include')) . '&nbsp;</td>
-	</tr>
-	</table>';
-        $content .= '<div><h2 class="uppercase">' . $this->getLanguageService()->getLL('general.export.configuration.title') . '</h2>' . str_replace(
-            ',',
-            ', ',
-            $configurationSettings
-        );
-        return $content;
+
+        $configurationSettings = [
+            'header' => htmlspecialchars($this->l10ncfgObj->getData('title')) . ' [' . $this->l10ncfgObj->getData('uid') . ']',
+            'depth' => htmlspecialchars($this->l10ncfgObj->getData('depth')),
+            'tables' => htmlspecialchars($this->l10ncfgObj->getData('tablelist')),
+            'exclude' => htmlspecialchars($this->l10ncfgObj->getData('exclude')),
+            'include' => htmlspecialchars($this->l10ncfgObj->getData('include')),
+        ];
+
+        return str_replace(',', ', ', $configurationSettings);
     }
 
-    /**
-     * checks if the internal L10nConfiguration object is valid
-     *
-     * @return bool
-     **/
-    protected function _hasValidConfig()
+    protected function hasValidConfig(): bool
     {
-        if (is_object($this->l10ncfgObj) && $this->l10ncfgObj->isLoaded()) {
-            return true;
-        }
-        return false;
+        return is_object($this->l10ncfgObj) && $this->l10ncfgObj->isLoaded();
     }
 
-    /**
-     * getter/setter for LanguageService object
-     *
-     * @return LanguageService $languageService
-     */
-    protected function getLanguageService()
+    protected function getLanguageService(): LanguageService
     {
         if (!$this->languageService instanceof LanguageService) {
             $this->languageService = GeneralUtility::makeInstance(LanguageService::class);
         }
+        // TODO: Why init the language every time `getLanguageService()` is called?
+        // Can we move that snippet inside the if construct above?
         if ($this->getBackendUser()) {
             $this->languageService->init($this->getBackendUser()->uc['lang']);
         }

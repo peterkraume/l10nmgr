@@ -155,7 +155,7 @@ class L10nAccumulatedInformation
 
     protected function process()
     {
-        if ($this->objectStatus != 'processed') {
+        if ($this->objectStatus !== 'processed') {
             $this->_calculateInternalAccumulatedInformationsArray();
             $event = new L10nAccumulatedInformationIsProcessed($this->_accumulatedInformations, $this->l10ncfg);
             $eventDispatcher = GeneralUtility::makeInstance(EventDispatcher::class);
@@ -366,7 +366,7 @@ class L10nAccumulatedInformation
         foreach ($this->includeIndex as $recId => $rec) {
             list($table, $uid) = explode(':', $recId);
             $row = BackendUtility::getRecordWSOL($table, $uid);
-            if (count($row)) {
+            if ($row !== null && count($row)) {
                 $accum[-1]['items'][$table][$row['uid']] = $t8Tools->translationDetails(
                     $table,
                     $row,

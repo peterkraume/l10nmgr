@@ -20,13 +20,15 @@
     "issues": "https://forge.typo3.org/projects/extension-l10nmgr/issues"
   },
   "require": {
-    "typo3/cms-core": "^10.4",
     "typo3/cms-backend": "^10.4",
+    "typo3/cms-core": "^10.4",
+    "typo3/cms-fluid": "^10.4",
     "typo3/cms-scheduler": "^10.4"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^3.1.0",
-    "phpstan/phpstan": "^1.1"
+    "friendsoftypo3/phpstan-typo3": "^0.8.1",
+    "phpstan/phpstan": "^0.12.99"
   },
   "autoload": {
     "psr-4": {

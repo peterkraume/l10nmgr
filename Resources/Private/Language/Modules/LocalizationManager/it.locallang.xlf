@@ -140,7 +140,7 @@
 			</trans-unit>
 			<trans-unit id="inlineedit.cancel.alert.title" xml:space="preserve" approved="yes">
 				<source>You are about to discard any changes you made. Continue?</source>
-				<target>Sta per annullare tutte le modificazioni in questo modulo!Continuare?</target>
+				<target>Sta per annullare tutte le modificazioni in questo modulo! Continuare?</target>
 			</trans-unit>
 			<trans-unit id="export.xml.headline.title" xml:space="preserve" approved="yes">
 				<source>Export</source>

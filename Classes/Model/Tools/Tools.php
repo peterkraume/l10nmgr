@@ -334,6 +334,7 @@ class Tools
                                                 $TCEformsCfg,
                                                 $contentRow
                                             ),
+                                            'TCEformsCfg' => $TCEformsCfg['config'],
                                         ];
                                     } elseif ($this->verbose) {
                                         $this->detailsOutput['fields'][$key] = 'Bypassing; ->filters[noIntegers] was set and dataValue "' . $dataValue . '" was an integer';
