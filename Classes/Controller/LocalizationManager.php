@@ -33,6 +33,7 @@ use Localizationteam\L10nmgr\View\ExcelXmlView;
 use Localizationteam\L10nmgr\View\L10nConfigurationDetailView;
 use Localizationteam\L10nmgr\View\L10nHtmlListView;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
 use TYPO3\CMS\Backend\Routing\Exception\ResourceNotFoundException;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
@@ -42,6 +43,8 @@ use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\HtmlResponse;
+use TYPO3\CMS\Core\Http\Response;
+use TYPO3\CMS\Core\Http\Stream;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Mail\MailMessage;
@@ -114,6 +117,18 @@ class LocalizationManager extends BaseModule
      * @var EmConfiguration
      */
     protected $emConfiguration;
+
+    protected $settings = [
+        'across' => 'acrossL10nmgrConfig.dst',
+        'dejaVu' => 'dejaVuL10nmgrConfig.dvflt',
+        'memoq' => 'memoQ.mqres',
+        'memoq2013-2014' => 'XMLConverter_TYPO3_l10nmgr_v3.6.mqres',
+        'transit' => 'StarTransit_XML_UTF_TYPO3.FFD',
+        'sdltrados2007' => 'SDLTradosTagEditor.ini',
+        'sdltrados2009' => 'TYPO3_l10nmgr.sdlfiletype',
+        'sdltrados2011-2014' => 'TYPO3_ConfigurationManager_v3.6.free.sdlftsettings',
+        'sdlpassolo' => 'SDLPassolo.xfg',
+    ];
 
     public function __construct()
     {
@@ -1127,38 +1142,38 @@ return false;
             '<br class="clearfix">&nbsp;</div>';
     }
 
-    /**
-     * @return string
-     */
-    protected function getTabContentXmlDownloads()
+    protected function getTabContentXmlDownloads(): string
     {
-        global $BACK_PATH;
-        $allowedSettingFiles = [
-            'across' => 'acrossL10nmgrConfig.dst',
-            'dejaVu' => 'dejaVuL10nmgrConfig.dvflt',
-            'memoq' => 'memoQ.mqres',
-            'memoq2013-2014' => 'XMLConverter_TYPO3_l10nmgr_v3.6.mqres',
-            'transit' => 'StarTransit_XML_UTF_TYPO3.FFD',
-            'sdltrados2007' => 'SDLTradosTagEditor.ini',
-            'sdltrados2009' => 'TYPO3_l10nmgr.sdlfiletype',
-            'sdltrados2011-2014' => 'TYPO3_ConfigurationManager_v3.6.free.sdlftsettings',
-            'sdlpassolo' => 'SDLPassolo.xfg',
-        ];
         $tabContentXmlDownloads = '<h4>' . $this->getLanguageService()->getLL('file.settings.available.title') . '</h4><ul>';
-        foreach ($allowedSettingFiles as $settingId => $settingFileName) {
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        foreach ($this->settings as $settingId => $settingFileName) {
             $absoluteFileName = GeneralUtility::getFileAbsFileName('EXT:l10nmgr/Configuration/Settings/' . $settingFileName);
-            $currentFile = GeneralUtility::resolveBackPath($BACK_PATH . PathUtility::stripPathSitePrefix(ExtensionManagementUtility::extPath('l10nmgr')) . 'Configuration/Settings/' . $settingFileName);
             if (is_file($absoluteFileName) && is_readable($absoluteFileName)) {
                 $size = GeneralUtility::formatSize((int)filesize($absoluteFileName), ' Bytes| KB| MB| GB');
-                $tabContentXmlDownloads .= '<li><a class="t3-link" href="' . str_replace(
-                    '%2F',
-                    '/',
-                    rawurlencode($currentFile)
-                ) . '" title="' . $this->getLanguageService()->getLL('file.settings.download.title') . '" target="_blank">' . $this->getLanguageService()->getLL('file.settings.' . $settingId . '.title') . ' (' . $size . ')' . '</a></li>';
+                $tabContentXmlDownloads .= '<li><a class="t3-link" href="' . $uriBuilder->buildUriFromRoute('download_setting', ['setting' => $settingId])  . '" title="' . $this->getLanguageService()->getLL('file.settings.download.title') . '" target="_blank">' . $this->getLanguageService()->getLL('file.settings.' . $settingId . '.title') . ' (' . $size . ')' . '</a></li>';
             }
         }
         $tabContentXmlDownloads .= '</ul>';
         return $tabContentXmlDownloads;
+    }
+
+    public function downloadSetting(ServerRequestInterface $request): ResponseInterface
+    {
+        $settingId = $request->getQueryParams()['setting'];
+        $absoluteFileName = GeneralUtility::getFileAbsFileName('EXT:l10nmgr/Configuration/Settings/' . $this->getSetting($settingId));
+
+        $body = new Stream('php://temp', 'wb+');
+        $body->write(file_get_contents($absoluteFileName));
+        $body->rewind();
+        return (new Response())
+            ->withAddedHeader('Content-Length', (string)(filesize($absoluteFileName) ?: ''))
+            ->withAddedHeader('Content-Disposition', 'attachment; filename="' . PathUtility::basename($absoluteFileName) . '"')
+            ->withBody($body);
+    }
+
+    protected function getSetting(string $key): string
+    {
+        return $this->settings[$key];
     }
 
     /**
