@@ -88,7 +88,6 @@ class L10nHtmlListView extends AbstractExportView
     public function __construct($l10ncfgObj, $sysLang)
     {
         $this->moduleTemplate = GeneralUtility::makeInstance(ModuleTemplate::class);
-        $this->moduleTemplate->backPath = $GLOBALS['BACK_PATH'];
         parent::__construct($l10ncfgObj, $sysLang);
     }
 
@@ -114,7 +113,7 @@ class L10nHtmlListView extends AbstractExportView
         $sections = [];
         $showSingle = GeneralUtility::_GET('showSingle');
         $noAnalysis = false;
-        if ($l10ncfg['displaymode'] > self::DISPLAY_MODE_RENDER_ALL_ITEMS) {
+        if ($l10ncfg !== null && $l10ncfg['displaymode'] > self::DISPLAY_MODE_RENDER_ALL_ITEMS) {
             $showSingle = $showSingle ?: 'NONE';
             if ($l10ncfg['displaymode'] === self::DISPLAY_MODE_RENDER_OVERVIEW_WITH_NO_DETAILS) {
                 $noAnalysis = true;
@@ -144,16 +143,28 @@ class L10nHtmlListView extends AbstractExportView
                                     );
                                     if ($uidValue === 'NEW') {
                                         $diff = '<em>' . $this->getLanguageService()->getLL('render_overview.new.message') . '</em>';
+                                        if (!isset($flags['new'])) {
+                                            $flags['new'] = 0;
+                                        }
                                         $flags['new']++;
                                     } elseif (!isset($tData['diffDefaultValue'])) {
                                         $diff = '<em>' . $this->getLanguageService()->getLL('render_overview.nodiff.message') . '</em>';
+                                        if (!isset($flags['unknown'])) {
+                                            $flags['unknown'] = 0;
+                                        }
                                         $flags['unknown']++;
                                     } elseif ($noChangeFlag) {
                                         $diff = $this->getLanguageService()->getLL('render_overview.nochange.message');
                                         $edit = true;
+                                        if (!isset($flags['noChange'])) {
+                                            $flags['noChange'] = 0;
+                                        }
                                         $flags['noChange']++;
                                     } else {
                                         $diff = $this->diffCMP($tData['diffDefaultValue'], $tData['defaultValue']);
+                                        if (!isset($flags['update'])) {
+                                            $flags['update'] = 0;
+                                        }
                                         $flags['update']++;
                                     }
                                     if (!$this->modeOnlyChanged || !$noChangeFlag) {

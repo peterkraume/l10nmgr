@@ -75,7 +75,7 @@ class TranslationDataFactory implements LoggerAwareInterface
                 if (is_array($pageGrp['ch']['data'])) {
                     foreach ($pageGrp['ch']['data'] as $row) {
                         $attrs = $row['attrs'];
-                        if ($attrs['transformations'] == '1') {
+                        if (($attrs['transformations'] ?? null) == '1') {
                             $translationValue = $xmlTool->XML2RTE($row['XMLvalue']);
                             $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = $translationValue;
                         } else {

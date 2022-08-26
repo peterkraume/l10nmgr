@@ -176,8 +176,11 @@ class L10nAccumulatedInformation
         $accum = [];
         $sysLang = $this->sysLang;
         // FlexForm Diff data:
-        $flexFormDiff = unserialize($l10ncfg['flexformdiff']);
-        $flexFormDiff = $flexFormDiff[$sysLang];
+        $flexFormDiff = [];
+        if ($l10ncfg['flexformdiff'] !== null) {
+            $flexFormDiff = unserialize($l10ncfg['flexformdiff']);
+            $flexFormDiff = $flexFormDiff[$sysLang];
+        }
         $this->excludeIndex = array_flip(GeneralUtility::trimExplode(',', $l10ncfg['exclude'], true));
         // Init:
         $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);

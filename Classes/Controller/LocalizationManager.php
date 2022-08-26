@@ -146,7 +146,7 @@ class LocalizationManager extends BaseModule
         // Checking second level external objects
         $this->checkSubExtObj();
 
-        switch ($this->MOD_SETTINGS['action']) {
+        switch ($this->MOD_SETTINGS['action'] ?? '') {
             case 'inlineEdit':
             case 'link':
                 // TODO: Rename this to main()
@@ -318,7 +318,7 @@ return false;
             $this->pageinfo = BackendUtility::readPageAccess($this->id, $this->perms_clause);
             $access = is_array($this->pageinfo);
             if ($this->id && $access) {
-                $title = $this->MOD_MENU['action'][$this->MOD_SETTINGS['action']];
+                $title = $this->MOD_MENU['action'][$this->MOD_SETTINGS['action'] ?? ''];
 
                 $this->content .= '<div class="panel panel-default expanded">
     <div class="panel-heading" role="tab" id="headingL10nmgrPanel">
@@ -336,7 +336,7 @@ return false;
                     self::getFuncMenu(
                         $this->id,
                         'SET[action]',
-                        $this->MOD_SETTINGS['action'],
+                        $this->MOD_SETTINGS['action'] ?? '',
                         $this->MOD_MENU['action'],
                         '',
                         '&srcPID=' . rawurlencode(GeneralUtility::_GET('srcPID')) . '&exportUID=' . $L10nConfiguration->getId(),
@@ -356,7 +356,7 @@ return false;
                     self::getFuncCheck(
                         $this->id,
                         'SET[onlyChangedContent]',
-                        $this->MOD_SETTINGS['onlyChangedContent'],
+                        $this->MOD_SETTINGS['onlyChangedContent'] ?? '',
                         '',
                         '&srcPID=' . rawurlencode(GeneralUtility::_GET('srcPID')) . '&exportUID=' . $L10nConfiguration->getId(),
                         '',
@@ -365,7 +365,7 @@ return false;
                     self::getFuncCheck(
                         $this->id,
                         'SET[noHidden]',
-                        $this->MOD_SETTINGS['noHidden'],
+                        $this->MOD_SETTINGS['noHidden'] ?? '',
                         '',
                         '&srcPID=' . rawurlencode(GeneralUtility::_GET('srcPID')) . '&exportUID=' . $L10nConfiguration->getId(),
                         '',
@@ -634,7 +634,7 @@ return false;
      */
     protected function moduleContent(L10nConfiguration $l10NConfiguration): void
     {
-        switch ($this->MOD_SETTINGS['action']) {
+        switch ($this->MOD_SETTINGS['action'] ?? '') {
             case 'inlineEdit':
             case 'link':
                 $subcontent = '';
@@ -697,7 +697,7 @@ return false;
             $this->getFuncCheck(
                 $this->id,
                 'SET[check_exports]',
-                $this->MOD_SETTINGS['check_exports'],
+                $this->MOD_SETTINGS['check_exports'] ?? '',
                 '',
                 '&srcPID=' . rawurlencode(GeneralUtility::_GET('srcPID')) . '&exportUID=' . $l10ncfgObj->getId(),
                 '',
@@ -740,14 +740,14 @@ return false;
             if ($export_xml_forcepreviewlanguage > 0) {
                 $viewClass->setForcedSourceLanguage($export_xml_forcepreviewlanguage);
             }
-            if ($this->MOD_SETTINGS['onlyChangedContent']) {
+            if ($this->MOD_SETTINGS['onlyChangedContent'] ?? false) {
                 $viewClass->setModeOnlyChanged();
             }
-            if ($this->MOD_SETTINGS['noHidden']) {
+            if ($this->MOD_SETTINGS['noHidden'] ?? false) {
                 $viewClass->setModeNoHidden();
             }
             //Check the export
-            if ($this->MOD_SETTINGS['check_exports'] && !$viewClass->checkExports()) {
+            if (($this->MOD_SETTINGS['check_exports'] ?? false) && !$viewClass->checkExports()) {
                 /** @var FlashMessage $flashMessage */
                 $flashMessage = GeneralUtility::makeInstance(
                     FlashMessage::class,
@@ -953,14 +953,14 @@ return false;
             if ($export_xml_forcepreviewlanguage > 0) {
                 $viewClass->setForcedSourceLanguage($export_xml_forcepreviewlanguage);
             }
-            if ($this->MOD_SETTINGS['onlyChangedContent']) {
+            if ($this->MOD_SETTINGS['onlyChangedContent'] ?? false) {
                 $viewClass->setModeOnlyChanged();
             }
-            if ($this->MOD_SETTINGS['noHidden']) {
+            if ($this->MOD_SETTINGS['noHidden'] ?? false) {
                 $viewClass->setModeNoHidden();
             }
             // Check the export
-            if ($this->MOD_SETTINGS['check_exports'] && !$viewClass->checkExports()) {
+            if (($this->MOD_SETTINGS['check_exports'] ?? false) && !$viewClass->checkExports()) {
                 /** @var FlashMessage $flashMessage */
                 $flashMessage = GeneralUtility::makeInstance(
                     FlashMessage::class,
@@ -1331,7 +1331,7 @@ return false;
             if ($sL['uid'] > 0 && $this->getBackendUser()->checkLanguageAccess($sL['uid'])) {
                 if ($this->emConfiguration->isEnableHiddenLanguages()) {
                     $this->MOD_MENU['lang'][$sL['uid']] = $sL['title'];
-                } elseif ($sL['hidden'] == 0) {
+                } elseif (!($sL['hidden'] ?? false)) {
                     $this->MOD_MENU['lang'][$sL['uid']] = $sL['title'];
                 }
             }
@@ -1378,10 +1378,10 @@ return false;
         }
         // Render the module content (for all modes):
         //*******************************************
-        if ($this->MOD_SETTINGS['onlyChangedContent']) {
+        if ($this->MOD_SETTINGS['onlyChangedContent'] ?? false) {
             $htmlListView->setModeOnlyChanged();
         }
-        if ($this->MOD_SETTINGS['noHidden']) {
+        if ($this->MOD_SETTINGS['noHidden'] ?? false) {
             $htmlListView->setModeNoHidden();
         }
         if ($this->MOD_SETTINGS['action'] === 'link') {
@@ -1390,7 +1390,7 @@ return false;
 
         return [
             'sections' => $htmlListView->renderOverview(),
-            'inlineEdit' => $result['inlineEdit'],
+            'inlineEdit' => $result['inlineEdit'] ?? [],
         ];
     }
 

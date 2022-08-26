@@ -182,7 +182,7 @@ class BaseModule
         $this->MOD_MENU['function'] = $this->mergeExternalItems(
             $this->MCONF['name'],
             'function',
-            $this->MOD_MENU['function']
+            $this->MOD_MENU['function'] ?? []
         );
         $blindActions = $this->modTSconfig['properties']['menu.']['function.'] ?? [];
         foreach ($blindActions as $key => $value) {
@@ -212,7 +212,7 @@ class BaseModule
      */
     public function mergeExternalItems($modName, $menuKey, $menuArr)
     {
-        $mergeArray = $GLOBALS['TBE_MODULES_EXT'][$modName]['MOD_MENU'][$menuKey];
+        $mergeArray = $GLOBALS['TBE_MODULES_EXT'][$modName]['MOD_MENU'][$menuKey] ?? null;
         if (is_array($mergeArray)) {
             foreach ($mergeArray as $k => $v) {
                 if (

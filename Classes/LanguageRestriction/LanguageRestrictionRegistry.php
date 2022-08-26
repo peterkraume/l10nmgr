@@ -319,7 +319,7 @@ class LanguageRestrictionRegistry implements SingletonInterface
     {
         // Makes sure to add more TCA to an existing structure
         if (isset($GLOBALS['TCA'][$tableName]['columns'])) {
-            $fieldList = $options['fieldList'];
+            $fieldList = $options['fieldList'] ?? '';
 
             if (empty($fieldList)) {
                 $fieldList = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME;

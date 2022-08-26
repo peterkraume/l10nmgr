@@ -212,11 +212,9 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
 	';
         }
         // Provide a hook for specific manipulations before building the actual XML
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['exportExcelXmlPreProcess'])) {
-            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['exportExcelXmlPreProcess'] as $classReference) {
-                $processingObject = GeneralUtility::makeInstance($classReference);
-                $output = $processingObject->processBeforeExportingExcelXml($output, $this);
-            }
+        foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['exportExcelXmlPreProcess'] ?? [] as $classReference) {
+            $processingObject = GeneralUtility::makeInstance($classReference);
+            $output = $processingObject->processBeforeExportingExcelXml($output, $this);
         }
         $excelXML = GeneralUtility::getUrl(ExtensionManagementUtility::extPath('l10nmgr') . 'Resources/Private/Templates/ExcelTemplate.xml');
         $excelXML = str_replace('###INSERT_ROWS###', implode('', $output), $excelXML);

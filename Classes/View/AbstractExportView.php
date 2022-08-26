@@ -192,16 +192,15 @@ abstract class AbstractExportView
             $field_values
         );
 
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['exportView'])) {
-            $params = [
-                'uid' => (int)$databaseConnection->lastInsertId('tx_l10nmgr_exportdata'),
-                'data' => $field_values,
-            ];
-            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['exportView'] as $classData) {
-                $postSaveProcessor = GeneralUtility::makeInstance($classData);
-                if ($postSaveProcessor instanceof PostSaveInterface) {
-                    $postSaveProcessor->postExportAction($params);
-                }
+        foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['exportView'] ?? [] as $classData) {
+            $postSaveProcessor = GeneralUtility::makeInstance($classData);
+            if ($postSaveProcessor instanceof PostSaveInterface) {
+                $postSaveProcessor->postExportAction(
+                    [
+                        'uid' => (int)$databaseConnection->lastInsertId('tx_l10nmgr_exportdata'),
+                        'data' => $field_values,
+                    ]
+                );
             }
         }
         return $res > 0;

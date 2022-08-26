@@ -123,7 +123,7 @@ class L10nBaseService implements LoggerAwareInterface
         $preTranslate = true
     ) {
         // Provide a hook for specific manipulations before saving
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['savePreProcess'])) {
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['savePreProcess'] ?? null)) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['savePreProcess'] as $classReference) {
                 $processingObject = GeneralUtility::makeInstance($classReference);
                 $processingObject->processBeforeSaving($l10ncfgObj, $translationObj, $this);
@@ -149,11 +149,9 @@ class L10nBaseService implements LoggerAwareInterface
             $l10ncfgObj->updateFlexFormDiff($sysLang, $flexFormDiffArray);
         }
         // Provide a hook for specific manipulations after saving
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['savePostProcess'])) {
-            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['savePostProcess'] as $classReference) {
-                $processingObject = GeneralUtility::makeInstance($classReference);
-                $processingObject->processAfterSaving($l10ncfgObj, $translationObj, $flexFormDiffArray, $this);
-            }
+        foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['savePostProcess'] ?? [] as $classReference) {
+            $processingObject = GeneralUtility::makeInstance($classReference);
+            $processingObject->processAfterSaving($l10ncfgObj, $translationObj, $flexFormDiffArray, $this);
         }
     }
 
@@ -573,14 +571,11 @@ class L10nBaseService implements LoggerAwareInterface
                 foreach ($accum[$pId]['items'] as $table => $elements) {
                     foreach ($elements as $elementUid => $data) {
                         $element = $this->getRawRecord((string)$table, (int)$elementUid);
-                        $hooks = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['beforeDataFieldsTranslated'];
-                        if (is_array($hooks)) {
-                            foreach ($hooks as $hookObj) {
-                                $parameters = [
-                                    'data' => $data,
-                                ];
-                                $data = GeneralUtility::callUserFunction($hookObj, $parameters, $this);
-                            }
+                        foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['beforeDataFieldsTranslated'] ?? [] as $hookObj) {
+                            $parameters = [
+                                'data' => $data,
+                            ];
+                            $data = GeneralUtility::callUserFunction($hookObj, $parameters, $this);
                         }
                         if (is_array($data['fields'])) {
                             foreach ($data['fields'] as $key => $tData) {
@@ -588,8 +583,18 @@ class L10nBaseService implements LoggerAwareInterface
                                     && is_array($inputArray[$table][$elementUid])
                                     && array_key_exists($key, $inputArray[$table][$elementUid])
                                 ) {
-                                    [$Ttable, $TuidString, $Tfield, $Tpath] = explode(':', $key);
-                                    [$Tuid, $Tlang, $TdefRecord] = explode('/', $TuidString);
+                                    $explodedKey = explode(':', $key);
+                                    [$Ttable, $TuidString, $Tfield] = $explodedKey;
+                                    $Tpath = null;
+                                    if (array_key_exists(3, $explodedKey)) {
+                                        $Tpath = $explodedKey[3];
+                                    }
+                                    $explodedTuidString = explode('/', $TuidString);
+                                    $Tuid = $explodedTuidString[0];
+                                    $Tlang = null;
+                                    if (array_key_exists(1, $explodedTuidString)) {
+                                        $Tlang = $explodedTuidString[1];
+                                    }
                                     if (!$this->createTranslationAlsoIfEmpty
                                         && $inputArray[$table][$elementUid][$key] == ''
                                         && $Tuid == 'NEW'
@@ -792,15 +797,12 @@ class L10nBaseService implements LoggerAwareInterface
                             }
                         }
 
-                        $hooks = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['afterDataFieldsTranslated'];
-                        if (is_array($hooks)) {
-                            foreach ($hooks as $hookObj) {
-                                $parameters = [
-                                    'TCEmain_data' => $TCEmain_data,
-                                    'TCEmain_cmd' => $this->TCEmain_cmd,
-                                ];
-                                $this->TCEmain_data = GeneralUtility::callUserFunction($hookObj, $parameters, $this);
-                            }
+                        foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['afterDataFieldsTranslated'] ?? [] as $hookObj) {
+                            $parameters = [
+                                'TCEmain_data' => $TCEmain_data,
+                                'TCEmain_cmd' => $this->TCEmain_cmd,
+                            ];
+                            $this->TCEmain_data = GeneralUtility::callUserFunction($hookObj, $parameters, $this);
                         }
                     }
                     if (is_array($inputArray[$table]) && !count($inputArray[$table])) {
@@ -823,10 +825,7 @@ class L10nBaseService implements LoggerAwareInterface
                 }
             }
             // Before remapping
-            $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TCEmain_data before remapping: ' . implode(
-                ', ',
-                $TCEmain_data
-            ));
+            $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TCEmain_data before remapping: ' . json_encode($TCEmain_data));
             // Remapping those elements which are new:
             $this->lastTCEMAINCommandsCount = 0;
             $slugFields = [];
@@ -842,7 +841,16 @@ class L10nBaseService implements LoggerAwareInterface
             }
             foreach ($TCEmain_data as $table => $items) {
                 foreach ($items as $TuidString => $fields) {
-                    [$Tuid, $Tlang, $TdefRecord] = explode('/', $TuidString);
+                    $explodedTuidString = explode('/', $TuidString);
+                    $Tuid = $explodedTuidString[0];
+                    $Tlang = null;
+                    if (array_key_exists(1, $explodedTuidString)) {
+                        $Tlang = $explodedTuidString[1];
+                    }
+                    $TdefRecord = null;
+                    if (array_key_exists(2, $explodedTuidString)) {
+                        $TdefRecord = $explodedTuidString[2];
+                    }
                     $this->lastTCEMAINCommandsCount++;
                     if ($Tuid === 'NEW') {
                         // if there are slug fields and there is no translation value for them
@@ -902,10 +910,7 @@ class L10nBaseService implements LoggerAwareInterface
                 }
             }
             // After remapping
-            $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TCEmain_data after remapping: ' . implode(
-                ', ',
-                $TCEmain_data
-            ));
+            $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TCEmain_data after remapping: ' . json_encode($TCEmain_data));
             // Now, submitting translation data:
             /** @var DataHandler $tce */
             $tce = GeneralUtility::makeInstance(DataHandler::class);

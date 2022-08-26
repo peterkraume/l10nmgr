@@ -260,10 +260,7 @@ class Tools
         $msg = '';
         list($kTableName, , $kFieldName) = explode(':', $key);
         if ($TCEformsCfg['config']['type'] !== 'flex') {
-            if ($TCEformsCfg['l10n_mode'] != 'exclude') {
-                if ($TCEformsCfg['l10n_mode'] == 'mergeIfNotBlank') {
-                    $msg .= 'This field is optional. If not filled in, the default language value will be used.';
-                }
+            if (($TCEformsCfg['l10n_mode'] ?? null) !== 'exclude') {
                 if ((
                     GeneralUtility::inList('shortcut,shortcut_mode,urltype,url_scheme', $kFieldName)
                         && $kTableName === 'pages'
@@ -273,7 +270,7 @@ class Tools
                     $this->bypassFilter = true;
                 }
                 $is_HIDE_L10N_SIBLINGS = false;
-                if (is_array($TCEformsCfg['displayCond'])) {
+                if (is_array($TCEformsCfg['displayCond'] ?? null)) {
                     $GLOBALS['is_HIDE_L10N_SIBLINGS'] = $is_HIDE_L10N_SIBLINGS;
                     array_walk_recursive(
                         $TCEformsCfg['displayCond'],
@@ -286,11 +283,11 @@ class Tools
                     $is_HIDE_L10N_SIBLINGS = $GLOBALS['is_HIDE_L10N_SIBLINGS'];
                 } else {
                     $is_HIDE_L10N_SIBLINGS = GeneralUtility::isFirstPartOfStr(
-                        $TCEformsCfg['displayCond'],
+                        $TCEformsCfg['displayCond'] ?? '',
                         'HIDE_L10N_SIBLINGS'
                     );
                 }
-                $l10nmgrConfiguration = $TCEformsCfg['l10nmgr'];
+                $l10nmgrConfiguration = $TCEformsCfg['l10nmgr'] ?? [];
                 $exclude = false;
                 $bypassFilter = [];
                 if (!empty($l10nmgrConfiguration)) {
@@ -324,10 +321,10 @@ class Tools
                                         $this->detailsOutput['fields'][$key] = [
                                             'defaultValue' => $dataValue,
                                             'translationValue' => $translationValue,
-                                            'diffDefaultValue' => $TCEformsCfg['l10n_display'] != 'hideDiff' ? $diffDefaultValue : '',
+                                            'diffDefaultValue' => ($TCEformsCfg['l10n_display'] ?? null) !== 'hideDiff' ? $diffDefaultValue : '',
                                             'previewLanguageValues' => $previewLanguageValues,
                                             'msg' => $msg,
-                                            'readOnly' => $TCEformsCfg['l10n_display'] == 'defaultAsReadonly',
+                                            'readOnly' => ($TCEformsCfg['l10n_display'] ?? null) === 'defaultAsReadonly',
                                             'fieldType' => $TCEformsCfg['config']['type'],
                                             'isRTE' => $this->_isRTEField(
                                                 $key,
@@ -831,7 +828,7 @@ class Tools
     protected function filterIndex($table, $uid, $pageId)
     {
         // Initialize (only first time)
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['indexFilter'])
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['indexFilter'] ?? null)
             && !is_array($this->indexFilterObjects[$pageId])
         ) {
             $this->indexFilterObjects[$pageId] = [];
@@ -844,7 +841,7 @@ class Tools
             }
         }
         // Check record:
-        if (is_array($this->indexFilterObjects[$pageId])) {
+        if (is_array($this->indexFilterObjects[$pageId] ?? null)) {
             foreach ($this->indexFilterObjects[$pageId] as $obj) {
                 // TODO: What kind of filter is here used? Can't find an interface
                 // in the exension
@@ -905,11 +902,10 @@ class Tools
                             $translationUID = 'NEW/' . $sysLang . '/' . $row['uid'];
                             $translationRecord = [];
                         }
-                        if ($GLOBALS['TCA'][$tInfo['translation_table']]['ctrl']['transOrigDiffSourceField']) {
+                        if ($translationRecord !== [] && $GLOBALS['TCA'][$tInfo['translation_table']]['ctrl']['transOrigDiffSourceField']) {
                             $diffArray = unserialize(
                                 $translationRecord[$GLOBALS['TCA'][$tInfo['translation_table']]['ctrl']['transOrigDiffSourceField']]
                             );
-                        // debug($diffArray);
                         } else {
                             $diffArray = [];
                         }
@@ -998,7 +994,7 @@ class Tools
                                     $this->detailsOutput['log'][] = 'Mode: useOverlay looking for flexform fields!';
                                 } else {
                                     // handle normal fields:
-                                    $diffDefaultValue = $diffArray[$field];
+                                    $diffDefaultValue = $diffArray[$field] ?? '';
                                     $previewLanguageValues = [];
                                     foreach ($this->previewLanguages as $prevSysUid) {
                                         $previewLanguageValues[$prevSysUid] = $prevLangRec[$prevSysUid][$field];
@@ -1008,7 +1004,7 @@ class Tools
                                         $key,
                                         $cfg,
                                         $row[$field],
-                                        $translationRecord[$field],
+                                        $translationRecord[$field] ?? '',
                                         $diffDefaultValue,
                                         $previewLanguageValues,
                                         $row
@@ -1153,15 +1149,21 @@ class Tools
                 $translations_errors[$r[$GLOBALS['TCA'][$table]['ctrl']['languageField']]][] = $r;
             }
         }
-        return [
+
+        $infoResult = [
             'table' => $table,
             'uid' => $uid,
-            'CType' => $row['CType'],
             'sys_language_uid' => $row[$GLOBALS['TCA'][$table]['ctrl']['languageField']],
             'translation_table' => $table,
             'translations' => $translations,
             'excessive_translations' => $translations_errors,
         ];
+
+        if ($table === 'tt_content') {
+            $infoResult['CType'] = $row['CType'];
+        }
+
+        return $infoResult;
     }
 
     /**
@@ -1196,7 +1198,7 @@ class Tools
             $useOverlay = true;
             $this->detailsOutput['log'][] = 'Mode: "useOverlay" detected because we have existing overlayrecord and language is not "ALL"';
         }
-        if ($row['CType'] == 'templavoila_pi1' && !$useOverlay) {
+        if (($row['CType'] ?? '') === 'templavoila_pi1' && !$useOverlay) {
             if (($this->includeFceWithDefaultLanguage && $tInfo['sys_language_uid'] == 0) || $tInfo['sys_language_uid'] == -1) {
                 $dataStructArray = $this->_getFlexFormMetaDataForContentElement($table, 'tx_templavoila_flex', $row);
                 if (is_array($dataStructArray) && $dataStructArray !== false) {
@@ -1343,8 +1345,14 @@ class Tools
         if (is_array($fullDetails['fields'])) {
             foreach ($fullDetails['fields'] as $key => $tData) {
                 if (is_array($tData)) {
-                    list(, $uidString, $fieldName, $extension) = explode(':', $key);
-                    list($uidValue) = explode('/', $uidString);
+                    $explodedKey = explode(':', $key);
+                    $uidString = $explodedKey[1];
+                    $fieldName = $explodedKey[2];
+                    $extension = '';
+                    if (array_key_exists(3, $explodedKey)) {
+                        $extension = $explodedKey[3];
+                    }
+                    $uidValue = explode('/', $uidString)[0];
                     $noChangeFlag = !strcmp(trim($tData['diffDefaultValue']), trim($tData['defaultValue']));
                     if ($uidValue === 'NEW') {
                         $record['serializedDiff'][$fieldName . ':' . $extension] .= '';
@@ -1356,6 +1364,9 @@ class Tools
                         $record['serializedDiff'][$fieldName . ':' . $extension] .= '';
                         $record['flag_noChange']++;
                     } else {
+                        if (!isset($record['serializedDiff'][$fieldName . ':' . $extension])) {
+                            $record['serializedDiff'][$fieldName . ':' . $extension] = '';
+                        }
                         $record['serializedDiff'][$fieldName . ':' . $extension] .= $this->diffCMP(
                             $tData['diffDefaultValue'],
                             $tData['defaultValue']
