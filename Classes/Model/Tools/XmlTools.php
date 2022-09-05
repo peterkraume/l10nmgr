@@ -201,8 +201,12 @@ class XmlTools implements LoggerAwareInterface
         }
         $content = str_replace(CR, '', $content);
         $pageTsConf = BackendUtility::getPagesTSconfig(0);
-        $rteConfiguration = $pageTsConf['RTE.']['default.'];
-        $content = $this->parseHTML->RTE_transform($content, null, 'rte', $rteConfiguration);
+        $rteConfiguration = $pageTsConf['RTE.']['default.'] ?? [];
+        if (\TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version) >= 11000000) {
+            $content = $this->parseHTML->transformTextForRichTextEditor($content, $rteConfiguration);
+        } else {
+            $content = $this->parseHTML->RTE_transform($content, null, 'rte', $rteConfiguration);
+        }
         //substitute & with &amp;
         //$content=str_replace('&','&amp;',$content); Changed by DZ 2011-05-11
         $content = str_replace('<hr>', '<hr />', $content);
@@ -263,8 +267,12 @@ class XmlTools implements LoggerAwareInterface
         //Writes debug information for CLI import.
         $this->logger->debug(__FILE__ . ': Before RTE transformation:' . LF . $xmlstring . LF);
         $pageTsConf = BackendUtility::getPagesTSconfig(0);
-        $rteConf = $pageTsConf['RTE.']['default.'];
-        $content = $this->parseHTML->RTE_transform($xmlstring, null, 'db', $rteConf);
+        $rteConf = $pageTsConf['RTE.']['default.'] ?? [];
+        if (\TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version) >= 11000000) {
+            $content = $this->parseHTML->transformTextForPersistence($xmlstring, $rteConf);
+        } else {
+            $content = $this->parseHTML->RTE_transform($xmlstring, null, 'db', $rteConf);
+        }
         // Last call special transformations (registered using hooks)
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'] as $classReference) {
