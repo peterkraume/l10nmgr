@@ -31,6 +31,7 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Html\RteHtmlParser;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class XmlTools implements LoggerAwareInterface
@@ -202,7 +203,7 @@ class XmlTools implements LoggerAwareInterface
         $content = str_replace(CR, '', $content);
         $pageTsConf = BackendUtility::getPagesTSconfig(0);
         $rteConfiguration = $pageTsConf['RTE.']['default.'] ?? [];
-        if (\TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version) >= 11000000) {
+        if ((new Typo3Version)->getMajorVersion() >= 11) {
             $content = $this->parseHTML->transformTextForRichTextEditor($content, $rteConfiguration);
         } else {
             $content = $this->parseHTML->RTE_transform($content, null, 'rte', $rteConfiguration);
@@ -268,7 +269,7 @@ class XmlTools implements LoggerAwareInterface
         $this->logger->debug(__FILE__ . ': Before RTE transformation:' . LF . $xmlstring . LF);
         $pageTsConf = BackendUtility::getPagesTSconfig(0);
         $rteConf = $pageTsConf['RTE.']['default.'] ?? [];
-        if (\TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version) >= 11000000) {
+        if ((new Typo3Version)->getMajorVersion() >= 11) {
             $content = $this->parseHTML->transformTextForPersistence($xmlstring, $rteConf);
         } else {
             $content = $this->parseHTML->RTE_transform($xmlstring, null, 'db', $rteConf);
