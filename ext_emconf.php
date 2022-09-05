@@ -10,8 +10,8 @@ $EM_CONF[$_EXTKEY] = [
     'title'            => 'Localization Manager',
     'description'      => 'Module for managing localization import and export',
     'category'         => 'module',
-    'version'          => '10.1.1',
-    'state'            => 'stable',
+    'version'          => '11.0.0',
+    'state'            => 'alpha',
     'uploadfolder'     => false,
     // TODO: The option `createDirs` is not supported in v10 anymore and should be removed. If the extension needs folders, they must created via `GeneralUtility::mkdir_deep()`.
     // see: https://docs.typo3.org/c/typo3/cms-core/master/en-us/Changelog/10.0/Breaking-88525-RemoveCreateDirsDirectiveOfExtensionInstallationEm_confphp.html
@@ -22,8 +22,8 @@ $EM_CONF[$_EXTKEY] = [
     'author_company'   => 'Localization Manager Team',
     'constraints'      => [
         'depends'   => [
-            'typo3'              => '10.0.0-10.99.99',
-            'scheduler'          => '10.0.0-10.99.99',
+            'typo3'              => '10.4.0-11.5.99',
+            'scheduler'          => '10.4.0-11.5.99',
         ],
         'conflicts' => [],
         'suggests'  => [],
