@@ -21,11 +21,6 @@ parameters:
 			path: Classes/Controller/Cm2.php
 
 		-
-			message: "#^Cannot call method fetchAllAssociative\\(\\) on Doctrine\\\\DBAL\\\\Driver\\\\ResultStatement\\|int\\.$#"
-			count: 1
-			path: Classes/Controller/ConfigurationManager.php
-
-		-
 			message: "#^Access to an undefined property TYPO3\\\\CMS\\\\Core\\\\Configuration\\\\FlexForm\\\\FlexFormTools\\:\\:\\$traverseFlexFormXMLData_Data\\.$#"
 			count: 3
 			path: Classes/Model/Tools/Tools.php
@@ -49,11 +44,6 @@ parameters:
 			message: "#^Constant LF not found\\.$#"
 			count: 2
 			path: Classes/View/AbstractExportView.php
-
-		-
-			message: "#^Access to an undefined property TYPO3\\\\CMS\\\\Backend\\\\Template\\\\ModuleTemplate\\:\\:\\$backPath\\.$#"
-			count: 1
-			path: Classes/View/L10nHtmlListView.php
 
 		-
 			message: "#^Constant LF not found\\.$#"
