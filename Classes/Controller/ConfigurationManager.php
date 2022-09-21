@@ -109,7 +109,6 @@ class ConfigurationManager extends BaseModule
      */
     public function mainAction(ServerRequestInterface $request): ResponseInterface
     {
-        $GLOBALS['SOBE'] = $this;
         $this->init();
 
         // Checking for first level external objects

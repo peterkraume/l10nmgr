@@ -152,7 +152,6 @@ class LocalizationManager extends BaseModule
      */
     public function mainAction(): ResponseInterface
     {
-        $GLOBALS['SOBE'] = $this;
         $this->init();
 
         // Checking for first level external objects
