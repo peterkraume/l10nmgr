@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\View;
 
 /***************************************************************
@@ -21,19 +23,44 @@ namespace Localizationteam\L10nmgr\View;
  ***************************************************************/
 interface ExportViewInterface
 {
+    /**
+     * @param int $forceLanguage
+     * @return mixed
+     */
     public function setForcedSourceLanguage(int $forceLanguage);
 
+    /**
+     * @return mixed
+     */
     public function setModeOnlyChanged();
 
+    /**
+     * @return mixed
+     */
     public function setModeNoHidden();
 
+    /**
+     * @return mixed
+     */
     public function saveExportInformation();
 
+    /**
+     * @return mixed
+     */
     public function render();
 
+    /**
+     * @return mixed
+     */
     public function checkExports();
 
+    /**
+     * @return mixed
+     */
     public function renderExportsCli();
 
+    /**
+     * @return mixed
+     */
     public function getFileName();
 }

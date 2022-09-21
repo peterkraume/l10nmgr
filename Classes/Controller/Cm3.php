@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Controller;
 
 /***************************************************************
@@ -42,17 +44,17 @@ class Cm3 extends BaseModule
     /**
      * @var DocumentTemplate
      */
-    protected $module;
+    protected DocumentTemplate $module;
 
     /**
      * @var Tools
      */
-    protected $l10nMgrTools;
+    protected Tools $l10nMgrTools;
 
     /**
      * Adds items to the ->MOD_MENU array. Used for the function menu selector.
      */
-    public function menuConfig()
+    public function menuConfig(): void
     {
         parent::menuConfig();
     }
@@ -98,7 +100,7 @@ class Cm3 extends BaseModule
      * @internal param $ [type]$table: ...
      * @internal param $ [type]$uid: ...
      */
-    protected function moduleContent($table, $uid, $cmd)
+    protected function moduleContent($table, $uid, $cmd): string
     {
         $output = '';
         if ($GLOBALS['TCA'][$table]) {
@@ -114,7 +116,7 @@ class Cm3 extends BaseModule
                         $res = $this->l10nMgrTools->flushTranslations(
                             $table,
                             $uid,
-                            GeneralUtility::_POST('_flush') ? true : false
+                            (bool)GeneralUtility::_POST('_flush')
                         );
                         if (!GeneralUtility::_POST('_flush')) {
                             $output .= 'To flush the translations shown below, press the "Flush" button below:<br /><input type="submit" name="_flush" value="FLUSH" /><br /><br />';

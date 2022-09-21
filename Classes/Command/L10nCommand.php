@@ -33,12 +33,12 @@ class L10nCommand extends Command
     /**
      * @var EmConfiguration
      */
-    protected $emConfiguration;
+    protected EmConfiguration $emConfiguration;
 
     /**
      * @var LanguageService
      */
-    private $languageService;
+    private LanguageService $languageService;
 
     /**
      * The function loadExtConf loads the extension configuration.
@@ -46,7 +46,7 @@ class L10nCommand extends Command
      *
      * @return EmConfiguration
      */
-    protected function getExtConf()
+    protected function getExtConf(): EmConfiguration
     {
         if (!$this->emConfiguration instanceof EmConfiguration) {
             $this->emConfiguration = GeneralUtility::makeInstance(EmConfiguration::class);
@@ -60,7 +60,7 @@ class L10nCommand extends Command
      *
      * @return LanguageService $languageService
      */
-    protected function getLanguageService()
+    protected function getLanguageService(): LanguageService
     {
         if (!$this->languageService instanceof LanguageService) {
             $this->languageService = GeneralUtility::makeInstance(LanguageService::class);

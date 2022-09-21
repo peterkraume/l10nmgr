@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Test;
 
 /***************************************************************
@@ -34,7 +36,7 @@ class XmlToolsTestCase extends tx_phpunit_testcase
     /**
      * @var XmlTools
      */
-    protected $XMLtools;
+    protected XmlTools $XMLtools;
 
     /**
      * setUp

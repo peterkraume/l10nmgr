@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Hooks;
 
 /***************************************************************
@@ -58,7 +60,7 @@ class Tcemain
      * @param array $fieldArray
      * @param DataHandler $pObj
      */
-    public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, $pObj)
+    public function processDatamap_afterDatabaseOperations(string $status, string $table, int $id, array $fieldArray, DataHandler $pObj): void
     {
         // Check if
         // debug(array($status, $table, $id));
@@ -111,7 +113,7 @@ class Tcemain
      * @param DataHandler $pObj
      * @return string
      */
-    public function stat($p, $pObj)
+    public function stat(array $p, DataHandler $pObj): string
     {
         if (strcmp($this->getBackendUser()->groupData['allowed_languages'], '')) {
             return $this->calcStat(
@@ -127,8 +129,9 @@ class Tcemain
      * @param array $languageList
      * @param bool $noLink
      * @return string
+     * @throws \Doctrine\DBAL\DBALException
      */
-    public function calcStat($p, $languageList, $noLink = false)
+    public function calcStat(array $p, array $languageList, bool $noLink = false): string
     {
         $output = '';
         /** @var QueryBuilder $queryBuilder */
@@ -141,14 +144,14 @@ class Tcemain
             ),
             $queryBuilder->expr()->eq(
                 'workspace',
-                $queryBuilder->createNamedParameter((int)$this->getBackendUser()->workspace, PDO::PARAM_INT)
+                $queryBuilder->createNamedParameter($this->getBackendUser()->workspace, PDO::PARAM_INT)
             )
         );
         if ($p[0] !== 'pages') {
             $queryBuilder->andWhere(
                 $queryBuilder->expr()->eq(
                     'tablename',
-                    $queryBuilder->createNamedParameter($p[0], PDO::PARAM_STR)
+                    $queryBuilder->createNamedParameter($p[0])
                 ),
                 $queryBuilder->expr()->eq(
                     'recuid',
@@ -229,7 +232,7 @@ class Tcemain
      * @return string
      * @internal
      */
-    protected function siteRelPath($extensionKey)
+    protected function siteRelPath(string $extensionKey): string
     {
         return PathUtility::stripPathSitePrefix(ExtensionManagementUtility::extPath($extensionKey));
     }

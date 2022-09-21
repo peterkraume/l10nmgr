@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Model;
 
 /***************************************************************
@@ -37,22 +39,22 @@ class MkPreviewLinkService
     /**
      * @var array
      */
-    protected $_errorMsg = [];
+    protected array $_errorMsg = [];
 
     /**
      * @var int
      */
-    protected $sysLang;
+    protected int $sysLang;
 
     /**
      * @var array
      */
-    protected $pageIds;
+    protected array $pageIds;
 
     /**
      * @var int
      */
-    protected $workspaceId;
+    protected int $workspaceId;
 
     /**
      * MkPreviewLinkService constructor.
@@ -61,7 +63,7 @@ class MkPreviewLinkService
      * @param int $t3_sysLang
      * @param array $pageIds
      */
-    public function __construct($t3_workspaceId, $t3_sysLang, $pageIds)
+    public function __construct(int $t3_workspaceId, int $t3_sysLang, array $pageIds)
     {
         $this->sysLang = $t3_sysLang;
         $this->pageIds = $pageIds;
@@ -75,10 +77,10 @@ class MkPreviewLinkService
      * @param int $srcLang
      * @return string
      */
-    public function mkSingleSrcPreviewLink($baseUrl, $srcLang)
+    public function mkSingleSrcPreviewLink(string $baseUrl, int $srcLang): string
     {
         $ttlHours = (int)$this->getBackendUser()->getTSConfig()['options.']['workspaces.']['previewLinkTTLHours'];
-        $ttlHours = ($ttlHours ? $ttlHours : 24 * 2);
+        $ttlHours = ($ttlHours ?: 24 * 2);
         $params = 'id=' . $this->pageIds[0] . '&L=' . $srcLang . '&ADMCMD_previewWS=' . $this->workspaceId;
         return $baseUrl . 'index.php?ADMCMD_prev=' . $this->compilePreviewKeyword(
             $params,
@@ -100,7 +102,7 @@ class MkPreviewLinkService
      * - Add a comment which can be shown to previewer in frontend in some way (plus maybe ability to write back, take other action?)
      * - Add possibility for the preview keyword to work in the backend as well: So it becomes a quick way to a certain action of sorts?
      */
-    public function compilePreviewKeyword($getVarsStr, $backendUserUid, $ttl = 172800, $fullWorkspace = null)
+    public function compilePreviewKeyword(string $getVarsStr, string $backendUserUid, int $ttl = 172800, int $fullWorkspace = null): string
     {
         if (!ExtensionManagementUtility::isLoaded('workspaces')) {
             return '';
@@ -132,10 +134,10 @@ class MkPreviewLinkService
      * @param string $serverlink
      * @return string
      */
-    public function mkSinglePreviewLink($baseUrl, $serverlink)
+    public function mkSinglePreviewLink(string $baseUrl, string $serverlink): string
     {
         $ttlHours = (int)$this->getBackendUser()->getTSConfig()['options.']['workspaces.']['previewLinkTTLHours'];
-        $ttlHours = ($ttlHours ? $ttlHours : 24 * 2);
+        $ttlHours = ($ttlHours ?: 24 * 2);
         //no_cache=1 ???
         $params = 'id=' . $this->pageIds[0] . '&L=' . $this->sysLang . '&ADMCMD_previewWS=' . $this->workspaceId . '&serverlink=' . $serverlink;
         return $baseUrl . 'index.php?ADMCMD_prev=' . $this->compilePreviewKeyword(
@@ -148,12 +150,12 @@ class MkPreviewLinkService
     /**
      * @return array
      */
-    public function mkPreviewLinks()
+    public function mkPreviewLinks(): array
     {
         $previewUrls = [];
         foreach ($this->pageIds as $pageId) {
             $ttlHours = (int)$this->getBackendUser()->getTSConfig()['options.']['workspaces.']['previewLinkTTLHours'];
-            $ttlHours = ($ttlHours ? $ttlHours : 24 * 2);
+            $ttlHours = ($ttlHours ?: 24 * 2);
             $params = 'id=' . $pageId . '&L=' . $this->sysLang . '&ADMCMD_previewWS=' . $this->workspaceId;
             $previewUrls[$pageId] = GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . 'index.php?ADMCMD_prev=' . $this->compilePreviewKeyword(
                 $params,
@@ -168,7 +170,7 @@ class MkPreviewLinkService
      * @param array $previewLinks
      * @return string
      */
-    public function renderPreviewLinks($previewLinks)
+    public function renderPreviewLinks(array $previewLinks): string
     {
         $out = '<ol>';
         foreach ($previewLinks as $key => $previewLink) {

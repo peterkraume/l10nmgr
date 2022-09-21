@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Task;
 
 /***************************************************************
@@ -41,7 +43,7 @@ class L10nmgrFileGarbageCollection extends AbstractTask
     /**
      * @var array List of directories in which files should be cleaned up
      */
-    protected static $targetDirectories = [
+    protected static array $targetDirectories = [
         'uploads/tx_l10nmgr/saved_files',
         'uploads/tx_l10nmgr/jobs/out',
         'uploads/tx_l10nmgr/jobs/in',
@@ -50,12 +52,12 @@ class L10nmgrFileGarbageCollection extends AbstractTask
     /**
      * @var int Age of files to delete
      */
-    public $age = 30;
+    public int $age = 30;
 
     /**
      * @var string Pattern for files to exclude from clean up
      */
-    public $excludePattern = '(index\.html|\.htaccess)';
+    public string $excludePattern = '(index\.html|\.htaccess)';
 
     /**
      * Removes old files, called by the Scheduler.
@@ -63,14 +65,14 @@ class L10nmgrFileGarbageCollection extends AbstractTask
      * @return bool TRUE if task run was successful
      * @throws Exception
      */
-    public function execute()
+    public function execute(): bool
     {
         // There is no file ctime on windows, so this task disables itself if OS = win
         if (Environment::isWindows()) {
             throw new Exception('This task is not reliable on Windows OS', 1323272367);
         }
         // Calculate a reference timestamp, based on age of files to delete
-        $seconds = (60 * 60 * 24 * (int)$this->age);
+        $seconds = (60 * 60 * 24 * $this->age);
         $timestamp = ($GLOBALS['EXEC_TIME'] - $seconds);
         // Loop on all target directories
         $globalResult = true;
@@ -92,7 +94,7 @@ class L10nmgrFileGarbageCollection extends AbstractTask
      * @return bool TRUE if success
      * @throws RuntimeException If folders are not found or files can not be deleted
      */
-    protected function cleanUpDirectory($directory, $timestamp)
+    protected function cleanUpDirectory(string $directory, int $timestamp): bool
     {
         $fullPathToDirectory = GeneralUtility::getFileAbsFileName($directory);
         // Check if given directory exists

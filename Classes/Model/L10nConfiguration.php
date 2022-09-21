@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Model;
 
 /***************************************************************
@@ -46,12 +48,12 @@ class L10nConfiguration
     /**
      * @var array
      */
-    public $l10ncfg;
+    public array $l10ncfg;
 
     /**
      * @var int
      */
-    protected $sourcePid;
+    protected int $sourcePid;
 
     /**
      * loads internal array with l10nmgrcfg record
@@ -77,14 +79,17 @@ class L10nConfiguration
      *
      * @return int
      **/
-    public function getId()
+    public function getId(): int
     {
-        return $this->getData('uid');
+        return (int)$this->getData('uid');
     }
 
+    /**
+     * @return int
+     */
     public function getPid(): int
     {
-        return $this->getData('pid');
+        return (int)$this->getData('pid');
     }
 
     /**
@@ -94,10 +99,10 @@ class L10nConfiguration
      *
      * @return string Value of the field
      **/
-    public function getData(string $key)
+    public function getData(string $key): string
     {
         return $key === 'pid' && (int)$this->l10ncfg['depth'] === -1 && $this->sourcePid
-            ? $this->sourcePid
+            ? (string)$this->sourcePid
             : $this->l10ncfg[$key];
     }
 
@@ -113,7 +118,7 @@ class L10nConfiguration
         // Showing the tree:
         // Initialize starting point of page tree:
         if ($depth === -1) {
-            $sourcePid = (int)$this->sourcePid ? (int)$this->sourcePid : (int)GeneralUtility::_GET('srcPID');
+            $sourcePid = $this->sourcePid ?: (int)GeneralUtility::_GET('srcPID');
             $treeStartingPoints = [$sourcePid];
         } else {
             if ($depth === -2 && !empty($l10ncfg['pages'])) {
@@ -144,7 +149,7 @@ class L10nConfiguration
                 ];
                 // Create the tree from starting point or page list:
                 if ($depth > 0) {
-                    $tree->getTree($page['uid'], $depth, '');
+                    $tree->getTree($page['uid'], $depth);
                 } else {
                     if (!empty($treeStartingRecords)) {
                         foreach ($treeStartingRecords as $page) {
@@ -164,6 +169,14 @@ class L10nConfiguration
         return $accumObj;
     }
 
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    /**
+     * @param int $sysLang
+     * @param array $flexFormDiffArray
+     * @throws \Doctrine\DBAL\DBALException
+     */
     public function updateFlexFormDiff(int $sysLang, array $flexFormDiffArray): void
     {
         $l10ncfg = $this->l10ncfg;
@@ -194,6 +207,9 @@ class L10nConfiguration
             ->execute();
     }
 
+    /**
+     * @param int $id
+     */
     public function setSourcePid(int $id): void
     {
         $this->sourcePid = $id;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Controller;
 
 /***************************************************************
@@ -40,18 +42,19 @@ class Module2
     /**
      * @var int
      */
-    protected $defaultWidth = 300; // Default width of the navigation frame. Can be overridden from $TBE_STYLES['dims']['navFrameWidth'] (alternative default value) AND from User TSconfig
+    protected int $defaultWidth = 300; // Default width of the navigation frame. Can be overridden from $TBE_STYLES['dims']['navFrameWidth'] (alternative default value) AND from User TSconfig
 
     // Internal, dynamic:
     /**
      * @var string
      */
-    protected $content; // Content accumulation.
+    protected string $content; // Content accumulation.
 
     /**
      * Creates the header and frameset for the module/submodules
+     * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
      */
-    public function main()
+    public function main(): void
     {
         // Setting frame width:
         $width = $this->defaultWidth;
@@ -69,7 +72,7 @@ class Module2
     /**
      * Outputting the accumulated content to screen
      */
-    protected function printContent()
+    protected function printContent(): void
     {
         echo $this->content;
     }

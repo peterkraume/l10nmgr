@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\View;
 
 /***************************************************************
@@ -49,35 +51,35 @@ class L10nHtmlListView extends AbstractExportView
     /**
      * @var L10nConfiguration
      */
-    protected $l10ncfgObj;
+    protected L10nConfiguration $l10ncfgObj;
 
     /**
      * @var array
      */
-    protected $l10ncfg;
+    protected array $l10ncfg;
 
     /**
      * @var int
      */
-    protected $sysLang;
+    protected int $sysLang;
 
     //internal flags:
     /**
      * @var bool
      */
-    protected $modeWithInlineEdit = false;
+    protected bool $modeWithInlineEdit = false;
 
     /**
      * @var bool
      */
-    protected $modeShowEditLinks = false;
+    protected bool $modeShowEditLinks = false;
 
     /**
      * ModuleTemplate Container
      *
      * @var ModuleTemplate
      */
-    protected $moduleTemplate;
+    protected mixed $moduleTemplate;
 
     /**
      * L10nHtmlListView constructor.
@@ -85,7 +87,7 @@ class L10nHtmlListView extends AbstractExportView
      * @param L10nConfiguration $l10ncfgObj
      * @param int $sysLang
      */
-    public function __construct($l10ncfgObj, $sysLang)
+    public function __construct(L10nConfiguration $l10ncfgObj, int $sysLang)
     {
         $this->moduleTemplate = GeneralUtility::makeInstance(ModuleTemplate::class);
         parent::__construct($l10ncfgObj, $sysLang);
@@ -125,7 +127,7 @@ class L10nHtmlListView extends AbstractExportView
             $sections[$pId]['head']['icon'] = $page['header']['icon'];
             $sections[$pId]['head']['title'] = htmlspecialchars($page['header']['title']) . ' [' . $pId . ']';
             $tableRows = [];
-            foreach ($accum[$pId]['items'] as $table => $elements) {
+            foreach ($page['items'] as $table => $elements) {
                 foreach ($elements as $elementUid => $data) {
                     if (is_array($data['fields'])) {
                         $FtableRows = [];
@@ -136,7 +138,6 @@ class L10nHtmlListView extends AbstractExportView
                                 if (is_array($tData)) {
                                     [, $uidString, $fieldName] = explode(':', $key);
                                     [$uidValue] = explode('/', $uidString);
-                                    $edit = true;
                                     $noChangeFlag = !strcmp(
                                         trim($tData['diffDefaultValue']),
                                         trim($tData['defaultValue'])
@@ -155,7 +156,6 @@ class L10nHtmlListView extends AbstractExportView
                                         $flags['unknown']++;
                                     } elseif ($noChangeFlag) {
                                         $diff = $this->getLanguageService()->getLL('render_overview.nochange.message');
-                                        $edit = true;
                                         if (!isset($flags['noChange'])) {
                                             $flags['noChange'] = 0;
                                         }
@@ -171,7 +171,7 @@ class L10nHtmlListView extends AbstractExportView
                                         $fieldCells = [];
                                         $fieldCells[] = '<b>' . htmlspecialchars($fieldName) . '</b>' . ($tData['msg'] ? '<br /><em>' . htmlspecialchars($tData['msg']) . '</em>' : '');
                                         $fieldCells[] = nl2br(htmlspecialchars($tData['defaultValue']));
-                                        if ($edit && $this->modeWithInlineEdit) {
+                                        if ($this->modeWithInlineEdit) {
                                             $name = htmlspecialchars('translation[' . $table . '][' . $elementUid . '][' . $key . ']');
                                             $value = htmlspecialchars($tData['translationValue']);
                                             if ($tData['fieldType'] === 'text') {
@@ -224,7 +224,7 @@ class L10nHtmlListView extends AbstractExportView
                                                     $configuration['extraPlugins'] = implode(',', array_flip(array_flip($configuration['extraPlugins'])));
 
                                                     $RTE_Configuration = json_encode($configuration);
-                                                    $cellContent .= '<script type="text/javascript">' . $externalPlugins . 'CKEDITOR.replace(\'' . $id . '\', ' . (string)$RTE_Configuration . ');</script>';
+                                                    $cellContent .= '<script type="text/javascript">' . $externalPlugins . 'CKEDITOR.replace(\'' . $id . '\', ' . $RTE_Configuration . ');</script>';
                                                 }
                                                 $fieldCells[] = $cellContent;
                                             } else {
@@ -268,7 +268,7 @@ class L10nHtmlListView extends AbstractExportView
                                                 <th style="width: 25%">Default</th>
                                                 <th style="width: 25%">Translation</th>
                                                 <th style="width: 25%">Diff</th>
-                                                ' . ($page['header']['prevLang'] ? '<th style="width: 25%">PrevLang</th>' : '') . '',
+                                                ' . ($page['header']['prevLang'] ? '<th style="width: 25%">PrevLang</th>' : ''),
                                 ];
 
                                 $tableRows = array_merge($tableRows, $FtableRowsNew);
@@ -289,11 +289,11 @@ class L10nHtmlListView extends AbstractExportView
      * Example: "loginType: FE; refInfo: Array; HTTP_HOST: www.example.org; REMOTE_ADDR: 192.168.1.5; REMOTE_HOST:; security_level:; showHiddenRecords: 0;"
      *
      * @param array $arr Data array which should be outputted
-     * @param mixed $valueList List of keys which should be listed in the output string. Pass a comma list or an array. An empty list outputs the whole array.
+     * @param array $valueList List of keys which should be listed in the output string. Pass a comma list or an array. An empty list outputs the whole array.
      * @param int $valueLength Long string values are shortened to this length. Default: 20
      * @return string Output string with key names and their value as string
      */
-    public static function arrayToLogString(array $arr, $valueList = [], int $valueLength = 20): string
+    public static function arrayToLogString(array $arr, array $valueList = [], int $valueLength = 20): string
     {
         $str = '';
         if (!is_array($valueList)) {
@@ -308,6 +308,16 @@ class L10nHtmlListView extends AbstractExportView
         return $str;
     }
 
+    /**
+     * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
+     */
+    /**
+     * @param array $data
+     * @param int $sysLang
+     * @param string $table
+     * @return string
+     * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
+     */
     protected function getEditLink(array $data, int $sysLang, string $table): string
     {
         if ($this->modeShowEditLinks === false) {
@@ -319,7 +329,7 @@ class L10nHtmlListView extends AbstractExportView
             reset($data['fields']);
             [, $uidString] = explode(':', key($data['fields']));
         }
-        if (substr($uidString, 0, 3) !== 'NEW') {
+        if (!str_starts_with($uidString, 'NEW')) {
             $editId = is_array($data['translationInfo']['translations'][$sysLang])
                 ? $data['translationInfo']['translations'][$sysLang]['uid']
                 : $data['translationInfo']['uid'];
@@ -335,14 +345,13 @@ class L10nHtmlListView extends AbstractExportView
                 'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
             ];
             $href = (string)$uriBuilder->buildUriFromRoute('record_edit', $params);
-            $editLink = ' - <a href="' . $href . '"><em>' . $linkText . '</em></a>';
         } else {
             $linkText = '[' . $this->getLanguageService()->getLL('render_overview.clicklocalize.message') . ']';
             $href = htmlspecialchars(
                 BackendUtility::getLinkToDataHandlerAction('&cmd[' . $table . '][' . $data['translationInfo']['uid'] . '][localize]=' . $sysLang)
             );
-            $editLink = ' - <a href="' . $href . '"><em>' . $linkText . '</em></a>';
         }
+        $editLink = ' - <a href="' . $href . '"><em>' . $linkText . '</em></a>';
 
         return $editLink;
     }
@@ -396,6 +405,7 @@ class L10nHtmlListView extends AbstractExportView
      * @param array $externalPlugins
      * @param array $urlParameters
      * @return array
+     * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
      */
     protected function getExtraPlugins(array $externalPlugins, array $urlParameters): array
     {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\View;
 
 /***************************************************************
@@ -35,24 +37,24 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
     /**
      * @var bool
      */
-    protected $modeOnlyChanged = false;
+    protected bool $modeOnlyChanged = false;
 
     /**
      * @var int
      */
-    protected $exportType = 0;
+    protected int $exportType = 0;
 
     /**
      * @var int $forcedSourceLanguage Overwrite the default language uid with the desired language to export
      */
-    protected $forcedSourceLanguage = false;
+    protected int $forcedSourceLanguage = 0;
 
     /**
      * ExcelXmlView constructor.
      * @param L10nConfiguration $l10ncfgObj
      * @param int $sysLang
      */
-    public function __construct($l10ncfgObj, $sysLang)
+    public function __construct(L10nConfiguration $l10ncfgObj, int $sysLang)
     {
         parent::__construct($l10ncfgObj, $sysLang);
     }
@@ -62,7 +64,7 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
      *
      * @return string HTML content
      */
-    public function render()
+    public function render(): string
     {
         $sysLang = $this->sysLang;
         $accumObj = $this->l10ncfgObj->getL10nAccumulatedInformationsObjectForLanguage($sysLang);
@@ -75,7 +77,7 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
         $altSourceColState = '';
         // Traverse the structure and generate HTML output:
         foreach ($accum as $pId => $page) {
-            if (empty($accum[$pId]['items'])) {
+            if (empty($page['items'])) {
                 continue;
             }
             $output[] = '
@@ -96,7 +98,7 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
 	<Cell ss:StyleID="s38"><Data ss:Type="String">Translation:</Data></Cell>
 	<Cell ss:StyleID="s38"><Data ss:Type="String">Difference since last tr.:</Data></Cell>
 	</Row>';
-            foreach ($accum[$pId]['items'] as $table => $elements) {
+            foreach ($page['items'] as $table => $elements) {
                 foreach ($elements as $elementUid => $data) {
                     if (is_array($data['fields'])) {
                         $fieldsForRecord = [];
@@ -218,7 +220,7 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
         }
         $excelXML = GeneralUtility::getUrl(ExtensionManagementUtility::extPath('l10nmgr') . 'Resources/Private/Templates/ExcelTemplate.xml');
         $excelXML = str_replace('###INSERT_ROWS###', implode('', $output), $excelXML);
-        $excelXML = str_replace('###INSERT_ROW_COUNT###', count($output), $excelXML);
+        $excelXML = str_replace('###INSERT_ROW_COUNT###', (string)count($output), $excelXML);
         $excelXML = str_replace('###SOURCE_COL_STATE###', $sourceColState, $excelXML);
         $excelXML = str_replace('###ALT_SOURCE_COL_STATE###', $altSourceColState, $excelXML);
         $excelXML = str_replace('###INSERT_INFORMATION###', $this->renderInternalMessage(), $excelXML);
@@ -230,7 +232,7 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
      *
      * @return string The XML structure to output
      */
-    protected function renderInternalMessage()
+    protected function renderInternalMessage(): string
     {
         $messages = '';
         foreach ($this->internalMessages as $messageInformation) {
@@ -246,7 +248,7 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
      *
      * @param int $id
      */
-    public function setForcedSourceLanguage($id)
+    public function setForcedSourceLanguage(int $id)
     {
         $this->forcedSourceLanguage = $id;
     }

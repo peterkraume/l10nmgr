@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr;
 
 use TYPO3\CMS\Core\Core\Environment;
@@ -24,35 +26,35 @@ class Zip
      *
      * @var array $datasec
      */
-    protected $datasec = [];
+    protected array $datasec = [];
 
     /**
      * Central directory
      *
      * @var array $ctrl_dir
      */
-    protected $ctrl_dir = [];
+    protected array $ctrl_dir = [];
 
     /**
      * End of central directory record
      *
      * @var string $eof_ctrl_dir
      */
-    protected $eof_ctrl_dir = "\x50\x4b\x05\x06\x00\x00\x00\x00";
+    protected string $eof_ctrl_dir = "\x50\x4b\x05\x06\x00\x00\x00\x00";
 
     /**
      * Last offset position
      *
      * @var int $old_offset
      */
-    protected $old_offset = 0;
+    protected int $old_offset = 0;
 
     /**
      * Unzip Application
      *
      * @var string $unzipAppCmd
      */
-    protected $unzipAppCmd = '/usr/bin/unzip -qq ###ARCHIVENAME### -d ###DIRECTORY###'; // Unzip Application (don't set to blank!) ** MODIFIED RL, 15.08.03
+    protected string $unzipAppCmd = '/usr/bin/unzip -qq ###ARCHIVENAME### -d ###DIRECTORY###'; // Unzip Application (don't set to blank!) ** MODIFIED RL, 15.08.03
 
     //TODO: Take global var for unzip program...
     // Example for WinRAR:
@@ -65,7 +67,7 @@ class Zip
      * @param string $name name of the file in the archive (may contains the path)
      * @param int $time the current timestamp
      */
-    public function addFile($data, $name, $time = 0)
+    public function addFile(string $data, string $name, int $time = 0): void
     {
         $name = str_replace('\\', '/', $name);
         $dtime = dechex($this->unix2DosTime($time));
@@ -127,7 +129,7 @@ class Zip
      * @param int $unixtime the current Unix timestamp
      * @return int the current date in a four byte DOS format
      */
-    protected function unix2DosTime($unixtime = 0)
+    protected function unix2DosTime(int $unixtime = 0): int
     {
         $timearray = ($unixtime == 0) ? getdate() : getdate($unixtime);
         if ($timearray['year'] < 1980) {
@@ -146,7 +148,7 @@ class Zip
      *
      * @return string the zipped file
      */
-    public function file()
+    public function file(): string
     {
         $data = implode('', $this->datasec);
         $ctrldir = implode('', $this->ctrl_dir);
@@ -167,7 +169,7 @@ class Zip
      * @param string $file
      * @return mixed
      */
-    public function extractFile($file)
+    public function extractFile(string $file): mixed
     {
         if (is_file($file)) {
             $tempDir = Environment::getPublicPath() . '/typo3temp/' . md5(microtime()) . '/';
@@ -198,7 +200,7 @@ class Zip
      *
      * @return array Array with files and folders
      */
-    protected function getAllFilesAndFoldersInPath($fileArr, $extPath)
+    protected function getAllFilesAndFoldersInPath(array $fileArr, string $extPath): array
     {
         $extList = '';
         $fileArr[] = $extPath;
@@ -220,7 +222,7 @@ class Zip
      *
      * @param string $tempDir
      */
-    public function removeDir($tempDir)
+    public function removeDir(string $tempDir): void
     {
         $testDir = Environment::getPublicPath() . '/typo3temp/';
         if (!str_starts_with($tempDir, $testDir)) {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Controller;
 
 /***************************************************************
@@ -44,17 +46,17 @@ class TranslationTasks extends BaseModule
     /**
      * @var DocumentTemplate
      */
-    protected $module;
+    protected DocumentTemplate $module;
 
     /**
      * @var Tools
      */
-    protected $l10nMgrTools;
+    protected Tools $l10nMgrTools;
 
     /**
      * @var array
      */
-    protected $sysLanguages;
+    protected array $sysLanguages;
 
     /**
      * main action to be registered in ext_tables.php
@@ -67,7 +69,7 @@ class TranslationTasks extends BaseModule
         return new HtmlResponse($this->getContent());
     }
 
-    public function init()
+    public function init(): void
     {
         $this->MCONF['name'] = 'LocalizationManager_TranslationTasks';
         $this->getBackendUser()->modAccess($this->MCONF);
@@ -113,6 +115,7 @@ class TranslationTasks extends BaseModule
 
     /**
      * Generates the module content
+     * @throws \Doctrine\DBAL\DBALException
      */
     protected function moduleContent()
     {
@@ -147,7 +150,7 @@ class TranslationTasks extends BaseModule
      * @param string $elementList
      * @return string
      */
-    protected function languageRows($languageList, $elementList)
+    protected function languageRows(string $languageList, string $elementList): string
     {
         // Initialization:
         $elements = $this->explodeElement($elementList);
@@ -218,7 +221,7 @@ class TranslationTasks extends BaseModule
      * @param string $elementList
      * @return array
      */
-    protected function explodeElement($elementList)
+    protected function explodeElement(string $elementList): array
     {
         $elements = GeneralUtility::trimExplode(',', $elementList);
         foreach ($elements as $k => $element) {
@@ -232,11 +235,11 @@ class TranslationTasks extends BaseModule
      * @param array $sysLanguages
      * @return array
      */
-    protected function getLanguages($limitLanguageList, $sysLanguages)
+    protected function getLanguages(string $limitLanguageList, array $sysLanguages): array
     {
         $languageListArray = explode(
             ',',
-            $this->getBackendUser()->groupData['allowed_languages'] ? $this->getBackendUser()->groupData['allowed_languages'] : implode(
+            $this->getBackendUser()->groupData['allowed_languages'] ?: implode(
                 ',',
                 array_keys($sysLanguages)
             )
@@ -263,7 +266,7 @@ class TranslationTasks extends BaseModule
     /**
      * Adds items to the ->MOD_MENU array. Used for the function menu selector.
      */
-    public function menuConfig()
+    public function menuConfig(): void
     {
         parent::menuConfig();
     }

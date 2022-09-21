@@ -244,7 +244,13 @@ class EmConfigurationTest extends UnitTestCase
         self::assertEquals('', $this->subject->getServiceEnc());
     }
 
-    public function ftpCredentialsDataProvider()
+    /**
+     * @return array[]
+     */
+    /**
+     * @return array[]
+     */
+    public function ftpCredentialsDataProvider(): array
     {
         return [
             'No FTP-Credentials given returns false' => [

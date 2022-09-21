@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\View;
 
 /***************************************************************
@@ -40,18 +42,24 @@ class L10nConfigurationDetailView
     /**
      * @var L10nConfiguration
      */
-    protected $l10ncfgObj;
+    protected L10nConfiguration $l10ncfgObj;
 
     /**
      * @var LanguageService
      */
-    protected $languageService;
+    protected LanguageService $languageService;
 
+    /**
+     * @param L10nConfiguration $l10ncfgObj
+     */
     public function __construct(L10nConfiguration $l10ncfgObj)
     {
         $this->l10ncfgObj = $l10ncfgObj;
     }
 
+    /**
+     * @return array
+     */
     public function render(): array
     {
         if (!$this->hasValidConfig()) {
@@ -72,11 +80,17 @@ class L10nConfigurationDetailView
         return str_replace(',', ', ', $configurationSettings);
     }
 
+    /**
+     * @return bool
+     */
     protected function hasValidConfig(): bool
     {
         return is_object($this->l10ncfgObj) && $this->l10ncfgObj->isLoaded();
     }
 
+    /**
+     * @return LanguageService
+     */
     protected function getLanguageService(): LanguageService
     {
         if (!$this->languageService instanceof LanguageService) {

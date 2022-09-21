@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\View;
 
 /***************************************************************
@@ -31,6 +33,7 @@ use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Core\Site\Entity\Site;
@@ -52,17 +55,17 @@ abstract class AbstractExportView
     /**
      * @var string
      */
-    public $filename = '';
+    public string $filename = '';
 
     /**
      * @var Site The site configuration object
      */
-    protected $site;
+    protected Site $site;
 
     /**
      * @var L10nConfiguration The language configuration object
      */
-    protected $l10ncfgObj;
+    protected L10nConfiguration $l10ncfgObj;
 
     /**
      *flags for controlling the fields which should render in the output:
@@ -70,83 +73,84 @@ abstract class AbstractExportView
     /**
      * @var int The sys_language_uid of language to export
      */
-    protected $sysLang;
+    protected int $sysLang;
 
     /**
      * @var bool
      */
-    protected $modeOnlyChanged = false;
+    protected bool $modeOnlyChanged = false;
 
     /**
      * @var bool
      */
-    protected $modeOnlyNew = false;
+    protected bool $modeOnlyNew = false;
 
     /**
      * @var bool
      */
-    protected $modeNoHidden = false;
+    protected bool $modeNoHidden = false;
 
     /**
      * @var string
      */
-    protected $customer;
+    protected string $customer;
 
     /**
      * @var int
      */
-    protected $exportType;
+    protected int $exportType;
 
     /**
      * @var LanguageService
      */
-    protected $languageService;
+    protected LanguageService $languageService;
 
     /**
      * @var array List of messages issued during rendering
      */
-    protected $internalMessages = [];
+    protected array $internalMessages = [];
 
     /**
      * @var int
      */
-    protected $forcedSourceLanguage;
+    protected int $forcedSourceLanguage;
 
     /**
      * AbstractExportView constructor.
      *
      * @param L10nConfiguration $l10ncfgObj
      * @param int $sysLang
+     * @throws \TYPO3\CMS\Core\Exception\SiteNotFoundException
      */
-    public function __construct($l10ncfgObj, $sysLang)
+    public function __construct(L10nConfiguration $l10ncfgObj, int $sysLang)
     {
         $this->sysLang = $sysLang;
         $this->l10ncfgObj = $l10ncfgObj;
         // Load system languages into menu:
         /** @var SiteFinder $siteFinder */
         $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
-        $this->site = $siteFinder->getSiteByPageId($l10ncfgObj->getData('pid'));
+        $this->site = $siteFinder->getSiteByPageId((int)$l10ncfgObj->getData('pid'));
     }
 
     /**
      * @return int
      */
-    public function getExportType()
+    public function getExportType(): int
     {
         return $this->exportType;
     }
 
-    public function setModeNoHidden()
+    public function setModeNoHidden(): void
     {
         $this->modeNoHidden = true;
     }
 
-    public function setModeOnlyChanged()
+    public function setModeOnlyChanged(): void
     {
         $this->modeOnlyChanged = true;
     }
 
-    public function setModeOnlyNew()
+    public function setModeOnlyNew(): void
     {
         $this->modeOnlyNew = true;
     }
@@ -155,7 +159,7 @@ abstract class AbstractExportView
      * Sets the customer name for the export
      * @param string $customer
      */
-    public function setCustomer($customer)
+    public function setCustomer(string $customer): void
     {
         $this->customer = $customer;
     }
@@ -165,14 +169,14 @@ abstract class AbstractExportView
      *
      * @return bool
      */
-    public function saveExportInformation()
+    public function saveExportInformation(): bool
     {
         // get current date
         $date = time();
         // query to insert the data in the database
         $field_values = [
-            'source_lang' => (int)$this->forcedSourceLanguage ? (int)$this->forcedSourceLanguage : 0,
-            'translation_lang' => (int)$this->sysLang,
+            'source_lang' => $this->forcedSourceLanguage ?: 0,
+            'translation_lang' => $this->sysLang,
             'crdate' => $date,
             'tstamp' => $date,
             'l10ncfg_id' => (int)$this->l10ncfgObj->getData('uid'),
@@ -180,8 +184,8 @@ abstract class AbstractExportView
             'tablelist' => (string)$this->l10ncfgObj->getData('tablelist'),
             'title' => (string)$this->l10ncfgObj->getData('title'),
             'cruser_id' => (int)$this->l10ncfgObj->getData('cruser_id'),
-            'filename' => (string)$this->getFilename(),
-            'exportType' => (int)$this->exportType,
+            'filename' => $this->getFilename(),
+            'exportType' => $this->exportType,
         ];
 
         /** @var Connection $databaseConnection */
@@ -211,7 +215,7 @@ abstract class AbstractExportView
      *
      * @return string File name
      */
-    public function getFilename()
+    public function getFilename(): string
     {
         if (empty($this->filename)) {
             $this->setFilename();
@@ -222,7 +226,7 @@ abstract class AbstractExportView
     /**
      * Set filename
      */
-    public function setFilename()
+    public function setFilename(): void
     {
         $sourceLang = '';
         $targetLang = '';
@@ -271,8 +275,9 @@ abstract class AbstractExportView
      * Checks if an export exists
      *
      * @return bool
+     * @throws \Doctrine\DBAL\DBALException
      */
-    public function checkExports()
+    public function checkExports(): bool
     {
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_l10nmgr_exportdata');
@@ -285,7 +290,7 @@ abstract class AbstractExportView
                 ),
                 $queryBuilder->expr()->eq(
                     'exportType',
-                    $queryBuilder->createNamedParameter($this->exportType, PDO::PARAM_STR)
+                    $queryBuilder->createNamedParameter($this->exportType)
                 ),
                 $queryBuilder->expr()->eq(
                     'translation_lang',
@@ -293,7 +298,7 @@ abstract class AbstractExportView
                 )
             )
             ->execute()
-            ->fetchColumn(0);
+            ->fetchColumn();
 
         return $numRows > 0;
     }
@@ -303,7 +308,7 @@ abstract class AbstractExportView
      *
      * @return string HTML table
      */
-    public function renderExports()
+    public function renderExports(): string
     {
         $content = [];
         $exports = $this->fetchExports();
@@ -360,9 +365,10 @@ abstract class AbstractExportView
      * Fetches saved exports based on configuration, export format and target language.
      *
      * @return array Information about exports.
+     * @throws \Doctrine\DBAL\DBALException
      * @author Andreas Otto <andreas.otto@dkd.de>
      */
-    protected function fetchExports()
+    protected function fetchExports(): array
     {
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
@@ -376,7 +382,7 @@ abstract class AbstractExportView
                 ),
                 $queryBuilder->expr()->eq(
                     'exportType',
-                    $queryBuilder->createNamedParameter($this->exportType, PDO::PARAM_STR)
+                    $queryBuilder->createNamedParameter($this->exportType)
                 ),
                 $queryBuilder->expr()->eq(
                     'translation_lang',
@@ -393,7 +399,7 @@ abstract class AbstractExportView
      *
      * @return LanguageService $languageService
      */
-    protected function getLanguageService()
+    protected function getLanguageService(): LanguageService
     {
         if (!$this->languageService instanceof LanguageService) {
             $this->languageService = $GLOBALS['LANG'];
@@ -410,7 +416,7 @@ abstract class AbstractExportView
      *
      * @return string text
      */
-    public function renderExportsCli()
+    public function renderExportsCli(): string
     {
         $content = [];
         $exports = $this->fetchExports();
@@ -442,7 +448,7 @@ abstract class AbstractExportView
      * @param string $fileContent The content to save to file
      * @return string $fileExportName The complete filename
      */
-    public function saveExportFile($fileContent)
+    public function saveExportFile(string $fileContent): string
     {
         $outPath = Environment::getPublicPath() . '/uploads/tx_l10nmgr/jobs/out/';
         if (!is_dir(GeneralUtility::getFileAbsFileName($outPath))) {
@@ -461,7 +467,7 @@ abstract class AbstractExportView
      * @param string $new New content
      * @return string Marked up string.
      */
-    public function diffCMP($old, $new)
+    public function diffCMP(string $old, string $new): string
     {
         // Creates diff-result
         /** @var DiffUtility $t3lib_diff_Obj */
@@ -477,10 +483,10 @@ abstract class AbstractExportView
      * @param string $status Flag which indicates if the export was successful.
      * @return string Rendered flash message or empty string if there are no messages.
      */
-    public function renderInternalMessagesAsFlashMessage($status)
+    public function renderInternalMessagesAsFlashMessage(string $status): string
     {
         $ret = '';
-        if ($status == FlashMessage::OK) {
+        if ($status == AbstractMessage::OK) {
             $internalMessages = $this->getMessages();
             if (count($internalMessages) > 0) {
                 $messageBody = '';
@@ -492,7 +498,7 @@ abstract class AbstractExportView
                     FlashMessage::class,
                     $messageBody,
                     $this->getLanguageService()->getLL('export.ftp.warnings'),
-                    FlashMessage::WARNING
+                    AbstractMessage::WARNING
                 );
                 $ret .= GeneralUtility::makeInstance(FlashMessageRendererResolver::class)
                     ->resolve()
@@ -507,7 +513,7 @@ abstract class AbstractExportView
      *
      * @return array List of messages
      */
-    public function getMessages()
+    public function getMessages(): array
     {
         return $this->internalMessages;
     }
@@ -519,7 +525,7 @@ abstract class AbstractExportView
      * @param string $message Text of the message
      * @param string $key Key identifying the element where the problem happened
      */
-    protected function setInternalMessage($message, $key)
+    protected function setInternalMessage(string $message, string $key): void
     {
         $this->internalMessages[] = [
             'message' => $message,

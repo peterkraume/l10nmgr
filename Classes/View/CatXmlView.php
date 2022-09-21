@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\View;
 
 /***************************************************************
@@ -43,34 +45,35 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
     /**
      * @var int $forcedSourceLanguage Overwrite the default language uid with the desired language to export
      */
-    protected $forcedSourceLanguage = 0;
+    protected int $forcedSourceLanguage = 0;
 
     /**
      * @var int
      */
-    protected $exportType = 1;
+    protected int $exportType = 1;
 
     /**
      * @var string
      */
-    protected $baseUrl = '';
+    protected string $baseUrl = '';
 
     /**
      * @var array
      */
-    protected $params = [];
+    protected array $params = [];
 
     /**
      * @var array
      */
-    protected $overrideParams = [];
+    protected array $overrideParams = [];
 
     /**
      * Render the simple XML export
      *
      * @return string Filename
+     * @throws \TYPO3\CMS\Core\Exception\SiteNotFoundException
      */
-    public function render()
+    public function render(): string
     {
         $sysLang = $this->sysLang;
         $accumObj = $this->l10ncfgObj->getL10nAccumulatedInformationsObjectForLanguage($sysLang);
@@ -82,7 +85,7 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
         $targetIso = '';
         if (empty($this->baseUrl)) {
             $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
-            $this->baseUrl = (string)$siteFinder->getSiteByPageId($this->l10ncfgObj->getData('pid'))->getRouter()->generateUri(0);
+            $this->baseUrl = (string)$siteFinder->getSiteByPageId((int)$this->l10ncfgObj->getData('pid'))->getRouter()->generateUri(0);
         }
         // Traverse the structure and generate XML output:
         foreach ($accum as $pId => $page) {
@@ -108,7 +111,7 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
                             continue;
                         }
                         // @DP: Why this check?
-                        if ((int)$this->forcedSourceLanguage !== 0 && (!$this->forcedSourceLanguage || !isset($tData['previewLanguageValues'][$this->forcedSourceLanguage]))) {
+                        if ($this->forcedSourceLanguage !== 0 && (!$this->forcedSourceLanguage || !isset($tData['previewLanguageValues'][$this->forcedSourceLanguage]))) {
                             $this->setInternalMessage(
                                 $this->getLanguageService()->getLL('export.process.error.empty.message'),
                                 $elementUid . '/' . $table . '/' . $key
@@ -189,6 +192,11 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
         return $this->saveExportFile($XML);
     }
 
+    /**
+     * @param array $tData
+     * @param string $key
+     * @return string|null
+     */
     protected function getValueForXml(array $tData, string $key): ?string
     {
         if ($this->forcedSourceLanguage) {
@@ -267,7 +275,7 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
      *
      * @return string The XML structure to output
      */
-    protected function renderInternalMessage()
+    protected function renderInternalMessage(): string
     {
         $messages = '';
         foreach ($this->internalMessages as $messageInformation) {
@@ -287,14 +295,14 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
      *
      * @return string The XML to add to the head section
      */
-    protected function additionalHeaderData()
+    protected function additionalHeaderData(): string
     {
         $additionalHeaderData = '';
         if (!empty($this->l10ncfgObj->getData('metadata'))) {
             $additionalHeaderDataArray = json_decode($this->l10ncfgObj->getData('metadata'));
             if (is_array($additionalHeaderDataArray) && !empty($additionalHeaderDataArray)) {
                 foreach ($additionalHeaderDataArray as $key => $value) {
-                    $additionalHeaderData .= "\t\t" . '<' . $key . '>' . (string)$value . '</' . $key . '>' . "\n";
+                    $additionalHeaderData .= "\t\t" . '<' . $key . '>' . $value . '</' . $key . '>' . "\n";
                 }
             }
         }
@@ -306,7 +314,7 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
      *
      * @param int $id
      */
-    public function setForcedSourceLanguage($id)
+    public function setForcedSourceLanguage(int $id)
     {
         $this->forcedSourceLanguage = $id;
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Controller;
 
 /***************************************************************
@@ -40,22 +42,22 @@ class Cm2 extends BaseModule
     /**
      * @var LanguageService
      */
-    protected $languageService;
+    protected LanguageService $languageService;
 
     /**
      * @var DocumentTemplate
      */
-    protected $module;
+    protected DocumentTemplate $module;
 
     /**
      * @var Tools
      */
-    protected $l10nMgrTools;
+    protected Tools $l10nMgrTools;
 
     /**
      * @var array
      */
-    protected $sysLanguages;
+    protected array $sysLanguages;
 
     /**
      * main action to be registered in ext_tables.php
@@ -101,8 +103,9 @@ class Cm2 extends BaseModule
      * @param string $table
      * @param int $uid
      * @return string
+     * @throws \Doctrine\DBAL\DBALException
      */
-    protected function moduleContent($table, $uid)
+    protected function moduleContent(string $table, int $uid): string
     {
         $output = '';
         if ($GLOBALS['TCA'][$table]) {
@@ -117,7 +120,7 @@ class Cm2 extends BaseModule
             $this->sysLanguages = $this->l10nMgrTools->t8Tools->getSystemLanguages($table == 'pages' ? $uid : $inputRecord['pid']);
             $languageListArray = explode(
                 ',',
-                $this->getBackendUser()->groupData['allowed_languages'] ? $this->getBackendUser()->groupData['allowed_languages'] : implode(
+                $this->getBackendUser()->groupData['allowed_languages'] ?: implode(
                     ',',
                     array_keys($this->sysLanguages)
                 )
@@ -157,7 +160,7 @@ class Cm2 extends BaseModule
                     ),
                     $queryBuilder->expr()->eq(
                         'workspace',
-                        $queryBuilder->createNamedParameter((int)$this->getBackendUser()->workspace, PDO::PARAM_INT)
+                        $queryBuilder->createNamedParameter($this->getBackendUser()->workspace, PDO::PARAM_INT)
                     ),
                     $queryBuilder->expr()->orX(
                         $queryBuilder->expr()->gt(
@@ -230,7 +233,7 @@ class Cm2 extends BaseModule
      * @param array $rec
      * @return string
      */
-    protected function makeTableRow($rec)
+    protected function makeTableRow(array $rec): string
     {
         //Render information for base record:
         $baseRecord = BackendUtility::getRecordWSOL($rec['tablename'], $rec['recuid']);
@@ -281,10 +284,10 @@ class Cm2 extends BaseModule
 	<td valign="top">' . $tFlag . '</td>
 	<td valign="top" nowrap="nowrap">' . $translationRecStr . '</td>
 	<td valign="top">' . $action . '</td>
-	<td align="center"' . ($rec['flag_new'] ? ' bgcolor="#91B5FF"' : '') . '>' . ($rec['flag_new'] ? $rec['flag_new'] : '') . '</td>
-	<td align="center"' . ($rec['flag_unknown'] ? ' bgcolor="#FEFF5A"' : '') . '>' . ($rec['flag_unknown'] ? $rec['flag_unknown'] : '') . '</td>
-	<td align="center"' . ($rec['flag_update'] ? ' bgcolor="#FF7161"' : '') . '>' . ($rec['flag_update'] ? $rec['flag_update'] : '') . '</td>
-	<td align="center"' . ($rec['flag_noChange'] ? ' bgcolor="#78FF82"' : '') . '>' . ($rec['flag_noChange'] ? $rec['flag_noChange'] : '') . '</td>
+	<td align="center"' . ($rec['flag_new'] ? ' bgcolor="#91B5FF"' : '') . '>' . ($rec['flag_new'] ?: '') . '</td>
+	<td align="center"' . ($rec['flag_unknown'] ? ' bgcolor="#FEFF5A"' : '') . '>' . ($rec['flag_unknown'] ?: '') . '</td>
+	<td align="center"' . ($rec['flag_update'] ? ' bgcolor="#FF7161"' : '') . '>' . ($rec['flag_update'] ?: '') . '</td>
+	<td align="center"' . ($rec['flag_noChange'] ? ' bgcolor="#78FF82"' : '') . '>' . ($rec['flag_noChange'] ?: '') . '</td>
 	<td>' . implode('<br />', unserialize($rec['serializedDiff'])) . '</td>
 	</tr>';
     }
@@ -301,7 +304,7 @@ class Cm2 extends BaseModule
     /**
      * Adds items to the ->MOD_MENU array. Used for the function menu selector.
      */
-    public function menuConfig()
+    public function menuConfig(): void
     {
         parent::menuConfig();
     }

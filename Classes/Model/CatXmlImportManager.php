@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Model;
 
 /***************************************************************
@@ -44,39 +46,44 @@ class CatXmlImportManager
     /**
      * @var array $headerData headerData of the XML
      */
-    public $headerData = [];
+    public array $headerData = [];
 
     /**
      * @var string $file filepath with XML
      */
-    protected $file = '';
+    protected string $file = '';
 
     /**
      * @var string $xml CATXML
      */
-    protected $xmlString = '';
+    protected string $xmlString = '';
 
     /**
      * @var array $xmlNodes parsed XML
      */
-    protected $xmlNodes;
+    protected array $xmlNodes;
 
     /**
      * @var int $sysLang selected import language (for check purposes - sys_language_uid)
      */
-    protected $sysLang;
+    protected int $sysLang;
 
     /**
      * @var array $_errorMsg accumulated errormessages
      */
-    protected $_errorMsg = [];
+    protected array $_errorMsg = [];
 
     /**
      * @var LanguageService
      */
-    protected $languageService;
+    protected LanguageService $languageService;
 
-    public function __construct($file, $sysLang, $xmlString)
+    /**
+     * @param string $file
+     * @param int $sysLang
+     * @param string $xmlString
+     */
+    public function __construct(string $file, int $sysLang, string $xmlString)
     {
         $this->sysLang = $sysLang;
         if (!empty($file)) {
@@ -90,7 +97,7 @@ class CatXmlImportManager
     /**
      * @return bool
      */
-    public function parseAndCheckXMLFile()
+    public function parseAndCheckXMLFile(): bool
     {
         $fileContent = GeneralUtility::getUrl($this->file);
         $this->xmlNodes = XmlTools::xml2tree(
@@ -130,7 +137,7 @@ class CatXmlImportManager
      *
      * @return LanguageService $languageService
      */
-    protected function getLanguageService()
+    protected function getLanguageService(): LanguageService
     {
         if (!$this->languageService instanceof LanguageService) {
             $this->languageService = GeneralUtility::makeInstance(LanguageService::class);
@@ -144,7 +151,7 @@ class CatXmlImportManager
     /**
      * @param array $headerInformationNodes
      */
-    protected function _setHeaderData($headerInformationNodes)
+    protected function _setHeaderData(array $headerInformationNodes): void
     {
         if (!is_array($headerInformationNodes)) {
             return;
@@ -160,7 +167,7 @@ class CatXmlImportManager
     /**
      * @return bool
      */
-    protected function _isIncorrectXMLFile()
+    protected function _isIncorrectXMLFile(): bool
     {
         $error = [];
         if (!isset($this->headerData['t3_formatVersion']) || $this->headerData['t3_formatVersion'] != L10NMGR_FILEVERSION) {
@@ -195,7 +202,7 @@ class CatXmlImportManager
     /**
      * @return bool
      */
-    public function parseAndCheckXMLString()
+    public function parseAndCheckXMLString(): bool
     {
         $catXmlString = $this->xmlString;
         $this->xmlNodes = XmlTools::xml2tree(
@@ -221,7 +228,7 @@ class CatXmlImportManager
     /**
      * @return bool
      */
-    protected function _isIncorrectXMLString()
+    protected function _isIncorrectXMLString(): bool
     {
         $error = [];
         if (!isset($this->headerData['t3_formatVersion']) || $this->headerData['t3_formatVersion'] != L10NMGR_FILEVERSION) {
@@ -256,7 +263,7 @@ class CatXmlImportManager
     /**
      * @return string
      */
-    public function getErrorMessages()
+    public function getErrorMessages(): string
     {
         return implode('<br />', $this->_errorMsg);
     }
@@ -264,7 +271,7 @@ class CatXmlImportManager
     /**
      * @return array
      */
-    public function &getXMLNodes()
+    public function &getXMLNodes(): array
     {
         return $this->xmlNodes;
     }
@@ -276,7 +283,7 @@ class CatXmlImportManager
      *
      * @return array Page IDs for preview
      */
-    public function getPidsFromCATXMLNodes($xmlNodes)
+    public function getPidsFromCATXMLNodes(array $xmlNodes): array
     {
         $pids = [];
         if (is_array($xmlNodes['TYPO3L10N'][0]['ch']['pageGrp'])) {
@@ -294,7 +301,7 @@ class CatXmlImportManager
      *
      * @return array Uids for which localizations shall be removed
      */
-    public function getDelL10NDataFromCATXMLNodes($xmlNodes)
+    public function getDelL10NDataFromCATXMLNodes(array $xmlNodes): array
     {
         //get L10Ns to be deleted before import
         $delL10NUids = [];
@@ -318,8 +325,9 @@ class CatXmlImportManager
      * @param array $delL10NData table:id combinations to be deleted
      *
      * @return int Number of deleted elements
+     * @throws \Doctrine\DBAL\DBALException
      */
-    public function delL10N($delL10NData)
+    public function delL10N(array $delL10NData): int
     {
         //delete previous L10Ns
         $cmdCount = 0;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Controller;
 
 /***************************************************************
@@ -48,6 +50,7 @@ use TYPO3\CMS\Core\Http\Stream;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Mail\MailMessage;
+use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -77,48 +80,48 @@ class LocalizationManager extends BaseModule
     /**
      * @var int Default language to export
      */
-    protected $sysLanguage = '0'; // Internal
+    protected int $sysLanguage = 0; // Internal
 
     /**
      * @var int Forced source language to export
      */
-    public $previewLanguage = '0';
+    public int $previewLanguage = 0;
 
     /**
      * ModuleTemplate Container
      *
      * @var ModuleTemplate
      */
-    protected $moduleTemplate;
+    protected mixed $moduleTemplate;
 
     /**
      * @var StandaloneView
      */
-    protected $view;
+    protected StandaloneView $view;
 
     /**
      * The name of the module
      *
      * @var string
      */
-    protected $moduleName = 'LocalizationManager';
+    protected string $moduleName = 'LocalizationManager';
 
     /**
      * @var IconFactory
      */
-    protected $iconFactory;
+    protected mixed $iconFactory;
 
     /**
-     * @var array|bool
+     * @var array
      */
-    protected $pageinfo;
+    protected array $pageinfo;
 
     /**
      * @var EmConfiguration
      */
-    protected $emConfiguration;
+    protected mixed $emConfiguration;
 
-    protected $settings = [
+    protected array $settings = [
         'across' => 'acrossL10nmgrConfig.dst',
         'dejaVu' => 'dejaVuL10nmgrConfig.dvflt',
         'memoq' => 'memoQ.mqres',
@@ -180,7 +183,7 @@ class LocalizationManager extends BaseModule
     /**
      * Initializes the Module
      */
-    public function init()
+    public function init(): void
     {
         $this->getBackendUser()->modAccess($this->MCONF);
         parent::init();
@@ -323,10 +326,10 @@ return false;
         $L10nConfiguration = $this->getL10NConfiguration();
         if ($L10nConfiguration->isLoaded()) {
             // Setting page id
-            $this->id = $L10nConfiguration->getData('pid');
+            $this->id = (int)$L10nConfiguration->getData('pid');
             $forcedSourceLanguage = (int)$L10nConfiguration->getData('forcedSourceLanguage');
             if ($forcedSourceLanguage > 0) {
-                $this->previewLanguage = (string)$forcedSourceLanguage;
+                $this->previewLanguage = $forcedSourceLanguage;
             }
             $this->perms_clause = $this->getBackendUser()->getPagePermsClause(1);
             $this->pageinfo = BackendUtility::readPageAccess($this->id, $this->perms_clause);
@@ -364,7 +367,7 @@ return false;
                         '',
                         '&srcPID=' . rawurlencode(GeneralUtility::_GET('srcPID')) . '&exportUID=' . $L10nConfiguration->getId(),
                         $this->getLanguageService()->getLL('export.overview.targetlanguage.label'),
-                        $this->previewLanguage
+                        (string)$this->previewLanguage
                     ) .
                     '</div><div class="form-section">' .
                     self::getFuncCheck(
@@ -414,7 +417,7 @@ return false;
      * @throws RouteNotFoundException
      */
     public static function getFuncMenuNew(
-        $mainParams,
+        mixed $mainParams,
         string $elementName,
         string $currentValue,
         array $menuItems,
@@ -449,17 +452,47 @@ return false;
         return [];
     }
 
+    /**
+     * @throws ResourceNotFoundException
+     * @throws RouteNotFoundException
+     */
+    /**
+     * @param $mainParams
+     * @param $elementName
+     * @param $currentValue
+     * @param $menuItems
+     * @param $script
+     * @param $addParams
+     * @param $label
+     * @param $previewLanguage
+     * @return string
+     * @throws ResourceNotFoundException
+     * @throws RouteNotFoundException
+     */
+    /**
+     * @param mixed $mainParams
+     * @param string $elementName
+     * @param mixed $currentValue
+     * @param array $menuItems
+     * @param string $script
+     * @param string $addParams
+     * @param string $label
+     * @param string $previewLanguage
+     * @return string
+     * @throws ResourceNotFoundException
+     * @throws RouteNotFoundException
+     */
     public static function getFuncMenu(
         $mainParams,
-        $elementName,
+        string $elementName,
         $currentValue,
-        $menuItems,
-        $script = '',
-        $addParams = '',
-        $label = '',
-        $previewLanguage = ''
-    ) {
-        if (!is_array($menuItems)) {
+        array $menuItems,
+        string $script = '',
+        string $addParams = '',
+        string $label = '',
+        string $previewLanguage = ''
+    ): string {
+        if (empty($menuItems)) {
             return '';
         }
         $scriptUrl = self::buildScriptUrl($mainParams, $addParams, $script);
@@ -504,7 +537,7 @@ return false;
      * @throws ResourceNotFoundException
      * @throws RouteNotFoundException
      */
-    protected static function buildScriptUrl($mainParams, $addParams, $script = '')
+    protected static function buildScriptUrl(mixed $mainParams, string $addParams, string $script = ''): string
     {
         if (!is_array($mainParams)) {
             $mainParams = ['id' => $mainParams];
@@ -540,12 +573,13 @@ return false;
      * @param string $addParams Additional parameters to pass to the script.
      * @param string $tagParams Additional attributes for the checkbox input tag
      * @param string $label
+     * @return array
      * @throws ResourceNotFoundException
      * @throws RouteNotFoundException
      * @see getFuncMenu()
      */
     public static function getFuncCheckNew(
-        $mainParams,
+        mixed $mainParams,
         string $elementName,
         string $currentValue,
         string $script = '',
@@ -583,14 +617,14 @@ return false;
      * @see getFuncMenu()
      */
     public static function getFuncCheck(
-        $mainParams,
-        $elementName,
-        $currentValue,
-        $script = '',
-        $addParams = '',
-        $tagParams = '',
-        $label = ''
-    ) {
+        mixed $mainParams,
+        string $elementName,
+        string $currentValue,
+        string $script = '',
+        string $addParams = '',
+        string $tagParams = '',
+        string $label = ''
+    ): string {
         $scriptUrl = self::buildScriptUrl($mainParams, $addParams, $script);
         $onClick = 'jumpToUrl(' . GeneralUtility::quoteJSvalue($scriptUrl . '&' . $elementName . '=') . '+(this.checked?1:0),this);';
         return
@@ -667,6 +701,10 @@ return false;
         $this->content .= '<div class="col-md-6"><div class="form">' . $subcontent;
     }
 
+    /**
+     * @param L10nConfiguration $l10NConfiguration
+     * @return array
+     */
     protected function inlineEditAction(L10nConfiguration $l10NConfiguration): array
     {
         /** @var L10nBaseService $service */
@@ -697,7 +735,7 @@ return false;
      * @throws ResourceNotFoundException
      * @throws RouteNotFoundException
      */
-    protected function excelExportImportAction($l10ncfgObj)
+    protected function excelExportImportAction(L10nConfiguration $l10ncfgObj): string
     {
         /** @var L10nBaseService $service */
         $service = GeneralUtility::makeInstance(L10nBaseService::class);
@@ -708,7 +746,7 @@ return false;
         $_selectOptions = ['0' => '-default-'];
         $_selectOptions = $_selectOptions + $this->MOD_MENU['lang'];
         $info = '<div class="form-section">' .
-            $this->getFuncCheck(
+            static::getFuncCheck(
                 $this->id,
                 'SET[check_exports]',
                 $this->MOD_SETTINGS['check_exports'] ?? '',
@@ -722,7 +760,7 @@ return false;
             '</label></div></div>' .
             '</div><div class="form-section"><div class="form-group mb-2">
 <label>' . $this->getLanguageService()->getLL('export.xml.source-language.title') . '</label><br />' .
-            $this->_getSelectField('export_xml_forcepreviewlanguage', $this->previewLanguage, $_selectOptions) .
+            $this->_getSelectField('export_xml_forcepreviewlanguage', (string)$this->previewLanguage, $_selectOptions) .
             '</div></div><div class="form-section"><div class="form-group mb-2">
 <label>' . $this->getLanguageService()->getLL('general.action.import.upload.title') . '</label><br />' .
             '<input type="file" size="60" name="uploaded_import_file" />' .
@@ -767,7 +805,7 @@ return false;
                     FlashMessage::class,
                     '###MESSAGE###',
                     $this->getLanguageService()->getLL('export.process.duplicate.title'),
-                    FlashMessage::INFO
+                    AbstractMessage::INFO
                 );
                 $info .= str_replace(
                     '###MESSAGE###',
@@ -788,7 +826,7 @@ return false;
                     );
                     $title = $this->getLanguageService()->getLL('export.download.success');
                     $message = '###MESSAGE###';
-                    $status = FlashMessage::OK;
+                    $status = AbstractMessage::OK;
                     /** @var FlashMessage $flashMessage */
                     $flashMessage = GeneralUtility::makeInstance(FlashMessage::class, $message, $title, $status);
                     $info .= str_replace(
@@ -802,7 +840,7 @@ return false;
                     // Prepare an error message for display
                     $title = $this->getLanguageService()->getLL('export.download.error');
                     $message = '###MESSAGE###';
-                    $status = FlashMessage::ERROR;
+                    $status = AbstractMessage::ERROR;
                     /** @var FlashMessage $flashMessage */
                     $flashMessage = GeneralUtility::makeInstance(FlashMessage::class, $message, $title, $status);
                     $info .= str_replace(
@@ -813,8 +851,8 @@ return false;
                             ->render([$flashMessage])
                     );
                 }
-                /** @var $flashMessage FlashMessage */
-                $info .= $viewClass->renderInternalMessagesAsFlashMessage($status);
+                /** @var FlashMessage $flashMessage */
+                $info .= $viewClass->renderInternalMessagesAsFlashMessage((string)$status);
                 $viewClass->saveExportInformation();
             }
         }
@@ -827,7 +865,7 @@ return false;
      * @param array $menuItems
      * @return string
      */
-    protected function _getSelectField($elementName, $currentValue, $menuItems)
+    protected function _getSelectField(string $elementName, string $currentValue, array $menuItems): string
     {
         $options = [];
         $return = '';
@@ -862,11 +900,11 @@ return false;
      * Sends download header and calls render method of the view.
      * Used for excelXML and CATXML.
      *
-     * @param CatXmlView|ExcelXmlView $xmlView Object for generating the XML export
+     * @param object $xmlView Object for generating the XML export
      *
      * @return string $filename
      */
-    protected function downloadXML($xmlView)
+    protected function downloadXML(object $xmlView): string
     {
         // Save content to the disk and get the file name
         return $xmlView->render();
@@ -876,7 +914,7 @@ return false;
      * @param L10nConfiguration $l10ncfgObj
      * @return string
      */
-    protected function catXMLExportImportAction($l10ncfgObj)
+    protected function catXMLExportImportAction(L10nConfiguration $l10ncfgObj): string
     {
         /** @var L10nBaseService $service */
         $service = GeneralUtility::makeInstance(L10nBaseService::class);
@@ -931,7 +969,7 @@ return false;
                     ) . '<br /><br />';
                 }
                 if (GeneralUtility::_POST('make_preview_link') == '1' && ExtensionManagementUtility::isLoaded('workspaces')) {
-                    $pageIds = $importManager->getPidsFromCATXMLNodes($importManager->getXmlNodes());
+                    $pageIds = $importManager->getPidsFromCATXMLNodes($importManager->getXMLNodes());
                     $actionInfo .= '<b>' . $this->getLanguageService()->getLL('import.xml.preview_links.title') . '</b><br />';
                     /** @var MkPreviewLinkService $mkPreviewLinks */
                     $mkPreviewLinks = GeneralUtility::makeInstance(
@@ -980,7 +1018,7 @@ return false;
                     FlashMessage::class,
                     '###MESSAGE###',
                     $this->getLanguageService()->getLL('export.process.duplicate.title'),
-                    FlashMessage::INFO
+                    AbstractMessage::INFO
                 );
                 $actionInfo .= str_replace(
                     '###MESSAGE###',
@@ -1000,7 +1038,7 @@ return false;
                         // Prepare a success message for display
                         $title = $this->getLanguageService()->getLL('export.ftp.success');
                         $message = '###MESSAGE###';
-                        $status = FlashMessage::OK;
+                        $status = AbstractMessage::OK;
                         /** @var FlashMessage $flashMessage */
                         $flashMessage = GeneralUtility::makeInstance(FlashMessage::class, $message, $title, $status);
                         $actionInfo .= str_replace(
@@ -1017,7 +1055,7 @@ return false;
                         // Prepare an error message for display
                         $title = $this->getLanguageService()->getLL('export.ftp.error');
                         $message = '###MESSAGE###';
-                        $status = FlashMessage::ERROR;
+                        $status = AbstractMessage::ERROR;
                         /** @var FlashMessage $flashMessage */
                         $flashMessage = GeneralUtility::makeInstance(FlashMessage::class, $message, $title, $status);
                         $actionInfo .= str_replace(
@@ -1028,9 +1066,7 @@ return false;
                                 ->render([$flashMessage])
                         );
                     }
-                    /** @var $flashMessage FlashMessage */
-                    $actionInfo .= $viewClass->renderInternalMessagesAsFlashMessage($status);
-                // Download the XML file
+                    // Download the XML file
                 } else {
                     try {
                         $filename = $this->downloadXML($viewClass);
@@ -1042,7 +1078,7 @@ return false;
                         );
                         $title = $this->getLanguageService()->getLL('export.download.success');
                         $message = '###MESSAGE###';
-                        $status = FlashMessage::OK;
+                        $status = AbstractMessage::OK;
                         /** @var FlashMessage $flashMessage */
                         $flashMessage = GeneralUtility::makeInstance(FlashMessage::class, $message, $title, $status);
                         $actionInfo .= str_replace(
@@ -1056,7 +1092,7 @@ return false;
                         // Prepare an error message for display
                         $title = $this->getLanguageService()->getLL('export.download.error');
                         $message = '###MESSAGE###';
-                        $status = FlashMessage::ERROR;
+                        $status = AbstractMessage::ERROR;
                         /** @var FlashMessage $flashMessage */
                         $flashMessage = GeneralUtility::makeInstance(FlashMessage::class, $message, $title, $status);
                         $actionInfo .= str_replace(
@@ -1067,9 +1103,9 @@ return false;
                                 ->render([$flashMessage])
                         );
                     }
-                    /** @var $flashMessage FlashMessage */
-                    $actionInfo .= $viewClass->renderInternalMessagesAsFlashMessage($status);
                 }
+                /** @var $flashMessage FlashMessage */
+                $actionInfo .= $viewClass->renderInternalMessagesAsFlashMessage((string)$status);
                 $viewClass->saveExportInformation();
             }
         }
@@ -1084,7 +1120,7 @@ return false;
     /**
      * @return string
      */
-    protected function getTabContentXmlExport()
+    protected function getTabContentXmlExport(): string
     {
         $_selectOptions = ['0' => '-default-'];
         $_selectOptions = $_selectOptions + $this->MOD_MENU['lang'];
@@ -1101,7 +1137,7 @@ return false;
             '</div><div class="form-section">' .
             '<div class="form-group mb-2">' .
             '<label>' . $this->getLanguageService()->getLL('export.xml.source-language.title') . '</label><br />' .
-            $this->_getSelectField('export_xml_forcepreviewlanguage', $this->previewLanguage, $_selectOptions) .
+            $this->_getSelectField('export_xml_forcepreviewlanguage', (string)$this->previewLanguage, $_selectOptions) .
             '</div></div>';
         // Add the option to send to FTP server, if FTP information is defined
         if ($this->emConfiguration->hasFtpCredentials()) {
@@ -1116,7 +1152,7 @@ return false;
     /**
      * @return string
      */
-    protected function getTabContentXmlImport()
+    protected function getTabContentXmlImport(): string
     {
         return '<div class="form-section">' .
             (
@@ -1141,6 +1177,13 @@ return false;
             '<br class="clearfix">&nbsp;</div>';
     }
 
+    /**
+     * @throws RouteNotFoundException
+     */
+    /**
+     * @return string
+     * @throws RouteNotFoundException
+     */
     protected function getTabContentXmlDownloads(): string
     {
         $tabContentXmlDownloads = '<h4>' . $this->getLanguageService()->getLL('file.settings.available.title') . '</h4><ul>';
@@ -1156,6 +1199,10 @@ return false;
         return $tabContentXmlDownloads;
     }
 
+    /**
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface
+     */
     public function downloadSetting(ServerRequestInterface $request): ResponseInterface
     {
         $settingId = $request->getQueryParams()['setting'];
@@ -1170,6 +1217,10 @@ return false;
             ->withBody($body);
     }
 
+    /**
+     * @param string $key
+     * @return string
+     */
     protected function getSetting(string $key): string
     {
         return $this->settings[$key];
@@ -1183,7 +1234,7 @@ return false;
      * @return string The file name, if successful
      * @throws Exception
      */
-    protected function uploadToFtp(CatXmlView $xmlView)
+    protected function uploadToFtp(CatXmlView $xmlView): string
     {
         // Save content to the disk and get the file name
         $filename = $xmlView->render();
@@ -1233,7 +1284,7 @@ return false;
      * @param L10nConfiguration $l10nmgrCfgObj L10N Manager configuration object
      * @param int $tlang ID of the language to translate to
      */
-    protected function emailNotification($xmlFileName, $l10nmgrCfgObj, $tlang)
+    protected function emailNotification(string $xmlFileName, L10nConfiguration $l10nmgrCfgObj, int $tlang)
     {
         // If at least a recipient is indeed defined, proceed with sending the mail
         $recipients = GeneralUtility::trimExplode(',', $this->emConfiguration->getEmailRecipient());
@@ -1307,7 +1358,7 @@ return false;
     /**
      * Adds items to the ->MOD_MENU array. Used for the function menu selector.
      */
-    public function menuConfig()
+    public function menuConfig(): void
     {
         $this->MOD_MENU = [
             'action' => [
@@ -1350,6 +1401,9 @@ return false;
         parent::menuConfig();
     }
 
+    /**
+     * @return StandaloneView
+     */
     protected function getFluidTemplateObject(): StandaloneView
     {
         $view = GeneralUtility::makeInstance(StandaloneView::class);
@@ -1364,6 +1418,9 @@ return false;
         return $view;
     }
 
+    /**
+     * @return L10nConfiguration
+     */
     protected function getL10NConfiguration(): L10nConfiguration
     {
         /** @var L10nConfiguration $l10nConfiguration */
@@ -1373,6 +1430,11 @@ return false;
         return $l10nConfiguration;
     }
 
+    /**
+     * @param L10nConfiguration $l10NConfiguration
+     * @param array $result
+     * @return array
+     */
     protected function linkOverviewAndOnlineTranslationAction(
         L10nConfiguration $l10NConfiguration,
         array $result
@@ -1419,6 +1481,10 @@ return false;
         return $this->catXMLExportImportAction($l10NConfiguration);
     }
 
+    /**
+     * @param L10nConfiguration $l10nConfiguration
+     * @return array
+     */
     protected function renderConfigurationTable(L10nConfiguration $l10nConfiguration): array
     {
         /** @var L10nConfigurationDetailView $l10nmgrconfigurationView */

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Model;
 
 /***************************************************************
@@ -39,7 +41,7 @@ class TranslationDataFactory implements LoggerAwareInterface
     /**
      * @var string List of error messages
      */
-    protected $errorMsg;
+    protected string $errorMsg;
 
     /**
      * public Factory method to get initialised tranlationData Object from the passed XMLNodes Array
@@ -49,7 +51,7 @@ class TranslationDataFactory implements LoggerAwareInterface
      *
      * @return TranslationData Object with data
      **/
-    public function getTranslationDataFromCATXMLNodes($xmlNodes)
+    public function getTranslationDataFromCATXMLNodes(array $xmlNodes): TranslationData
     {
         $data = $this->getParsedCATXMLFromXMLNodes($xmlNodes);
         /** @var TranslationData $translationData */
@@ -65,7 +67,7 @@ class TranslationDataFactory implements LoggerAwareInterface
      *
      * @return array with translated information
      **/
-    protected function getParsedCATXMLFromXMLNodes($xmlNodes)
+    protected function getParsedCATXMLFromXMLNodes(array $xmlNodes): array
     {
         /** @var XmlTools $xmlTool */
         $xmlTool = GeneralUtility::makeInstance(XmlTools::class);
@@ -95,17 +97,15 @@ class TranslationDataFactory implements LoggerAwareInterface
                             $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': Pattern 2: ' . $pattern2);
                             if (preg_match($pattern, $row['XMLvalue'], $match)) {
                                 $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': Start row[values][0] eq start row[XMLvalue]!!!' . LF . 'XMLvalue: ' . $row['XMLvalue']);
-                                $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = $row['XMLvalue'];
                             } elseif ((preg_match('/<[^>]+>/i', $row['XMLvalue']))
                                 && (!preg_match($pattern2, $row['XMLvalue'], $match))
                             ) {
                                 $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TAG found in: ' . $row['XMLvalue']);
                                 $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TAG found: ' . $row['values'][0]);
-                                $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = $row['XMLvalue'];
                             } else {
                                 $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': No TAG found in: ' . $row['XMLvalue']);
-                                $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = $row['XMLvalue'];
                             }
+                            $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = $row['XMLvalue'];
                             $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': IMPORT: ' . $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']]);
                         }
                         if (!empty($translation[$attrs['table']][$attrs['elementUid']][$attrs['key']])) {
@@ -125,7 +125,7 @@ class TranslationDataFactory implements LoggerAwareInterface
      *
      * @return TranslationData Object with data
      **/
-    public function getTranslationDataFromExcelXMLFile($xmlFile)
+    public function getTranslationDataFromExcelXMLFile(string $xmlFile): TranslationData
     {
         $fileContent = GeneralUtility::getUrl($xmlFile);
         $data = $this->getParsedExcelXML($fileContent);
@@ -144,9 +144,9 @@ class TranslationDataFactory implements LoggerAwareInterface
      *
      * @param string $fileContent String with XML
      *
-     * @return array|bool with translated information
+     * @return mixed with translated information
      **/
-    protected function getParsedExcelXML($fileContent)
+    protected function getParsedExcelXML(string $fileContent): mixed
     {
         // Parse XML in a rude fashion:
         // Check if &nbsp; has to be substituted -> DOCTYPE -> entity?
@@ -175,11 +175,7 @@ class TranslationDataFactory implements LoggerAwareInterface
                         substr(trim($row['ch']['Cell'][0]['ch']['Data'][0]['values'][0]), 12, -1)
                     );
                     // Ensure that data (in ss:Data cells) like formatted cells is taken properly from that cell
-                    if (isset($row['ch']['Cell'][4]['ch']['ss:Data'][0]['values'][0])) {
-                        $translatedData = $row['ch']['Cell'][4]['ch']['ss:Data'][0]['values'][0];
-                    } else {
-                        $translatedData = $row['ch']['Cell'][4]['ch']['Data'][0]['values'][0];
-                    }
+                    $translatedData = $row['ch']['Cell'][4]['ch']['ss:Data'][0]['values'][0] ?? $row['ch']['Cell'][4]['ch']['Data'][0]['values'][0];
                     $translation[$Ttable][$Tuid][$Tkey] = (string)$translatedData;
                 }
             }

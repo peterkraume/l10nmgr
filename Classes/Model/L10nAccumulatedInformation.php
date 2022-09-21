@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Model;
 
 /***************************************************************
@@ -52,67 +54,67 @@ class L10nAccumulatedInformation
     /**
      * @var string The status of this object, set to processed if internal variables are calculated.
      */
-    protected $objectStatus = 'new';
+    protected string $objectStatus = 'new';
 
     /**
      * @var PageTreeView
      */
-    protected $tree;
+    protected PageTreeView $tree;
 
     /**
      * @var array Selected l10nmgr configuration
      */
-    protected $l10ncfg = [];
+    protected array $l10ncfg = [];
 
     /**
      * @var array List of not allowed doktypes
      */
-    protected $disallowDoktypes = ['--div--', '255'];
+    protected array $disallowDoktypes = ['--div--', '255'];
 
     /**
      * @var int sys_language_uid of target language
      */
-    protected $sysLang;
+    protected int $sysLang;
 
     /**
      * @var int sys_language_uid of forced source language
      */
-    protected $forcedPreviewLanguage;
+    protected int $forcedPreviewLanguage;
 
     /**
      * @var bool
      */
-    protected $noHidden;
+    protected bool $noHidden;
 
     /**
      * @var array Information about collected data for translation
      */
-    protected $_accumulatedInformations = [];
+    protected array $_accumulatedInformations = [];
 
     /**
      * @var int Field count, might be needed by translation agencies
      */
-    protected $_fieldCount = 0;
+    protected int $_fieldCount = 0;
 
     /**
      * @var int Word count, might be needed by translation agencies
      */
-    protected $_wordCount = 0;
+    protected int $_wordCount = 0;
 
     /**
      * @var array Index of pages to be excluded from translation
      */
-    protected $excludeIndex = [];
+    protected array $excludeIndex = [];
 
     /**
      * @var array Index of pages to be included with translation
      */
-    protected $includeIndex = [];
+    protected array $includeIndex = [];
 
     /**
      * @var EmConfiguration
      */
-    protected $emConfiguration;
+    protected mixed $emConfiguration;
 
     /**
      * Check for deprecated configuration throws false positive in extension scanner.
@@ -121,7 +123,7 @@ class L10nAccumulatedInformation
      * @param array $l10ncfg
      * @param int $sysLang
      */
-    public function __construct($tree, $l10ncfg, $sysLang)
+    public function __construct(PageTreeView $tree, array $l10ncfg, int $sysLang)
     {
         $this->emConfiguration = GeneralUtility::makeInstance(EmConfiguration::class);
         $this->disallowDoktypes = GeneralUtility::trimExplode(',', $this->emConfiguration->getDisallowDoktypes());
@@ -133,7 +135,7 @@ class L10nAccumulatedInformation
     /**
      * @param int $prevLangId
      */
-    public function setForcedPreviewLanguage($prevLangId)
+    public function setForcedPreviewLanguage(int $prevLangId): void
     {
         $this->forcedPreviewLanguage = $prevLangId;
     }
@@ -146,14 +148,18 @@ class L10nAccumulatedInformation
      * @param bool $noHidden
      * @return array Complete Information array
      */
-    public function getInfoArray($noHidden = false)
+    public function getInfoArray(bool $noHidden = false): array
     {
         $this->noHidden = $noHidden;
         $this->process();
         return $this->_accumulatedInformations;
     }
 
-    protected function process()
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \TYPO3\CMS\Core\Exception\SiteNotFoundException
+     */
+    protected function process(): void
     {
         if ($this->objectStatus !== 'processed') {
             $this->_calculateInternalAccumulatedInformationsArray();
@@ -168,8 +174,11 @@ class L10nAccumulatedInformation
     /** set internal _accumulatedInformation array.
      * Is called from constructor and uses the given tree, lang and l10ncfg
      *
-     **/
-    protected function _calculateInternalAccumulatedInformationsArray()
+     *
+     * @throws \TYPO3\CMS\Core\Exception\SiteNotFoundException
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    protected function _calculateInternalAccumulatedInformationsArray(): void
     {
         $tree = $this->tree;
         $l10ncfg = $this->l10ncfg;
@@ -235,7 +244,7 @@ class L10nAccumulatedInformation
             if (!empty($treeElement['row'][Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME])) {
                 /** @var LanguageRestrictionCollection $languageIsRestricted */
                 $languageIsRestricted = LanguageRestrictionCollection::load(
-                    (int)$sysLang,
+                    $sysLang,
                     true,
                     'pages',
                     Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME
@@ -291,7 +300,7 @@ class L10nAccumulatedInformation
                                 if (!empty($row[Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME])) {
                                     /** @var LanguageRestrictionCollection $languageIsRestricted */
                                     $languageIsRestricted = LanguageRestrictionCollection::load(
-                                        (int)$sysLang,
+                                        $sysLang,
                                         true,
                                         $table,
                                         Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME
@@ -387,7 +396,7 @@ class L10nAccumulatedInformation
     /**
      * @param array $fieldsArray
      */
-    protected function _increaseInternalCounters($fieldsArray)
+    protected function _increaseInternalCounters(array $fieldsArray): void
     {
         if (is_array($fieldsArray)) {
             $this->_fieldCount = $this->_fieldCount + count($fieldsArray);
@@ -402,8 +411,9 @@ class L10nAccumulatedInformation
     /**
      * @param string $indexList
      * @param string $excludeList
+     * @throws \Doctrine\DBAL\DBALException
      */
-    protected function addPagesMarkedAsIncluded($indexList, $excludeList)
+    protected function addPagesMarkedAsIncluded(string $indexList, string $excludeList): void
     {
         $this->includeIndex = [];
         $this->excludeIndex = array_flip(GeneralUtility::trimExplode(',', $excludeList, true));
@@ -461,8 +471,9 @@ class L10nAccumulatedInformation
      * Will ignore pages with explicit l10nmgr_configuration settings but still walk through their subpages
      * @param int $uid
      * @param int $level
+     * @throws \Doctrine\DBAL\DBALException
      */
-    protected function addSubPagesRecursively($uid, $level = 0)
+    protected function addSubPagesRecursively(int $uid, int $level = 0): void
     {
         $level++;
         if ($uid > 0 && $level < 100) {
@@ -493,6 +504,9 @@ class L10nAccumulatedInformation
         }
     }
 
+    /**
+     * @return EmConfiguration
+     */
     public function getExtensionConfiguration(): EmConfiguration
     {
         return $this->emConfiguration;
@@ -501,7 +515,7 @@ class L10nAccumulatedInformation
     /**
      * @return int
      */
-    public function getFieldCount()
+    public function getFieldCount(): int
     {
         return $this->_fieldCount;
     }
@@ -509,7 +523,7 @@ class L10nAccumulatedInformation
     /**
      * @return int
      */
-    public function getWordCount()
+    public function getWordCount(): int
     {
         return $this->_wordCount;
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Command;
 
 /***************************************************************
@@ -125,7 +127,7 @@ class Export extends L10nCommand
      *
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @return int|void|null
+     * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -222,7 +224,7 @@ class Export extends L10nCommand
      * @return string An error message in case of failure
      * @throws Exception
      */
-    protected function exportXML($l10ncfg, $tlang, $format, $input, $output)
+    protected function exportXML(int $l10ncfg, int $tlang, string $format, InputInterface $input, OutputInterface $output): string
     {
         $error = '';
         // Load the configuration
@@ -242,7 +244,7 @@ class Export extends L10nCommand
                 }
                 $l10nmgrGetXML->setOverrideParams(
                     [
-                        'noxmlcheck' => !(bool)$input->getOption('checkXml'),
+                        'noxmlcheck' => !$input->getOption('checkXml'),
                         'utf8' => (bool)$input->getOption('utf8'),
                     ]
                 );
@@ -253,7 +255,7 @@ class Export extends L10nCommand
             }
             // Check if sourceLangStaticId is set in configuration and set setForcedSourceLanguage to this value
             if ($l10nmgrCfgObj->getData('sourceLangStaticId') && ExtensionManagementUtility::isLoaded('static_info_tables')) {
-                $forceLanguage = $this->getStaticLangUid($l10nmgrCfgObj->getData('sourceLangStaticId'));
+                $forceLanguage = $this->getStaticLangUid((int)$l10nmgrCfgObj->getData('sourceLangStaticId'));
                 $l10nmgrGetXML->setForcedSourceLanguage($forceLanguage);
             }
             $forceLanguage = $input->getOption('forcedSourceLanguage') ?? 0;
@@ -299,7 +301,7 @@ class Export extends L10nCommand
                 // If FTP option is set, upload files to remote server
                 if ($this->getExtConf()->isEnableFtp()) {
                     if (file_exists($xmlFileName)) {
-                        $error .= $this->ftpUpload($xmlFileName, $l10nmgrGetXML->getFileName());
+                        $error .= $this->ftpUpload($xmlFileName, $l10nmgrGetXML->getFilename());
                     } else {
                         $output->writeln('<error>' . $this->getLanguageService()->getLL('error.ftp.file_not_found.msg') . '</error>');
                     }
@@ -322,8 +324,9 @@ class Export extends L10nCommand
     /**
      * @param int $sourceLangStaticId
      * @return int
+     * @throws \Doctrine\DBAL\DBALException
      */
-    protected function getStaticLangUid($sourceLangStaticId)
+    protected function getStaticLangUid(int $sourceLangStaticId): int
     {
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_language');
@@ -347,7 +350,7 @@ class Export extends L10nCommand
      * @param L10nConfiguration $l10nmgrCfgObj L10N Manager configuration object
      * @param int $tlang ID of the language to translate to
      */
-    protected function emailNotification($xmlFileName, $l10nmgrCfgObj, $tlang)
+    protected function emailNotification(string $xmlFileName, L10nConfiguration $l10nmgrCfgObj, int $tlang)
     {
         // If at least a recipient is indeed defined, proceed with sending the mail
         $recipients = GeneralUtility::trimExplode(',', $this->getExtConf()->getEmailRecipient());
@@ -426,39 +429,35 @@ class Export extends L10nCommand
      *
      * @return string Error message
      */
-    protected function ftpUpload($xmlFileName, $filename)
+    protected function ftpUpload(string $xmlFileName, string $filename): string
     {
         $error = '';
         $connection = ftp_connect($this->getExtConf()->getFtpServer()) or die('Connection failed');
-        if ($connection) {
-            if (@ftp_login(
+        if (@ftp_login(
+            $connection,
+            $this->getExtConf()->getFtpServerUsername(),
+            $this->getExtConf()->getFtpServerPassword()
+        )) {
+            if (ftp_put(
                 $connection,
-                $this->getExtConf()->getFtpServerUsername(),
-                $this->getExtConf()->getFtpServerPassword()
+                $this->getExtConf()->getFtpServerPath() . $filename,
+                $xmlFileName,
+                FTP_BINARY
             )) {
-                if (ftp_put(
-                    $connection,
-                    $this->getExtConf()->getFtpServerPath() . $filename,
-                    $xmlFileName,
-                    FTP_BINARY
-                )) {
-                    ftp_close($connection) or die("Couldn't close connection");
-                } else {
-                    $error .= sprintf(
-                        $this->getLanguageService()->getLL('error.ftp.connection.msg'),
-                        $this->getExtConf()->getFtpServerPath(),
-                        $filename
-                    ) . "\n";
-                }
+                ftp_close($connection) or die("Couldn't close connection");
             } else {
                 $error .= sprintf(
-                    $this->getLanguageService()->getLL('error.ftp.connection_user.msg'),
-                    $this->getExtConf()->getFtpServerUsername()
+                    $this->getLanguageService()->getLL('error.ftp.connection.msg'),
+                    $this->getExtConf()->getFtpServerPath(),
+                    $filename
                 ) . "\n";
-                ftp_close($connection) or die("Couldn't close connection");
             }
         } else {
-            $error .= $this->getLanguageService()->getLL('error.ftp.connection_failed.msg');
+            $error .= sprintf(
+                $this->getLanguageService()->getLL('error.ftp.connection_user.msg'),
+                $this->getExtConf()->getFtpServerUsername()
+            ) . "\n";
+            ftp_close($connection) or die("Couldn't close connection");
         }
         return $error;
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\LanguageRestriction\Collection;
 
 /*
@@ -44,16 +46,16 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
      *
      * @var string
      */
-    protected $relationFieldName = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME;
+    protected string $relationFieldName = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME;
 
     /**
      * Creates this object.
      *
-     * @param string $tableName Name of the table to be working on
-     * @param string $fieldName Name of the field where the language restriction relations are defined
+     * @param string|null $tableName Name of the table to be working on
+     * @param string|null $fieldName Name of the field where the language restriction relations are defined
      * @throws RuntimeException
      */
-    public function __construct($tableName = null, $fieldName = null)
+    public function __construct(string $tableName = null, string $fieldName = null)
     {
         parent::__construct();
         if (!empty($tableName)) {
@@ -77,8 +79,9 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
      * @param string $tableName Name of table from which entries should be loaded
      * @param string $fieldName Name of the language restrictions relation field
      * @return CollectionInterface
+     * @throws \Doctrine\DBAL\DBALException
      */
-    public static function load($id, $fillItems = false, $tableName = '', $fieldName = '')
+    public static function load($id, $fillItems = false, string $tableName = '', string $fieldName = ''): CollectionInterface
     {
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
@@ -108,7 +111,7 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
      * @param bool $fillItems Populates the entries directly on load, might be bad for memory on large collections
      * @return LanguageRestrictionCollection
      */
-    public static function create(array $collectionRecord, $fillItems = false)
+    public static function create(array $collectionRecord, $fillItems = false): LanguageRestrictionCollection
     {
         /** @var LanguageRestrictionCollection $collection */
         $collection = GeneralUtility::makeInstance(
@@ -145,8 +148,9 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
      * using <getCollectedRecordsQueryBuilder>.
      *
      * @return array
+     * @throws \Doctrine\DBAL\DBALException
      */
-    protected function getCollectedRecords()
+    protected function getCollectedRecords(): array
     {
         $relatedRecords = [];
 
@@ -167,7 +171,7 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
      *
      * @return QueryBuilder
      */
-    protected function getCollectedRecordsQueryBuilder()
+    protected function getCollectedRecordsQueryBuilder(): QueryBuilder
     {
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
@@ -201,11 +205,11 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
                 ),
                 $queryBuilder->expr()->eq(
                     Constants::L10NMGR_LANGUAGE_RESTRICTION_MM_TABLENAME . '.tablenames',
-                    $queryBuilder->createNamedParameter($this->getItemTableName(), PDO::PARAM_STR)
+                    $queryBuilder->createNamedParameter($this->getItemTableName())
                 ),
                 $queryBuilder->expr()->eq(
                     Constants::L10NMGR_LANGUAGE_RESTRICTION_MM_TABLENAME . '.fieldname',
-                    $queryBuilder->createNamedParameter($this->getRelationFieldName(), PDO::PARAM_STR)
+                    $queryBuilder->createNamedParameter($this->getRelationFieldName())
                 )
             );
 
@@ -217,7 +221,7 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
      *
      * @return string
      */
-    public function getRelationFieldName()
+    public function getRelationFieldName(): string
     {
         return $this->relationFieldName;
     }
@@ -227,7 +231,7 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
      *
      * @param string $field
      */
-    public function setRelationFieldName($field)
+    public function setRelationFieldName(string $field)
     {
         $this->relationFieldName = $field;
     }
@@ -256,7 +260,7 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
      *
      * @return string
      */
-    public static function getStorageTableName()
+    public static function getStorageTableName(): string
     {
         return self::$storageTableName;
     }
@@ -266,7 +270,7 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
      *
      * @return string
      */
-    public static function getStorageItemsField()
+    public static function getStorageItemsField(): string
     {
         return self::$storageItemsField;
     }
@@ -306,7 +310,7 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
      *
      * @return array
      */
-    public function getItems()
+    public function getItems(): array
     {
         $itemArray = [];
         foreach ($this->storage as $item) {
@@ -321,7 +325,7 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
      * @param int $uid
      * @return bool
      */
-    public function hasItem(int $uid)
+    public function hasItem(int $uid): bool
     {
         foreach ($this->storage as $item) {
             if ($item['uid'] === $uid) {
@@ -338,12 +342,12 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
      *
      * @return array
      */
-    protected function getPersistableDataArray()
+    protected function getPersistableDataArray(): array
     {
         return [
             'title' => $this->getTitle(),
             'description' => $this->getDescription(),
-            'items' => $this->getItemUidList(true),
+            'items' => $this->getItemUidList(),
         ];
     }
 }

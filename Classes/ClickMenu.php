@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr;
 
 /***************************************************************
@@ -49,7 +51,7 @@ class ClickMenu
     /**
      * @var LanguageService
      */
-    protected $languageService;
+    protected LanguageService $languageService;
 
     /**
      * Main function
@@ -59,8 +61,9 @@ class ClickMenu
      * @param string $table
      * @param int $uid
      * @return array
+     * @throws RouteNotFoundException
      */
-    public function main($backRef, $menuItems, $table, $uid)
+    public function main(mixed $backRef, array $menuItems, string $table, int $uid): array
     {
         $localItems = [];
         if (!$backRef->cmLevel) {
@@ -145,11 +148,10 @@ class ClickMenu
      *
      * @return array Local lang value.
      */
-    protected function includeLL()
+    protected function includeLL(): array
     {
         return $this->getLanguageService()->includeLLFile(
-            'EXT:l10nmgr/Resources/Private/Language/locallang.xml',
-            false
+            'EXT:l10nmgr/Resources/Private/Language/locallang.xml'
         );
     }
 
@@ -158,7 +160,7 @@ class ClickMenu
      *
      * @return LanguageService $languageService
      */
-    protected function getLanguageService()
+    protected function getLanguageService(): LanguageService
     {
         if (!$this->languageService instanceof LanguageService) {
             $this->languageService = GeneralUtility::makeInstance(LanguageService::class);

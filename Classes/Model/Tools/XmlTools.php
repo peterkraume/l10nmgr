@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Model\Tools;
 
 /***************************************************************
@@ -40,7 +42,7 @@ class XmlTools implements LoggerAwareInterface
     /**
      * @var RteHtmlParser
      */
-    protected $parseHTML;
+    protected mixed $parseHTML;
 
     public function __construct()
     {
@@ -55,7 +57,7 @@ class XmlTools implements LoggerAwareInterface
      * @param array $parserOptions Options that will be passed to PHP's xml_parser_set_option()
      * @return mixed The array with the parsed structure unless the XML parser returns with an error in which case the error message string is returned.
      */
-    public static function xml2tree($string, $depth = 999, $parserOptions = [])
+    public static function xml2tree(string $string, int $depth = 999, array $parserOptions = []): mixed
     {
         // Disables the functionality to allow external entities to be loaded when parsing the XML, must be kept
         $previousValueOfEntityLoader = libxml_disable_entity_loader(true);
@@ -124,7 +126,7 @@ class XmlTools implements LoggerAwareInterface
      * @param array $vals An array of XML parts, see xml2tree
      * @return string Re-compiled XML data.
      */
-    protected static function xmlRecompileFromStructValArray(array $vals)
+    protected static function xmlRecompileFromStructValArray(array $vals): string
     {
         $XMLcontent = '';
         $selfClosingTags = [
@@ -185,7 +187,7 @@ class XmlTools implements LoggerAwareInterface
      * @param int $withStripBadUTF8
      * @return mixed false if transformation failed, string with XML if all fine
      */
-    public function RTE2XML($content, $withStripBadUTF8 = 0)
+    public function RTE2XML(string $content, int $withStripBadUTF8 = 0): mixed
     {
         //function RTE2XML($content,$withStripBadUTF8=$this->getBackendUser()->getModuleData('l10nmgr/cm1/checkUTF8', '')) {
         //if (!$withStripBadUTF8) {
@@ -221,7 +223,7 @@ class XmlTools implements LoggerAwareInterface
      * @param string $xmlString
      * @return bool
      */
-    public function isValidXMLString($xmlString)
+    public function isValidXMLString(string $xmlString): bool
     {
         return $this->isValidXML('<!DOCTYPE dummy [ <!ENTITY nbsp " "> ]><dummy>' . $xmlString . '</dummy>');
     }
@@ -230,7 +232,7 @@ class XmlTools implements LoggerAwareInterface
      * @param string $xml
      * @return bool
      */
-    protected function isValidXML($xml)
+    protected function isValidXML(string $xml): bool
     {
         $parser = xml_parser_create();
         $vals = [];
@@ -251,7 +253,7 @@ class XmlTools implements LoggerAwareInterface
      *
      * @return string string with HTML
      */
-    public function XML2RTE($xmlstring)
+    public function XML2RTE(string $xmlstring): string
     {
         //fixed setting of Parser (TO-DO set it via typoscript)
         //Added because import failed

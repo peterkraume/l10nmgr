@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Utility;
 
 /*
@@ -39,12 +41,12 @@ class L10nmgrExtensionManagementUtility
      * @see addToAllTCAtypes
      */
     public static function makeTranslationsRestrictable(
-        $extensionKey,
-        $tableName,
-        $fieldName = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME,
+        string $extensionKey,
+        string $tableName,
+        string $fieldName = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME,
         array $options = [],
-        $override = true
-    ) {
+        bool $override = true
+    ): void {
         // Update the category registry
         $result = LanguageRestrictionRegistry::getInstance()->add(
             $extensionKey,

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Controller;
 
 /***************************************************************
@@ -26,6 +28,7 @@ namespace Localizationteam\L10nmgr\Controller;
  * @author Kasper Skårhøj <kasperYYYY@typo3.com>
  */
 
+use Doctrine\DBAL\Driver\Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -47,46 +50,49 @@ use TYPO3\CMS\Fluid\View\StandaloneView;
  */
 class ConfigurationManager extends BaseModule
 {
-    public $pageinfo;
+    /**
+     * @var array
+     */
+    public array $pageinfo;
 
     /**
      * @var array Cache of the page details already fetched from the database
      */
-    protected $pageDetails = [];
+    protected array $pageDetails = [];
 
     /**
      * @var array Cache of the language records already fetched from the database
      */
-    protected $languageDetails = [];
+    protected array $languageDetails = [];
 
     /**
      * ModuleTemplate Container
      *
      * @var ModuleTemplate
      */
-    protected $moduleTemplate;
+    protected mixed $moduleTemplate;
 
     /**
      * @var StandaloneView
      */
-    protected $view;
+    protected StandaloneView $view;
 
     /**
      * @var UriBuilder
      */
-    protected $uriBuilder;
+    protected mixed $uriBuilder;
 
     /**
      * The name of the module
      *
      * @var string
      */
-    protected $moduleName = 'web_ConfigurationManager';
+    protected string $moduleName = 'web_ConfigurationManager';
 
     /**
      * @var IconFactory
      */
-    protected $iconFactory;
+    protected mixed $iconFactory;
 
     public function __construct()
     {
@@ -126,7 +132,7 @@ class ConfigurationManager extends BaseModule
     /**
      * Initializes the Module
      */
-    public function init()
+    public function init(): void
     {
         $this->getBackendUser()->modAccess($this->MCONF);
         parent::init();
@@ -135,6 +141,7 @@ class ConfigurationManager extends BaseModule
     /**
      * Main function of the module. Write the content to $this->content
      * If you chose "web" as main module, you will need to consider the $this->id parameter which will contain the uid-number of the page clicked in the page tree
+     * @throws Exception
      */
     public function main()
     {
@@ -161,7 +168,8 @@ class ConfigurationManager extends BaseModule
     /**
      * Generates and returns the content of the module
      *
-     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
      */
     protected function moduleContent(): void
     {
@@ -183,7 +191,7 @@ class ConfigurationManager extends BaseModule
      * Returns all l10nmgr configurations to which the current user has access, based on page permissions
      *
      * @return array List of l10nmgr configurations
-     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws \Doctrine\DBAL\DBALException
      */
     protected function getAllConfigurations(): array
     {
@@ -213,12 +221,11 @@ class ConfigurationManager extends BaseModule
      *
      * @return string The HTML to display
      */
-    protected function renderConfigurationDetails($configuration)
+    protected function renderConfigurationDetails(array $configuration): string
     {
         $parentPageArray = $this->getPageDetails($configuration['pid']);
         $languageArray = $this->getPageDetails($configuration['sourceLangStaticId']);
-        $details = '';
-        $details .= '<table class="table table-striped table-hover" border="0" cellspacing="0" cellpadding="0">';
+        $details = '<table class="table table-striped table-hover" border="0" cellspacing="0" cellpadding="0">';
         $details .= '<tr>';
         $details .= '<td>' . $this->getLanguageService()->getLL('general.list.infodetail.pid.title') . '</td>';
         $details .= '<td>' . $parentPageArray['title'] . ' (' . $parentPageArray['uid'] . ')</td>';
@@ -261,7 +268,7 @@ class ConfigurationManager extends BaseModule
      *
      * @return array Page record from the database
      */
-    protected function getPageDetails($uid)
+    protected function getPageDetails(int $uid): array
     {
         $uid = (int)$uid;
         if (isset($this->pageDetails[$uid])) {
@@ -273,6 +280,9 @@ class ConfigurationManager extends BaseModule
         return $record;
     }
 
+    /**
+     * @return StandaloneView
+     */
     protected function getFluidTemplateObject(): StandaloneView
     {
         $view = GeneralUtility::makeInstance(StandaloneView::class);

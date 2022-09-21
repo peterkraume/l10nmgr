@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Controller;
 
 /*
@@ -20,6 +22,7 @@ use TYPO3\CMS\Backend\Template\DocumentTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Exception;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
@@ -39,7 +42,7 @@ class BaseModule
      * @see init()
      * @var array
      */
-    public $MCONF = [];
+    public array $MCONF = [];
 
     /**
      * The integer value of the GET/POST var, 'id'. Used for submodules to the 'Web' module (page id)
@@ -47,7 +50,7 @@ class BaseModule
      * @see init()
      * @var int
      */
-    public $id;
+    public int $id;
 
     /**
      * The value of GET/POST var, 'CMD'
@@ -55,7 +58,7 @@ class BaseModule
      * @see init()
      * @var mixed
      */
-    public $CMD;
+    public mixed $CMD;
 
     /**
      * A WHERE clause for selection records from the pages table based on read-permissions of the current backend user.
@@ -63,7 +66,7 @@ class BaseModule
      * @see init()
      * @var string
      */
-    public $perms_clause;
+    public string $perms_clause;
 
     /**
      * The module menu items array. Each key represents a key for which values can range between the items in the array of that key.
@@ -71,7 +74,7 @@ class BaseModule
      * @see init()
      * @var array
      */
-    public $MOD_MENU = [
+    public array $MOD_MENU = [
         'function' => [],
     ];
 
@@ -81,7 +84,7 @@ class BaseModule
      * @see $MOD_MENU
      * @var array
      */
-    public $MOD_SETTINGS = [];
+    public array $MOD_SETTINGS = [];
 
     /**
      * Module TSconfig based on PAGE TSconfig / USER TSconfig
@@ -89,7 +92,7 @@ class BaseModule
      * @see menuConfig()
      * @var array
      */
-    public $modTSconfig;
+    public array $modTSconfig;
 
     /**
      * If type is 'ses' then the data is stored as session-lasting data. This means that it'll be wiped out the next time the user logs in.
@@ -98,7 +101,7 @@ class BaseModule
      * @see menuConfig(), \TYPO3\CMS\Backend\Utility\BackendUtility::getModuleData()
      * @var string
      */
-    public $modMenu_type = '';
+    public string $modMenu_type = '';
 
     /**
      * dontValidateList can be used to list variables that should not be checked if their value is found in the MOD_MENU array. Used for dynamically generated menus.
@@ -107,7 +110,7 @@ class BaseModule
      * @see menuConfig(), \TYPO3\CMS\Backend\Utility\BackendUtility::getModuleData()
      * @var string
      */
-    public $modMenu_dontValidateList = '';
+    public string $modMenu_dontValidateList = '';
 
     /**
      * List of default values from $MOD_MENU to set in the output array (only if the values from MOD_MENU are not arrays)
@@ -116,7 +119,7 @@ class BaseModule
      * @see menuConfig(), \TYPO3\CMS\Backend\Utility\BackendUtility::getModuleData()
      * @var string
      */
-    public $modMenu_setDefaultList = '';
+    public string $modMenu_setDefaultList = '';
 
     /**
      * Contains module configuration parts from TBE_MODULES_EXT if found
@@ -124,38 +127,39 @@ class BaseModule
      * @see handleExternalFunctionValue()
      * @var array
      */
-    public $extClassConf;
+    public array $extClassConf;
 
     /**
      * Generally used for accumulating the output content of backend modules
      *
      * @var string
      */
-    public $content = '';
+    public string $content = '';
 
     /**
      * @var DocumentTemplate
      */
-    public $doc;
+    public DocumentTemplate $doc;
 
     /**
      * May contain an instance of a 'Function menu module' which connects to this backend module.
      *
      * @see checkExtObj()
+     * @var mixed
      */
-    public $extObj;
+    public mixed $extObj;
 
     /**
      * @var PageRenderer
      */
-    protected $pageRenderer;
+    protected PageRenderer $pageRenderer;
 
     /**
      * Initializes the backend module by setting internal variables, initializing the menu.
      *
      * @see menuConfig()
      */
-    public function init()
+    public function init(): void
     {
         // Name might be set from outside
         if (!$this->MCONF['name']) {
@@ -175,7 +179,7 @@ class BaseModule
      *
      * @see init(), $MOD_MENU, $MOD_SETTINGS, \TYPO3\CMS\Backend\Utility\BackendUtility::getModuleData(), mergeExternalItems()
      */
-    public function menuConfig()
+    public function menuConfig(): void
     {
         // Page / user TSconfig settings and blinding of menu-items
         $this->modTSconfig['properties'] = BackendUtility::getPagesTSconfig($this->id)['mod.'][$this->MCONF['name'] . '.'] ?? [];
@@ -210,7 +214,7 @@ class BaseModule
      * @internal
      * @see \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::insertModuleFunction(), menuConfig()
      */
-    public function mergeExternalItems($modName, $menuKey, $menuArr)
+    public function mergeExternalItems(string $modName, string $menuKey, array $menuArr): array
     {
         $mergeArray = $GLOBALS['TBE_MODULES_EXT'][$modName]['MOD_MENU'][$menuKey] ?? null;
         if (is_array($mergeArray)) {
@@ -235,7 +239,7 @@ class BaseModule
      * Returns the Language Service
      * @return LanguageService
      */
-    protected function getLanguageService()
+    protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
     }
@@ -244,10 +248,10 @@ class BaseModule
      * Loads $this->extClassConf with the configuration for the CURRENT function of the menu.
      *
      * @param string $MM_key The key to MOD_MENU for which to fetch configuration. 'function' is default since it is first and foremost used to get information per "extension object" (I think that is what its called)
-     * @param string $MS_value The value-key to fetch from the config array. If NULL (default) MOD_SETTINGS[$MM_key] will be used. This is useful if you want to force another function than the one defined in MOD_SETTINGS[function]. Call this in init() function of your Script Class: handleExternalFunctionValue('function', $forcedSubModKey)
+     * @param string|null $MS_value The value-key to fetch from the config array. If NULL (default) MOD_SETTINGS[$MM_key] will be used. This is useful if you want to force another function than the one defined in MOD_SETTINGS[function]. Call this in init() function of your Script Class: handleExternalFunctionValue('function', $forcedSubModKey)
      * @see getExternalItemConfig(), init()
      */
-    public function handleExternalFunctionValue($MM_key = 'function', $MS_value = null)
+    public function handleExternalFunctionValue(string $MM_key = 'function', string $MS_value = null): void
     {
         if ($MS_value === null) {
             $MS_value = $this->MOD_SETTINGS[$MM_key];
@@ -265,7 +269,7 @@ class BaseModule
      * @return mixed The value from the TBE_MODULES_EXT array.
      * @see handleExternalFunctionValue()
      */
-    public function getExternalItemConfig($modName, $menuKey, $value = '')
+    public function getExternalItemConfig(string $modName, string $menuKey, string $value = ''): mixed
     {
         if (isset($GLOBALS['TBE_MODULES_EXT'][$modName])) {
             return (string)$value !== '' ? $GLOBALS['TBE_MODULES_EXT'][$modName]['MOD_MENU'][$menuKey][$value] : $GLOBALS['TBE_MODULES_EXT'][$modName]['MOD_MENU'][$menuKey];
@@ -281,11 +285,11 @@ class BaseModule
      *
      * @see handleExternalFunctionValue(), \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::insertModuleFunction(), $extObj
      */
-    public function checkExtObj()
+    public function checkExtObj(): void
     {
         if (is_array($this->extClassConf) && $this->extClassConf['name']) {
             $this->extObj = GeneralUtility::makeInstance($this->extClassConf['name']);
-            $this->extObj->init($this, $this->extClassConf);
+            $this->extObj->init();
             // Re-write:
             $this->MOD_SETTINGS = BackendUtility::getModuleData($this->MOD_MENU, GeneralUtility::_GP('SET'), $this->MCONF['name'], $this->modMenu_type, $this->modMenu_dontValidateList, $this->modMenu_setDefaultList);
         }
@@ -294,7 +298,7 @@ class BaseModule
     /**
      * Calls the checkExtObj function in sub module if present.
      */
-    public function checkSubExtObj()
+    public function checkSubExtObj(): void
     {
         if (is_object($this->extObj)) {
             $this->extObj->checkExtObj();
@@ -305,7 +309,7 @@ class BaseModule
      * Calls the 'header' function inside the "Function menu module" if present.
      * A header function might be needed to add JavaScript or other stuff in the head. This can't be done in the main function because the head is already written.
      */
-    public function extObjHeader()
+    public function extObjHeader(): void
     {
         if (is_callable([$this->extObj, 'head'])) {
             $this->extObj->head();
@@ -318,7 +322,7 @@ class BaseModule
      * @return string
      * @throws Exception
      */
-    public function getExtObjContent()
+    public function getExtObjContent(): string
     {
         $savedContent = $this->content;
         $this->content = '';
@@ -332,14 +336,14 @@ class BaseModule
      * Calls the 'main' function inside the "Function menu module" if present
      * @throws Exception
      */
-    public function extObjContent()
+    public function extObjContent(): void
     {
         if ($this->extObj === null) {
             $flashMessage = GeneralUtility::makeInstance(
                 FlashMessage::class,
                 $this->getLanguageService()->sL('LLL:EXT:backend/Resources/Private/Language/locallang.xlf:no_modules_registered'),
                 $this->getLanguageService()->getLL('title'),
-                FlashMessage::ERROR
+                AbstractMessage::ERROR
             );
             /** @var FlashMessageService $flashMessageService */
             $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
@@ -356,7 +360,7 @@ class BaseModule
     /**
      * @return PageRenderer
      */
-    protected function getPageRenderer()
+    protected function getPageRenderer(): PageRenderer
     {
         if ($this->pageRenderer === null) {
             $this->pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);

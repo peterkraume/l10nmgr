@@ -22,11 +22,10 @@ namespace Localizationteam\L10nmgr\Task;
 
 use Localizationteam\L10nmgr\Traits\BackendUserTrait;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Scheduler\AbstractAdditionalFieldProvider;
 use TYPO3\CMS\Scheduler\AdditionalFieldProviderInterface;
-use TYPO3\CMS\Scheduler\Controller\SchedulerModuleController;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
 /**
@@ -44,28 +43,28 @@ class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider imp
     /**
      * @var LanguageService
      */
-    protected $languageService;
+    protected LanguageService $languageService;
 
     /**
      * @var int Default age
      */
-    protected $defaultAge = 30;
+    protected int $defaultAge = 30;
 
     /**
      * @var string Default pattern of files to exclude from cleanup
      */
-    protected $defaultPattern = '(index\.html|\.htaccess)';
+    protected string $defaultPattern = '(index\.html|\.htaccess)';
 
     /**
-     * Add an integer input field for age of fiels to delete
+     * Gets additional fields to render in the form to add/edit a task
      *
-     * @param array $taskInfo Reference to the array containing the info used in the add/edit form
-     * @param object $task When editing, reference to the current task object. Null when adding.
-     * @param SchedulerModuleController $parentObject Reference to the calling object (Scheduler's BE module)
+     * @param array $taskInfo Values of the fields from the add/edit task form
+     * @param mixed $task The task object being edited. Null when adding a task!
+     * @param \TYPO3\CMS\Scheduler\Controller\SchedulerModuleController $parentObject Reference to the scheduler backend module
      *
-     * @return array Array containing all the information pertaining to the additional fields
+     * @return array A two dimensional array: array('fieldId' => array('code' => '', 'label' => '', 'cshKey' => '', 'cshLabel' => ''))
      */
-    public function getAdditionalFields(array &$taskInfo, $task, SchedulerModuleController $parentObject)
+    public function getAdditionalFields(array &$taskInfo, $task, \TYPO3\CMS\Scheduler\Controller\SchedulerModuleController $parentObject): array
     {
         // Initialize selected fields
         if (!isset($taskInfo['l10nmgr_fileGarbageCollection_age'])) {
@@ -83,8 +82,8 @@ class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider imp
         // Add field for file age
         $fieldName = 'tx_scheduler[l10nmgr_fileGarbageCollection_age]';
         $fieldId = 'task_fileGarbageCollection_age';
-        $fieldValue = (int)$taskInfo['l10nmgr_fileGarbageCollection_age'];
-        $fieldHtml = '<input type="text" name="' . $fieldName . '" id="' . $fieldId . '" value="' . htmlspecialchars($fieldValue) . '" size="10" />';
+        $fieldValue = $taskInfo['l10nmgr_fileGarbageCollection_age'];
+        $fieldHtml = '<input type="text" name="' . $fieldName . '" id="' . $fieldId . '" value="' . htmlspecialchars((string)$fieldValue) . '" size="10" />';
         $additionalFields[$fieldId] = [
             'code' => $fieldHtml,
             'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/Task/locallang.xlf:fileGarbageCollection.age',
@@ -106,14 +105,14 @@ class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider imp
     }
 
     /**
-     * Checks if the given value is an integer
+     * Validates the additional fields' values
      *
-     * @param array $submittedData Reference to the array containing the data submitted by the user
-     * @param SchedulerModuleController $parentObject Reference to the calling object (Scheduler's BE module)
+     * @param array $submittedData An array containing the data submitted by the add/edit task form
+     * @param \TYPO3\CMS\Scheduler\Controller\SchedulerModuleController $parentObject Reference to the scheduler backend module
      *
      * @return bool TRUE if validation was ok (or selected class is not relevant), FALSE otherwise
      */
-    public function validateAdditionalFields(array &$submittedData, SchedulerModuleController $parentObject)
+    public function validateAdditionalFields(array &$submittedData, \TYPO3\CMS\Scheduler\Controller\SchedulerModuleController $parentObject): bool
     {
         $result = true;
         // Check if number of days is indeed a number and greater than 0
@@ -124,7 +123,7 @@ class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider imp
                 $this->getLanguageService()->sL(
                     'LLL:EXT:l10nmgr/Resources/Private/Language/Task/locallang.xlf:fileGarbageCollection.invalidAge'
                 ),
-                FlashMessage::ERROR
+                AbstractMessage::ERROR
             );
         }
         return $result;
@@ -135,7 +134,7 @@ class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider imp
      *
      * @return LanguageService $languageService
      */
-    protected function getLanguageService()
+    protected function getLanguageService(): LanguageService
     {
         if (!$this->languageService instanceof LanguageService) {
             $this->languageService = GeneralUtility::makeInstance(LanguageService::class);
@@ -151,7 +150,7 @@ class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider imp
      *
      * @param array $submittedData Contains data submitted by the user
      *
-     * @param L10nmgrFileGarbageCollection|AbstractTask $task
+     * @param AbstractTask $task
      */
     public function saveAdditionalFields(array $submittedData, AbstractTask $task)
     {

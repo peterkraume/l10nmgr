@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Model\Tools;
 
 /**
@@ -37,7 +39,7 @@ class Utf8Tools
      * @param string $str
      * @return mixed integer byte index or FALSE if no bad found
      */
-    public static function utf8_bad_find($str)
+    public static function utf8_bad_find(string $str): mixed
     {
         $UTF8_BAD = '([\x00-\x7F]' . // ASCII (including control chars)
             '|[\xC2-\xDF][\x80-\xBF]' . // non-overlong 2-byte
@@ -72,7 +74,7 @@ class Utf8Tools
      * @param string $str
      * @return mixed array of integers or FALSE if no bad found
      */
-    public static function utf8_bad_findall($str)
+    public static function utf8_bad_findall(string $str): mixed
     {
         $UTF8_BAD = '([\x00-\x7F]' . // ASCII (including control chars)
             '|[\xC2-\xDF][\x80-\xBF]' . // non-overlong 2-byte
@@ -110,7 +112,7 @@ class Utf8Tools
      * @param string $str
      * @return string
      */
-    public static function utf8_bad_strip($str)
+    public static function utf8_bad_strip(string $str): string
     {
         $UTF8_BAD = '([\x00-\x7F]' . // ASCII (including control chars)
             '|[\xC2-\xDF][\x80-\xBF]' . // non-overlong 2-byte
@@ -146,7 +148,7 @@ class Utf8Tools
      * @param string $replace String to replace bad bytes with (defaults to '?') - use ASCII
      * @return string
      */
-    public static function utf8_bad_replace($str, $replace = '?')
+    public static function utf8_bad_replace(string $str, string $replace = '?'): string
     {
         $UTF8_BAD = '([\x00-\x7F]' . // ASCII (including control chars)
             '|[\xC2-\xDF][\x80-\xBF]' . // non-overlong 2-byte
@@ -198,7 +200,7 @@ class Utf8Tools
      * @see http://hsivonen.iki.fi/php-utf8/
      * @see utf8_compliant
      */
-    public static function utf8_is_valid($str)
+    public static function utf8_is_valid(string $str): bool
     {
         $mState = 0; // cached expected number of octets after the current octet
         // until the beginning of the next UTF8 character sequence
@@ -324,7 +326,7 @@ class Utf8Tools
      * @see utf8_is_valid
      * @see http://www.php.net/manual/en/reference.pcre.pattern.modifiers.php#54805
      */
-    public static function utf8_compliant($str)
+    public static function utf8_compliant(string $str): bool
     {
         if (strlen($str) == 0) {
             return true;

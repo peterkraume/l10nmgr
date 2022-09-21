@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Created by PhpStorm.
  * User: info
@@ -23,17 +25,17 @@ class LanguageRestrictionRegistry implements SingletonInterface
     /**
      * @var array
      */
-    protected $registry = [];
+    protected array $registry = [];
 
     /**
      * @var array
      */
-    protected $extensions = [];
+    protected array $extensions = [];
 
     /**
      * @var string
      */
-    protected $template = '';
+    protected string $template = '';
 
     /**
      * Creates this object.
@@ -47,9 +49,9 @@ class LanguageRestrictionRegistry implements SingletonInterface
     /**
      * Returns a class instance
      *
-     * @return object|LanguageRestrictionRegistry
+     * @return object
      */
-    public static function getInstance()
+    public static function getInstance(): object
     {
         return GeneralUtility::makeInstance(__CLASS__);
     }
@@ -59,7 +61,7 @@ class LanguageRestrictionRegistry implements SingletonInterface
      *
      * @return array
      */
-    public function getLanguageRestrictableTables()
+    public function getLanguageRestrictableTables(): array
     {
         return array_keys($this->registry);
     }
@@ -93,8 +95,7 @@ class LanguageRestrictionRegistry implements SingletonInterface
             if (!$this->isRegistered($defaultTranslationRestrictedTable)) {
                 $this->add(
                     'core',
-                    $defaultTranslationRestrictedTable,
-                    Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME
+                    $defaultTranslationRestrictedTable
                 );
             }
         }
@@ -107,7 +108,7 @@ class LanguageRestrictionRegistry implements SingletonInterface
      * @param string $fieldName Name of the field to be looked up
      * @return bool
      */
-    public function isRegistered($tableName, $fieldName = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME)
+    public function isRegistered(string $tableName, string $fieldName = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME): bool
     {
         return isset($this->registry[$tableName][$fieldName]);
     }
@@ -131,12 +132,12 @@ class LanguageRestrictionRegistry implements SingletonInterface
      * @throws RuntimeException
      */
     public function add(
-        $extensionKey,
-        $tableName,
-        $fieldName = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME,
+        string $extensionKey,
+        string $tableName,
+        string $fieldName = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME,
         array $options = [],
-        $override = true
-    ) {
+        bool $override = true
+    ): bool {
         $didRegister = false;
         if (empty($tableName) || !is_string($tableName)) {
             throw new InvalidArgumentException('No or invalid table name "' . $tableName . '" given.', 1540460445);
@@ -171,7 +172,7 @@ class LanguageRestrictionRegistry implements SingletonInterface
      * @param string $tableName The name of the table for which the registration should be removed.
      * @param string $fieldName The name of the field for which the registration should be removed.
      */
-    protected function remove($tableName, $fieldName)
+    protected function remove(string $tableName, string $fieldName)
     {
         if (!$this->isRegistered($tableName, $fieldName)) {
             return;
@@ -195,7 +196,7 @@ class LanguageRestrictionRegistry implements SingletonInterface
      * @param string $tableName
      * @param string $fieldName
      */
-    protected function applyTcaForTableAndField($tableName, $fieldName)
+    protected function applyTcaForTableAndField(string $tableName, string $fieldName)
     {
         $this->addTcaColumn($tableName, $fieldName, $this->registry[$tableName][$fieldName]);
         $this->addToAllTCAtypes($tableName, $this->registry[$tableName][$fieldName]);
@@ -213,7 +214,7 @@ class LanguageRestrictionRegistry implements SingletonInterface
      *              + l10n_mode
      *              + l10n_display
      */
-    protected function addTcaColumn($tableName, $fieldName, array $options)
+    protected function addTcaColumn(string $tableName, string $fieldName, array $options)
     {
         // Makes sure to add more TCA to an existing structure
         if (isset($GLOBALS['TCA'][$tableName]['columns'])) {
@@ -275,10 +276,10 @@ class LanguageRestrictionRegistry implements SingletonInterface
      * @api
      */
     public static function getTcaFieldConfiguration(
-        $tableName,
-        $fieldName = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME,
+        string $tableName,
+        string $fieldName = Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME,
         array $fieldConfigurationOverride = []
-    ) {
+    ): array {
         // Forges a new field, default name is "l10nmgr_language_restriction"
         $fieldConfiguration = [
             'type' => 'select',
@@ -315,7 +316,7 @@ class LanguageRestrictionRegistry implements SingletonInterface
      *              + typesList: list of types that shall visualize the language restriction field
      *              + position: insert position of the language restriction field
      */
-    protected function addToAllTCAtypes($tableName, array $options)
+    protected function addToAllTCAtypes(string $tableName, array $options)
     {
         // Makes sure to add more TCA to an existing structure
         if (isset($GLOBALS['TCA'][$tableName]['columns'])) {
@@ -357,7 +358,7 @@ class LanguageRestrictionRegistry implements SingletonInterface
      *
      * @return string
      */
-    public function getDatabaseTableDefinitions()
+    public function getDatabaseTableDefinitions(): string
     {
         $sql = '';
         foreach ($this->getExtensionKeys() as $extensionKey) {
@@ -371,7 +372,7 @@ class LanguageRestrictionRegistry implements SingletonInterface
      *
      * @return array
      */
-    public function getExtensionKeys()
+    public function getExtensionKeys(): array
     {
         return array_keys($this->extensions);
     }
@@ -382,7 +383,7 @@ class LanguageRestrictionRegistry implements SingletonInterface
      * @param string $extensionKey Extension key to have the database definitions created for
      * @return string
      */
-    public function getDatabaseTableDefinition($extensionKey)
+    public function getDatabaseTableDefinition(string $extensionKey): string
     {
         if (!isset($this->extensions[$extensionKey]) || !is_array($this->extensions[$extensionKey])) {
             return '';
@@ -400,7 +401,7 @@ class LanguageRestrictionRegistry implements SingletonInterface
     /**
      * @return LanguageService
      */
-    protected function getLanguageService()
+    protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
     }

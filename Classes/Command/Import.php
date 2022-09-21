@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Command;
 
 /***************************************************************
@@ -45,22 +47,22 @@ class Import extends L10nCommand
     /**
      * @var int ID of the language being handled
      */
-    protected $sysLanguage;
+    protected int $sysLanguage;
 
     /**
      * @var int ID of the forced source language being handled
      */
-    protected $previewLanguage;
+    protected int $previewLanguage;
 
     /**
      * @var string Path to temporary de-archiving directory, to be removed after import
      */
-    protected $directoryToCleanUp;
+    protected string $directoryToCleanUp;
 
     /**
      * @var array List of files that were imported, with additional information, used for reporting after import
      */
-    protected $filesImported = [];
+    protected array $filesImported = [];
 
     /**
      * Configure the command by defining the name, options and arguments
@@ -99,7 +101,7 @@ class Import extends L10nCommand
      *
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @return int|void|null
+     * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -155,7 +157,7 @@ class Import extends L10nCommand
      * @return array
      * @throws Exception
      */
-    protected function initializeCallParameters(InputInterface $input, OutputInterface $output)
+    protected function initializeCallParameters(InputInterface $input, OutputInterface $output): array
     {
         // Get the task parameter from either the new or the old input style
         // The default is in the configure()
@@ -197,7 +199,7 @@ class Import extends L10nCommand
      * @throws Exception
      * @throws Exception
      */
-    protected function getWsIdFromCATXML($xml)
+    protected function getWsIdFromCATXML(string $xml): int
     {
         if (empty($xml)) {
             throw new Exception('No XML passed for import. Pass the XML via --string.', 1322475562);
@@ -216,7 +218,7 @@ class Import extends L10nCommand
      * @return string
      * @throws Exception
      */
-    protected function importCATXML($callParameters)
+    protected function importCATXML(array $callParameters): string
     {
         $out = '';
         /** @var L10nBaseService $service */
@@ -255,7 +257,7 @@ class Import extends L10nCommand
             $this->previewLanguage = $this->sysLanguage;
         }
         //Delete previous translations
-        $importManager->delL10N($importManager->getDelL10NDataFromCATXMLNodes($importManager->getXmlNodes()));
+        $importManager->delL10N($importManager->getDelL10NDataFromCATXMLNodes($importManager->getXMLNodes()));
         //Make preview links
         if ($callParameters['preview']) {
             if (!ExtensionManagementUtility::isLoaded('workspaces')) {
@@ -263,7 +265,7 @@ class Import extends L10nCommand
             } else {
                 $pageIds = [];
                 if (empty($importManager->headerData['t3_previewId'])) {
-                    $pageIds = $importManager->getPidsFromCATXMLNodes($importManager->getXmlNodes());
+                    $pageIds = $importManager->getPidsFromCATXMLNodes($importManager->getXMLNodes());
                 } else {
                     $pageIds[0] = $importManager->headerData['t3_previewId'];
                 }
@@ -287,7 +289,7 @@ class Import extends L10nCommand
         unset($importManager);
         $service->saveTranslation($l10ncfgObj, $translationData);
         if (empty($out)) {
-            $out = 1;
+            $out = '1';
         } //Means OK if preview = 0
         return $out;
     }
@@ -299,7 +301,7 @@ class Import extends L10nCommand
      * @return string Result output
      * @throws Exception
      */
-    protected function previewSource($stringParameter)
+    protected function previewSource(string $stringParameter): string
     {
         $out = '';
         $error = '';
@@ -318,7 +320,7 @@ class Import extends L10nCommand
             $error .= $this->getLanguageService()->getLL('import.manager.error.parsing.xmlstring.message');
             throw new Exception($error);
         }
-        $pageIds = $importManager->getPidsFromCATXMLNodes($importManager->getXmlNodes());
+        $pageIds = $importManager->getPidsFromCATXMLNodes($importManager->getXMLNodes());
         /** @var MkPreviewLinkService $mkPreviewLinks */
         $mkPreviewLinks = GeneralUtility::makeInstance(
             MkPreviewLinkService::class,
@@ -341,7 +343,7 @@ class Import extends L10nCommand
      * @param array $callParameters
      * @throws Exception
      */
-    protected function importXMLFile($callParameters)
+    protected function importXMLFile(array $callParameters)
     {
         $out = '';
         $xmlFilesArr = $this->gatherAllFiles($callParameters['file']);
@@ -388,7 +390,7 @@ class Import extends L10nCommand
                         throw new Exception("l10ncfg not loaded! Exiting...\n");
                     }
                     // Delete previous translations
-                    $importManager->delL10N($importManager->getDelL10NDataFromCATXMLNodes($importManager->getXmlNodes()));
+                    $importManager->delL10N($importManager->getDelL10NDataFromCATXMLNodes($importManager->getXMLNodes()));
                     // Make preview links
                     if ($callParameters['preview']) {
                         if (!ExtensionManagementUtility::isLoaded('workspaces')) {
@@ -396,7 +398,7 @@ class Import extends L10nCommand
                         } else {
                             $pageIds = [];
                             if (empty($importManager->headerData['t3_previewId'])) {
-                                $pageIds = $importManager->getPidsFromCATXMLNodes($importManager->getXmlNodes());
+                                $pageIds = $importManager->getPidsFromCATXMLNodes($importManager->getXMLNodes());
                             } else {
                                 $pageIds[0] = $importManager->headerData['t3_previewId'];
                             }
@@ -457,7 +459,7 @@ class Import extends L10nCommand
      * @return array
      * @throws Exception
      */
-    protected function gatherAllFiles($file)
+    protected function gatherAllFiles(string $file): array
     {
         $files = [];
         // If no file path was given, try to gather files from FTP
@@ -490,7 +492,7 @@ class Import extends L10nCommand
      * @return array List of files, as local paths
      * @throws Exception
      */
-    protected function getFilesFromFtp()
+    protected function getFilesFromFtp(): array
     {
         $files = [];
         // First try connecting and logging in
@@ -518,7 +520,7 @@ class Import extends L10nCommand
             // Get list of files to download from current directory
             $filesToDownload = ftp_nlist($connection, '');
             // If there are any files, loop on them
-            if ($filesToDownload != false) {
+            if ($filesToDownload) {
                 // Check that download directory exists
                 $downloadFolder = 'uploads/tx_l10nmgr/jobs/in/';
                 $downloadPath = Environment::getPublicPath() . '/' . $downloadFolder;
@@ -580,7 +582,7 @@ class Import extends L10nCommand
      *
      * @return array Files that passed test
      */
-    protected function checkFileType($files, $ext)
+    protected function checkFileType(array $files, string $ext): array
     {
         $passed = [];
         foreach ($files as $file) {
@@ -599,7 +601,7 @@ class Import extends L10nCommand
      * @return array
      * @throws Exception
      */
-    protected function getXMLFileHead($filepath)
+    protected function getXMLFileHead(string $filepath): array
     {
         $getURLReport = [];
         $fileContent = GeneralUtility::getUrl($filepath);
@@ -642,6 +644,8 @@ class Import extends L10nCommand
 
     /**
      * Sends reporting mail about which files were imported
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\DBALException
      */
     protected function sendMailNotification()
     {

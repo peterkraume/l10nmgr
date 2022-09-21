@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Localizationteam\L10nmgr\Model;
 
 /***************************************************************
@@ -30,22 +32,22 @@ class TranslationData
     /**
      * @var array
      */
-    protected $data = [];
+    protected array $data = [];
 
     /**
      * @var int
      */
-    protected $sysLang;
+    protected int $sysLang;
 
     /**
      * @var int
      */
-    protected $previewLanguage;
+    protected int $previewLanguage;
 
     /**
      * @param array $data
      */
-    public function setTranslationData($data)
+    public function setTranslationData(array $data): void
     {
         $this->data = $data;
     }
@@ -53,7 +55,7 @@ class TranslationData
     /**
      * @param int $sysLang
      */
-    public function setLanguage($sysLang)
+    public function setLanguage(int $sysLang): void
     {
         $this->sysLang = $sysLang;
     }
@@ -61,7 +63,7 @@ class TranslationData
     /**
      * @return array
      */
-    public function &getTranslationData()
+    public function &getTranslationData(): array
     {
         return $this->data;
     }
@@ -69,7 +71,7 @@ class TranslationData
     /**
      * @return int
      */
-    public function getLanguage()
+    public function getLanguage(): int
     {
         return $this->sysLang;
     }
@@ -77,7 +79,7 @@ class TranslationData
     /**
      * @return int
      */
-    public function getPreviewLanguage()
+    public function getPreviewLanguage(): int
     {
         return $this->previewLanguage;
     }
@@ -85,7 +87,7 @@ class TranslationData
     /**
      * @param int $previewLanguage
      */
-    public function setPreviewLanguage($previewLanguage)
+    public function setPreviewLanguage(int $previewLanguage): void
     {
         $this->previewLanguage = $previewLanguage;
     }
