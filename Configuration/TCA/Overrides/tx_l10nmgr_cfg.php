@@ -17,7 +17,7 @@ if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('static_info_ta
                 'minitems' => 0,
                 'maxitems' => 1,
             ],
-        ]
+        ],
     ];
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('tx_l10nmgr_cfg', $tca);
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes('tx_l10nmgr_cfg', 'sourceLangStaticId', '', 'after:pages');

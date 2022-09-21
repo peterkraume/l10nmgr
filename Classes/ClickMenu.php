@@ -54,10 +54,10 @@ class ClickMenu
     /**
      * Main function
      *
-     * @param $backRef
+     * @param mixed $backRef
      * @param array $menuItems
      * @param string $table
-     * @param $uid
+     * @param int $uid
      * @return array
      */
     public function main($backRef, $menuItems, $table, $uid)

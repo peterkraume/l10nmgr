@@ -203,7 +203,7 @@ class XmlTools implements LoggerAwareInterface
         $content = str_replace(CR, '', $content);
         $pageTsConf = BackendUtility::getPagesTSconfig(0);
         $rteConfiguration = $pageTsConf['RTE.']['default.'] ?? [];
-        if ((new Typo3Version)->getMajorVersion() >= 11) {
+        if ((new Typo3Version())->getMajorVersion() >= 11) {
             $content = $this->parseHTML->transformTextForRichTextEditor($content, $rteConfiguration);
         } else {
             $content = $this->parseHTML->RTE_transform($content, null, 'rte', $rteConfiguration);
@@ -269,7 +269,7 @@ class XmlTools implements LoggerAwareInterface
         $this->logger->debug(__FILE__ . ': Before RTE transformation:' . LF . $xmlstring . LF);
         $pageTsConf = BackendUtility::getPagesTSconfig(0);
         $rteConf = $pageTsConf['RTE.']['default.'] ?? [];
-        if ((new Typo3Version)->getMajorVersion() >= 11) {
+        if ((new Typo3Version())->getMajorVersion() >= 11) {
             $content = $this->parseHTML->transformTextForPersistence($xmlstring, $rteConf);
         } else {
             $content = $this->parseHTML->RTE_transform($xmlstring, null, 'db', $rteConf);

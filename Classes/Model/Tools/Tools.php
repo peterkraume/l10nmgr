@@ -820,9 +820,9 @@ class Tools
     /**
      * Returns true if the record can be included in index.
      *
-     * @param $table
-     * @param $uid
-     * @param $pageId
+     * @param string $table
+     * @param int $uid
+     * @param int $pageId
      * @return bool
      */
     protected function filterIndex($table, $uid, $pageId)
