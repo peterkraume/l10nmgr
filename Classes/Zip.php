@@ -223,7 +223,7 @@ class Zip
     public function removeDir($tempDir)
     {
         $testDir = Environment::getPublicPath() . '/typo3temp/';
-        if (!GeneralUtility::isFirstPartOfStr($tempDir, $testDir)) {
+        if (!str_starts_with($tempDir, $testDir)) {
             die($tempDir . ' was not within ' . $testDir);
         }
         // Go through dirs:
@@ -239,7 +239,7 @@ class Zip
         $fileArr = GeneralUtility::getFilesInDir($tempDir, '', 1);
         if (is_array($fileArr)) {
             foreach ($fileArr as $file) {
-                if (!GeneralUtility::isFirstPartOfStr($file, $testDir)) {
+                if (!str_starts_with($file, $testDir)) {
                     die($file . ' was not within ' . $testDir);
                 }
                 // PARAnoid...

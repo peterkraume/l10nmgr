@@ -275,14 +275,14 @@ class Tools
                     array_walk_recursive(
                         $TCEformsCfg['displayCond'],
                         function ($i, $k) {
-                            if (GeneralUtility::isFirstPartOfStr($i, 'HIDE_L10N_SIBLINGS')) {
+                            if (str_starts_with($i, 'HIDE_L10N_SIBLINGS')) {
                                 $GLOBALS['is_HIDE_L10N_SIBLINGS'] = true;
                             }
                         }
                     );
                     $is_HIDE_L10N_SIBLINGS = $GLOBALS['is_HIDE_L10N_SIBLINGS'];
                 } else {
-                    $is_HIDE_L10N_SIBLINGS = GeneralUtility::isFirstPartOfStr(
+                    $is_HIDE_L10N_SIBLINGS = str_starts_with(
                         $TCEformsCfg['displayCond'] ?? '',
                         'HIDE_L10N_SIBLINGS'
                     );
@@ -295,7 +295,7 @@ class Tools
                     $bypassFilter = $l10nmgrConfiguration['bypassFilter'];
                 }
                 if (!$is_HIDE_L10N_SIBLINGS && !$exclude) {
-                    if (!GeneralUtility::isFirstPartOfStr($kFieldName, 't3ver_')) {
+                    if (!str_starts_with($kFieldName, 't3ver_')) {
                         if (!$this->filters['l10n_categories']
                             || GeneralUtility::inList($this->filters['l10n_categories'], $TCEformsCfg['l10n_cat'])
                             || (bool)$bypassFilter['l10n_categories']
@@ -747,7 +747,7 @@ class Tools
                 $excludedFields = array_filter(
                     $excludedFields,
                     function ($element) use ($table) {
-                        return GeneralUtility::isFirstPartOfStr($element, $table);
+                        return str_starts_with($element, $table);
                     }
                 );
                 // Remove table prefix
