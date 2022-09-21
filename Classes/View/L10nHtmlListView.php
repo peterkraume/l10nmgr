@@ -56,7 +56,7 @@ class L10nHtmlListView extends AbstractExportView
     /**
      * @var array
      */
-    protected array $l10ncfg;
+    protected array $l10ncfg = [];
 
     /**
      * @var int
@@ -79,7 +79,7 @@ class L10nHtmlListView extends AbstractExportView
      *
      * @var ModuleTemplate
      */
-    protected mixed $moduleTemplate;
+    protected ModuleTemplate $moduleTemplate;
 
     /**
      * L10nHtmlListView constructor.
@@ -183,7 +183,7 @@ class L10nHtmlListView extends AbstractExportView
                                                     $richtextConfigurationProvider = GeneralUtility::makeInstance(Richtext::class);
                                                     $richtextConfiguration = $richtextConfigurationProvider->getConfiguration($table, $fieldName, $pId, 'text', $tData['TCEformsCfg']);
 
-                                                    $configuration = $this->prepareConfigurationForEditor($richtextConfiguration['editor']['config'], $data['ISOcode']);
+                                                    $configuration = $this->prepareConfigurationForEditor($richtextConfiguration['editor']['config'], (string)$data['ISOcode']);
 
                                                     $externalPlugins = '';
                                                     $urlParameters = [

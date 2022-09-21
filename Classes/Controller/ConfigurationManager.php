@@ -70,7 +70,7 @@ class ConfigurationManager extends BaseModule
      *
      * @var ModuleTemplate
      */
-    protected mixed $moduleTemplate;
+    protected ModuleTemplate $moduleTemplate;
 
     /**
      * @var StandaloneView
@@ -80,7 +80,7 @@ class ConfigurationManager extends BaseModule
     /**
      * @var UriBuilder
      */
-    protected mixed $uriBuilder;
+    protected UriBuilder $uriBuilder;
 
     /**
      * The name of the module
@@ -92,7 +92,7 @@ class ConfigurationManager extends BaseModule
     /**
      * @var IconFactory
      */
-    protected mixed $iconFactory;
+    protected IconFactory $iconFactory;
 
     public function __construct()
     {

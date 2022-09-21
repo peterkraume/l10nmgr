@@ -146,7 +146,7 @@ class TranslationDataFactory implements LoggerAwareInterface
      *
      * @return mixed with translated information
      **/
-    protected function getParsedExcelXML(string $fileContent): mixed
+    protected function getParsedExcelXML(string $fileContent)
     {
         // Parse XML in a rude fashion:
         // Check if &nbsp; has to be substituted -> DOCTYPE -> entity?

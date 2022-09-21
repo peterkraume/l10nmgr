@@ -56,9 +56,9 @@ class BaseModule
      * The value of GET/POST var, 'CMD'
      *
      * @see init()
-     * @var mixed
+     * @var string
      */
-    public mixed $CMD;
+    public string $CMD;
 
     /**
      * A WHERE clause for selection records from the pages table based on read-permissions of the current backend user.
@@ -145,9 +145,9 @@ class BaseModule
      * May contain an instance of a 'Function menu module' which connects to this backend module.
      *
      * @see checkExtObj()
-     * @var mixed
+     * @var object
      */
-    public mixed $extObj;
+    public object $extObj;
 
     /**
      * @var PageRenderer
@@ -161,12 +161,13 @@ class BaseModule
      */
     public function init(): void
     {
+        $this->extObj = (object)[];
         // Name might be set from outside
         if (!$this->MCONF['name']) {
             $this->MCONF = $GLOBALS['MCONF'];
         }
         $this->id = (int)GeneralUtility::_GP('id');
-        $this->CMD = GeneralUtility::_GP('CMD');
+        $this->CMD = (string)GeneralUtility::_GP('CMD');
         $this->perms_clause = $this->getBackendUser()->getPagePermsClause(Permission::PAGE_SHOW);
         $this->menuConfig();
         $this->handleExternalFunctionValue();
@@ -266,15 +267,15 @@ class BaseModule
      * @param string $modName Module name
      * @param string $menuKey Menu key, eg. "function" for the function menu. See $this->MOD_MENU
      * @param string $value Optionally the value-key to fetch from the array that would otherwise have been returned if this value was not set. Look source...
-     * @return mixed The value from the TBE_MODULES_EXT array.
+     * @return array The value from the TBE_MODULES_EXT array.
      * @see handleExternalFunctionValue()
      */
-    public function getExternalItemConfig(string $modName, string $menuKey, string $value = ''): mixed
+    public function getExternalItemConfig(string $modName, string $menuKey, string $value = ''): array
     {
         if (isset($GLOBALS['TBE_MODULES_EXT'][$modName])) {
-            return (string)$value !== '' ? $GLOBALS['TBE_MODULES_EXT'][$modName]['MOD_MENU'][$menuKey][$value] : $GLOBALS['TBE_MODULES_EXT'][$modName]['MOD_MENU'][$menuKey];
+            return $value !== '' ? $GLOBALS['TBE_MODULES_EXT'][$modName]['MOD_MENU'][$menuKey][$value] : $GLOBALS['TBE_MODULES_EXT'][$modName]['MOD_MENU'][$menuKey];
         }
-        return null;
+        return [];
     }
 
     /**
@@ -300,7 +301,7 @@ class BaseModule
      */
     public function checkSubExtObj(): void
     {
-        if (is_object($this->extObj)) {
+        if (is_object($this->extObj) && method_exists($this->extObj, 'checkExtObj')) {
             $this->extObj->checkExtObj();
         }
     }

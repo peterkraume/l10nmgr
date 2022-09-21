@@ -47,7 +47,7 @@ class L10nBaseService implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    protected static ?int $targetLanguageID;
+    protected static int $targetLanguageID;
 
     /**
      * @var int
@@ -97,7 +97,7 @@ class L10nBaseService implements LoggerAwareInterface
     /**
      * @var EmConfiguration
      */
-    protected mixed $emConfiguration;
+    protected EmConfiguration $emConfiguration;
 
     /**
      * Check for deprecated configuration throws false positive in extension scanner.
@@ -108,9 +108,9 @@ class L10nBaseService implements LoggerAwareInterface
     }
 
     /**
-     * @return int|null
+     * @return int
      */
-    public static function getTargetLanguageID(): ?int
+    public static function getTargetLanguageID(): int
     {
         return self::$targetLanguageID;
     }
@@ -389,7 +389,7 @@ class L10nBaseService implements LoggerAwareInterface
      *
      * @return mixed False if error - else flexFormDiffArray (if $inputArray was an array and processing was performed.)
      */
-    protected function _submitContentAndGetFlexFormDiff(array $accum, array $inputArray): mixed
+    protected function _submitContentAndGetFlexFormDiff(array $accum, array $inputArray)
     {
         if ($this->getImportAsDefaultLanguage()) {
             return $this->_submitContentAsDefaultLanguageAndGetFlexFormDiff($accum, $inputArray);
@@ -425,7 +425,7 @@ class L10nBaseService implements LoggerAwareInterface
      *
      * @return mixed False if error - else flexFormDiffArray (if $inputArray was an array and processing was performed.)
      */
-    protected function _submitContentAsDefaultLanguageAndGetFlexFormDiff(array $accum, array $inputArray): mixed
+    protected function _submitContentAsDefaultLanguageAndGetFlexFormDiff(array $accum, array $inputArray)
     {
         if (is_array($inputArray)) {
             // Initialize:
@@ -551,7 +551,7 @@ class L10nBaseService implements LoggerAwareInterface
      * @return mixed False if error - else flexFormDiffArray (if $inputArray was an array and processing was performed.)
      * @throws \Doctrine\DBAL\DBALException
      */
-    protected function _submitContentAsTranslatedLanguageAndGetFlexFormDiff(array $accum, array $inputArray): mixed
+    protected function _submitContentAsTranslatedLanguageAndGetFlexFormDiff(array $accum, array $inputArray)
     {
         if (is_array($inputArray)) {
             // Initialize:
@@ -807,7 +807,7 @@ class L10nBaseService implements LoggerAwareInterface
                     }
                 }
             }
-            self::$targetLanguageID = $Tlang;
+            self::$targetLanguageID = (int)$Tlang;
             // Execute CMD array: Localizing records:
             /** @var DataHandler $tce */
             $tce = GeneralUtility::makeInstance(DataHandler::class);
@@ -838,7 +838,7 @@ class L10nBaseService implements LoggerAwareInterface
             }
             foreach ($TCEmain_data as $table => $items) {
                 foreach ($items as $TuidString => $fields) {
-                    $explodedTuidString = explode('/', $TuidString);
+                    $explodedTuidString = explode('/', (string)$TuidString);
                     $Tuid = $explodedTuidString[0];
                     $Tlang = null;
                     if (array_key_exists(1, $explodedTuidString)) {
@@ -921,7 +921,7 @@ class L10nBaseService implements LoggerAwareInterface
                 ); // check has been done previously that there is a backend user which is Admin and also in live workspace
                 $tce->process_datamap();
             }
-            self::$targetLanguageID = null;
+            self::$targetLanguageID = 0;
             if (count($tce->errorLog)) {
                 $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': TCEmain update errors: ' . implode(
                     ', ',

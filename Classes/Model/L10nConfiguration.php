@@ -53,7 +53,7 @@ class L10nConfiguration
     /**
      * @var int
      */
-    protected int $sourcePid;
+    protected int $sourcePid = 0;
 
     /**
      * loads internal array with l10nmgrcfg record
@@ -103,7 +103,7 @@ class L10nConfiguration
     {
         return $key === 'pid' && (int)$this->l10ncfg['depth'] === -1 && $this->sourcePid
             ? (string)$this->sourcePid
-            : $this->l10ncfg[$key];
+            : (string)$this->l10ncfg[$key];
     }
 
     /**

@@ -79,7 +79,7 @@ class L10nAccumulatedInformation
     /**
      * @var int sys_language_uid of forced source language
      */
-    protected int $forcedPreviewLanguage;
+    protected int $forcedPreviewLanguage = 0;
 
     /**
      * @var bool
@@ -114,7 +114,7 @@ class L10nAccumulatedInformation
     /**
      * @var EmConfiguration
      */
-    protected mixed $emConfiguration;
+    protected EmConfiguration $emConfiguration;
 
     /**
      * Check for deprecated configuration throws false positive in extension scanner.
@@ -200,7 +200,7 @@ class L10nAccumulatedInformation
             $t8Tools->includeFceWithDefaultLanguage = true;
         }
         // Set preview language (only first one in list is supported):
-        if ($this->forcedPreviewLanguage != '') {
+        if ($this->forcedPreviewLanguage !== 0) {
             $previewLanguage = $this->forcedPreviewLanguage;
         } else {
             $previewLanguage = current(

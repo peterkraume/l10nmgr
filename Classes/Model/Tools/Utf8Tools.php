@@ -39,7 +39,7 @@ class Utf8Tools
      * @param string $str
      * @return mixed integer byte index or FALSE if no bad found
      */
-    public static function utf8_bad_find(string $str): mixed
+    public static function utf8_bad_find(string $str)
     {
         $UTF8_BAD = '([\x00-\x7F]' . // ASCII (including control chars)
             '|[\xC2-\xDF][\x80-\xBF]' . // non-overlong 2-byte
@@ -74,7 +74,7 @@ class Utf8Tools
      * @param string $str
      * @return mixed array of integers or FALSE if no bad found
      */
-    public static function utf8_bad_findall(string $str): mixed
+    public static function utf8_bad_findall(string $str)
     {
         $UTF8_BAD = '([\x00-\x7F]' . // ASCII (including control chars)
             '|[\xC2-\xDF][\x80-\xBF]' . // non-overlong 2-byte

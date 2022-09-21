@@ -92,7 +92,7 @@ class LocalizationManager extends BaseModule
      *
      * @var ModuleTemplate
      */
-    protected mixed $moduleTemplate;
+    protected ModuleTemplate $moduleTemplate;
 
     /**
      * @var StandaloneView
@@ -109,7 +109,7 @@ class LocalizationManager extends BaseModule
     /**
      * @var IconFactory
      */
-    protected mixed $iconFactory;
+    protected IconFactory $iconFactory;
 
     /**
      * @var array
@@ -119,7 +119,7 @@ class LocalizationManager extends BaseModule
     /**
      * @var EmConfiguration
      */
-    protected mixed $emConfiguration;
+    protected EmConfiguration $emConfiguration;
 
     protected array $settings = [
         'across' => 'acrossL10nmgrConfig.dst',
@@ -198,7 +198,7 @@ class LocalizationManager extends BaseModule
     protected function mainNew()
     {
         // Get language to export/import
-        $this->sysLanguage = $this->MOD_SETTINGS['lang'];
+        $this->sysLanguage = (int)$this->MOD_SETTINGS['lang'];
 
         // Javascript
         $this->moduleTemplate->addJavaScriptCode(
@@ -241,7 +241,7 @@ return false;
                 $selectMenus[] = self::getFuncMenuNew(
                     $this->id,
                     'SET[lang]',
-                    $this->sysLanguage,
+                    (string)$this->sysLanguage,
                     $this->MOD_MENU['lang'],
                     '',
                     $addParams,
@@ -305,7 +305,7 @@ return false;
     protected function main()
     {
         // Get language to export/import
-        $this->sysLanguage = $this->MOD_SETTINGS['lang'];
+        $this->sysLanguage = (int)$this->MOD_SETTINGS['lang'];
 
         // Javascript
         $this->moduleTemplate->addJavaScriptCode(
@@ -417,7 +417,7 @@ return false;
      * @throws RouteNotFoundException
      */
     public static function getFuncMenuNew(
-        mixed $mainParams,
+        $mainParams,
         string $elementName,
         string $currentValue,
         array $menuItems,
@@ -432,7 +432,7 @@ return false;
         $options = [];
         foreach ($menuItems as $value => $text) {
             $options[] = [
-                'value' => htmlspecialchars($value),
+                'value' => htmlspecialchars((string)$value),
                 'selected' => ($currentValue === (string)$value),
                 'label' => htmlspecialchars($text, ENT_COMPAT, 'UTF-8', false),
             ];
@@ -452,23 +452,6 @@ return false;
         return [];
     }
 
-    /**
-     * @throws ResourceNotFoundException
-     * @throws RouteNotFoundException
-     */
-    /**
-     * @param $mainParams
-     * @param $elementName
-     * @param $currentValue
-     * @param $menuItems
-     * @param $script
-     * @param $addParams
-     * @param $label
-     * @param $previewLanguage
-     * @return string
-     * @throws ResourceNotFoundException
-     * @throws RouteNotFoundException
-     */
     /**
      * @param mixed $mainParams
      * @param string $elementName
@@ -501,7 +484,7 @@ return false;
             if ($elementName === 'SET[lang]' && (int)$value === (int)$previewLanguage) {
                 continue;
             }
-            $options[] = '<option value="' . htmlspecialchars($value) . '"' . ((string)$currentValue === (string)$value ? ' selected="selected"' : '') . '>' . htmlspecialchars(
+            $options[] = '<option value="' . htmlspecialchars((string)$value) . '"' . ((string)$currentValue === (string)$value ? ' selected="selected"' : '') . '>' . htmlspecialchars(
                 $text,
                 ENT_COMPAT,
                 'UTF-8',
@@ -537,7 +520,7 @@ return false;
      * @throws ResourceNotFoundException
      * @throws RouteNotFoundException
      */
-    protected static function buildScriptUrl(mixed $mainParams, string $addParams, string $script = ''): string
+    protected static function buildScriptUrl($mainParams, string $addParams, string $script = ''): string
     {
         if (!is_array($mainParams)) {
             $mainParams = ['id' => $mainParams];
@@ -579,7 +562,7 @@ return false;
      * @see getFuncMenu()
      */
     public static function getFuncCheckNew(
-        mixed $mainParams,
+        $mainParams,
         string $elementName,
         string $currentValue,
         string $script = '',
@@ -617,7 +600,7 @@ return false;
      * @see getFuncMenu()
      */
     public static function getFuncCheck(
-        mixed $mainParams,
+        $mainParams,
         string $elementName,
         string $currentValue,
         string $script = '',
@@ -713,7 +696,7 @@ return false;
         // simple init of translation object:
         /** @var TranslationData $translationData */
         $translationData = GeneralUtility::makeInstance(TranslationData::class);
-        $translationData->setTranslationData(GeneralUtility::_POST('translation'));
+        $translationData->setTranslationData((array)GeneralUtility::_POST('translation'));
         $translationData->setLanguage($this->sysLanguage);
         $translationData->setPreviewLanguage($this->previewLanguage);
         // See, if incoming translation is available, if so, submit it
@@ -870,9 +853,9 @@ return false;
         $options = [];
         $return = '';
         foreach ($menuItems as $value => $label) {
-            $options[] = '<option value="' . htmlspecialchars($value) . '"' . (!strcmp(
+            $options[] = '<option value="' . htmlspecialchars((string)$value) . '"' . (!strcmp(
                 $currentValue,
-                $value
+                (string)$value
             ) ? ' selected="selected"' : '') . '>' . htmlspecialchars(
                 $label,
                 ENT_COMPAT,

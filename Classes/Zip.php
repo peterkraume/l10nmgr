@@ -169,7 +169,7 @@ class Zip
      * @param string $file
      * @return mixed
      */
-    public function extractFile(string $file): mixed
+    public function extractFile(string $file)
     {
         if (is_file($file)) {
             $tempDir = Environment::getPublicPath() . '/typo3temp/' . md5(microtime()) . '/';

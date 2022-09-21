@@ -401,10 +401,8 @@ abstract class AbstractExportView
      */
     protected function getLanguageService(): LanguageService
     {
-        if (!$this->languageService instanceof LanguageService) {
-            $this->languageService = $GLOBALS['LANG'];
-            $this->languageService->includeLLFile('EXT:l10nmgr/Resources/Private/Language/Cli/locallang.xml');
-        }
+        $this->languageService = $GLOBALS['LANG'];
+        $this->languageService->includeLLFile('EXT:l10nmgr/Resources/Private/Language/Cli/locallang.xml');
         if ($this->getBackendUser()) {
             $this->languageService->init($this->getBackendUser()->uc['lang']);
         }
