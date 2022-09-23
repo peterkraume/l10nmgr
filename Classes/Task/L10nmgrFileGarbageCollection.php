@@ -73,7 +73,7 @@ class L10nmgrFileGarbageCollection extends AbstractTask
         }
         // Calculate a reference timestamp, based on age of files to delete
         $seconds = (60 * 60 * 24 * $this->age);
-        $timestamp = ($GLOBALS['EXEC_TIME'] - $seconds);
+        $timestamp = (($GLOBALS['EXEC_TIME'] ?? 0) - $seconds);
         // Loop on all target directories
         $globalResult = true;
         foreach (self::$targetDirectories as $directory) {

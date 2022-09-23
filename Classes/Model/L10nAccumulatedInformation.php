@@ -186,17 +186,17 @@ class L10nAccumulatedInformation
         $sysLang = $this->sysLang;
         // FlexForm Diff data:
         $flexFormDiff = [];
-        if ($l10ncfg['flexformdiff'] !== null) {
+        if (!empty($l10ncfg['flexformdiff'])) {
             $flexFormDiff = unserialize($l10ncfg['flexformdiff']);
-            $flexFormDiff = $flexFormDiff[$sysLang];
+            $flexFormDiff = $flexFormDiff[$sysLang] ?? '';
         }
-        $this->excludeIndex = array_flip(GeneralUtility::trimExplode(',', $l10ncfg['exclude'], true));
+        $this->excludeIndex = array_flip(GeneralUtility::trimExplode(',', $l10ncfg['exclude'] ?? '', true));
         // Init:
         $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
         /** @var Tools $t8Tools */
         $t8Tools = GeneralUtility::makeInstance(Tools::class);
         $t8Tools->verbose = false; // Otherwise it will show records which has fields but none editable.
-        if ($l10ncfg['incfcewithdefaultlanguage'] == 1) {
+        if (!empty($l10ncfg['incfcewithdefaultlanguage'])) {
             $t8Tools->includeFceWithDefaultLanguage = true;
         }
         // Set preview language (only first one in list is supported):
@@ -211,7 +211,7 @@ class L10nAccumulatedInformation
             );
         }
         if ($previewLanguage) {
-            if ((int)$l10ncfg['onlyForcedSourceLanguage'] === 1) {
+            if (!empty($l10ncfg['onlyForcedSourceLanguage'])) {
                 $t8Tools->onlyForcedSourceLanguage = true;
             }
             $t8Tools->previewLanguages = [$previewLanguage];
@@ -219,27 +219,31 @@ class L10nAccumulatedInformation
 
         // Traverse tree elements:
         foreach ($tree->tree as $treeElement) {
-            $pageId = $treeElement['row']['uid'];
-            if ($treeElement['row']['l10nmgr_configuration'] === Constants::L10NMGR_CONFIGURATION_DEFAULT) {
-                /** @var RootlineUtility $rootlineUtility */
-                $rootlineUtility = GeneralUtility::makeInstance(RootlineUtility::class, $pageId);
-                $rootline = $rootlineUtility->get();
-                if (!empty($rootline)) {
-                    foreach ($rootline as $rootlinePage) {
-                        if ($rootlinePage['l10nmgr_configuration_next_level'] === Constants::L10NMGR_CONFIGURATION_DEFAULT) {
-                            continue;
-                        }
-                        if ($rootlinePage['l10nmgr_configuration_next_level'] === Constants::L10NMGR_CONFIGURATION_NONE || $rootlinePage['l10nmgr_configuration_next_level'] === Constants::L10NMGR_CONFIGURATION_INCLUDE) {
-                            break;
-                        }
-                        if ($rootlinePage['l10nmgr_configuration_next_level'] === Constants::L10NMGR_CONFIGURATION_EXCLUDE) {
-                            $this->excludeIndex['pages:' . $pageId] = 1;
-                            break;
+            $pageId = $treeElement['row']['uid'] ?? 0;
+            if (isset($treeElement['row']['l10nmgr_configuration'])) {
+                if ($treeElement['row']['l10nmgr_configuration'] === Constants::L10NMGR_CONFIGURATION_DEFAULT) {
+                    /** @var RootlineUtility $rootlineUtility */
+                    $rootlineUtility = GeneralUtility::makeInstance(RootlineUtility::class, $pageId);
+                    $rootline = $rootlineUtility->get();
+                    if (!empty($rootline)) {
+                        foreach ($rootline as $rootlinePage) {
+                            if (isset($rootlinePage['l10nmgr_configuration_next_level'])) {
+                                if ($rootlinePage['l10nmgr_configuration_next_level'] === Constants::L10NMGR_CONFIGURATION_DEFAULT) {
+                                    continue;
+                                }
+                                if ($rootlinePage['l10nmgr_configuration_next_level'] === Constants::L10NMGR_CONFIGURATION_NONE || $rootlinePage['l10nmgr_configuration_next_level'] === Constants::L10NMGR_CONFIGURATION_INCLUDE) {
+                                    break;
+                                }
+                                if ($rootlinePage['l10nmgr_configuration_next_level'] === Constants::L10NMGR_CONFIGURATION_EXCLUDE) {
+                                    $this->excludeIndex['pages:' . $pageId] = 1;
+                                    break;
+                                }
+                            }
                         }
                     }
+                } elseif ($treeElement['row']['l10nmgr_configuration'] === Constants::L10NMGR_CONFIGURATION_EXCLUDE) {
+                    $this->excludeIndex['pages:' . $pageId] = 1;
                 }
-            } elseif ($treeElement['row']['l10nmgr_configuration'] === Constants::L10NMGR_CONFIGURATION_EXCLUDE) {
-                $this->excludeIndex['pages:' . $pageId] = 1;
             }
             if (!empty($treeElement['row'][Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME])) {
                 /** @var LanguageRestrictionCollection $languageIsRestricted */
@@ -255,118 +259,120 @@ class L10nAccumulatedInformation
                 }
             }
             if (!isset($this->excludeIndex['pages:' . $pageId]) && !in_array(
-                $treeElement['row']['doktype'],
+                $treeElement['row']['doktype'] ?? '',
                 $this->disallowDoktypes
             )
             ) {
-                $accum[$pageId]['header']['title'] = $treeElement['row']['title'];
-                $accum[$pageId]['header']['icon'] = $treeElement['HTML'];
+                $accum[$pageId]['header']['title'] = $treeElement['row']['title'] ?? '';
+                $accum[$pageId]['header']['icon'] = $treeElement['HTML'] ?? '';
                 $accum[$pageId]['header']['prevLang'] = $previewLanguage;
                 $accum[$pageId]['header']['url'] = (string)$siteFinder->getSiteByPageId($pageId)->getRouter()->generateUri($pageId);
                 $accum[$pageId]['items'] = [];
                 // Traverse tables:
-                foreach ($GLOBALS['TCA'] as $table => $cfg) {
-                    $fileList = '';
-                    // Only those tables we want to work on:
-                    if (GeneralUtility::inList($l10ncfg['tablelist'], $table)) {
-                        if ($table === 'pages') {
-                            $row = BackendUtility::getRecordWSOL('pages', $pageId);
-                            if ($t8Tools->canUserEditRecord($table, $row)) {
-                                $accum[$pageId]['items'][$table][$pageId] = $t8Tools->translationDetails(
-                                    'pages',
-                                    $row,
-                                    $sysLang,
-                                    $flexFormDiff,
-                                    $previewLanguage
+                if (!empty($GLOBALS['TCA'])) {
+                    foreach ($GLOBALS['TCA'] as $table => $cfg) {
+                        $fileList = '';
+                        // Only those tables we want to work on:
+                        if (GeneralUtility::inList($l10ncfg['tablelist'] ?? '', $table)) {
+                            if ($table === 'pages') {
+                                $row = BackendUtility::getRecordWSOL('pages', $pageId);
+                                if ($t8Tools->canUserEditRecord($table, $row)) {
+                                    $accum[$pageId]['items'][$table][$pageId] = $t8Tools->translationDetails(
+                                        'pages',
+                                        $row,
+                                        $sysLang,
+                                        $flexFormDiff,
+                                        $previewLanguage
+                                    );
+                                    $this->_increaseInternalCounters($accum[$pageId]['items'][$table][$pageId]['fields'] ?? '');
+                                }
+                            } else {
+                                $allRows = $t8Tools->getRecordsToTranslateFromTable(
+                                    $table,
+                                    $pageId,
+                                    0,
+                                    (bool)($l10ncfg['sortexports'] ?? false),
+                                    $this->noHidden
                                 );
-                                $this->_increaseInternalCounters($accum[$pageId]['items'][$table][$pageId]['fields']);
-                            }
-                        } else {
-                            $allRows = $t8Tools->getRecordsToTranslateFromTable(
-                                $table,
-                                $pageId,
-                                0,
-                                (bool)$l10ncfg['sortexports'],
-                                $this->noHidden
-                            );
-                            if (!is_array($allRows)) {
-                                continue;
-                            }
-                            // Now, for each record, look for localization:
-                            foreach ($allRows as $row) {
-                                if (isset($this->excludeIndex[$table . ':' . $row['uid']])) {
+                                if (!is_array($allRows)) {
                                     continue;
                                 }
-                                if (!empty($row[Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME])) {
-                                    /** @var LanguageRestrictionCollection $languageIsRestricted */
-                                    $languageIsRestricted = LanguageRestrictionCollection::load(
-                                        $sysLang,
-                                        true,
-                                        $table,
-                                        Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME
-                                    );
-                                    if ($languageIsRestricted->hasItem((int)$row['uid'])) {
-                                        $this->excludeIndex[$table . ':' . (int)$row['uid']] = 1;
+                                // Now, for each record, look for localization:
+                                foreach ($allRows as $row) {
+                                    if (isset($this->excludeIndex[$table . ':' . $row['uid'] ?? 0])) {
                                         continue;
                                     }
-                                }
-                                BackendUtility::workspaceOL($table, $row);
-                                if (!is_array($row)) {
-                                    continue;
-                                }
+                                    if (!empty($row[Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME])) {
+                                        /** @var LanguageRestrictionCollection $languageIsRestricted */
+                                        $languageIsRestricted = LanguageRestrictionCollection::load(
+                                            $sysLang,
+                                            true,
+                                            $table,
+                                            Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME
+                                        );
+                                        if ($languageIsRestricted->hasItem((int)($row['uid'] ?? 0))) {
+                                            $this->excludeIndex[$table . ':' . (int)$row['uid']] = 1;
+                                            continue;
+                                        }
+                                    }
+                                    BackendUtility::workspaceOL($table, $row);
+                                    if (!is_array($row)) {
+                                        continue;
+                                    }
 
-                                $accum[$pageId]['items'][$table][$row['uid']] = $t8Tools->translationDetails(
-                                    $table,
-                                    $row,
-                                    $sysLang,
-                                    $flexFormDiff,
-                                    $previewLanguage
-                                );
-                                if (!$accum[$pageId]['items'][$table][$row['uid']]) {
-                                    // if there is no record available anymore, skip to the next row
-                                    // records might be disabled when onlyForcedSourceLanguage is set
-                                    continue;
+                                    $accum[$pageId]['items'][$table][$row['uid'] ?? 0] = $t8Tools->translationDetails(
+                                        $table,
+                                        $row,
+                                        $sysLang,
+                                        $flexFormDiff,
+                                        $previewLanguage
+                                    );
+                                    if (empty($accum[$pageId]['items'][$table][$row['uid'] ?? 0])) {
+                                        // if there is no record available anymore, skip to the next row
+                                        // records might be disabled when onlyForcedSourceLanguage is set
+                                        continue;
+                                    }
+                                    if ($table === 'sys_file_reference' && isset($row['uid_local'])) {
+                                        $fileList .= $fileList ? ',' . (int)$row['uid_local'] : (int)$row['uid_local'];
+                                    }
+                                    $this->_increaseInternalCounters($accum[$pageId]['items'][$table][$row['uid']]['fields'] ?? '');
                                 }
-                                if ($table === 'sys_file_reference') {
-                                    $fileList .= $fileList ? ',' . (int)$row['uid_local'] : (int)$row['uid_local'];
-                                }
-                                $this->_increaseInternalCounters($accum[$pageId]['items'][$table][$row['uid']]['fields']);
                             }
                         }
-                    }
-                    if ($table === 'sys_file_reference' && !empty($fileList) && GeneralUtility::inList(
-                        $l10ncfg['tablelist'],
-                        'sys_file_metadata'
-                    )) {
-                        $fileList = implode(
-                            ',',
-                            array_keys(array_flip(GeneralUtility::intExplode(',', $fileList, true)))
-                        );
-                        if (!empty($fileList)) {
-                            /** @var QueryBuilder $queryBuilder */
-                            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_file_metadata');
-                            $metaData = $queryBuilder->select('uid')
-                                ->from('sys_file_metadata')
-                                ->where(
-                                    $queryBuilder->expr()->eq(
-                                        'sys_language_uid',
-                                        0
-                                    ),
-                                    $queryBuilder->expr()->in(
-                                        'file',
-                                        $fileList
+                        if ($table === 'sys_file_reference' && !empty($fileList) && GeneralUtility::inList(
+                            $l10ncfg['tablelist'] ?? '',
+                            'sys_file_metadata'
+                        )) {
+                            $fileList = implode(
+                                ',',
+                                array_keys(array_flip(GeneralUtility::intExplode(',', $fileList, true)))
+                            );
+                            if (!empty($fileList)) {
+                                /** @var QueryBuilder $queryBuilder */
+                                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_file_metadata');
+                                $metaData = $queryBuilder->select('uid')
+                                    ->from('sys_file_metadata')
+                                    ->where(
+                                        $queryBuilder->expr()->eq(
+                                            'sys_language_uid',
+                                            0
+                                        ),
+                                        $queryBuilder->expr()->in(
+                                            'file',
+                                            $fileList
+                                        )
                                     )
-                                )
-                                ->orderBy('uid')
-                                ->execute()
-                                ->fetchAll();
+                                    ->orderBy('uid')
+                                    ->execute()
+                                    ->fetchAll();
 
-                            if (!empty($metaData)) {
-                                $l10ncfg['include'] .= $l10ncfg['include'] ? ',' : '';
-                                foreach ($metaData as $data) {
-                                    $l10ncfg['include'] .= 'sys_file_metadata:' . $data['uid'] . ',';
+                                if (!empty($metaData)) {
+                                    $l10ncfg['include'] = [];
+                                    foreach ($metaData as $data) {
+                                        $l10ncfg['include'][] = 'sys_file_metadata:' . $data['uid'] ?? 0;
+                                    }
+                                    $l10ncfg['include'] = implode(',', $l10ncfg['include']);
                                 }
-                                $l10ncfg['include'] = rtrim($l10ncfg['include'], ',');
                             }
                         }
                     }
@@ -374,7 +380,7 @@ class L10nAccumulatedInformation
             }
         }
 
-        $this->addPagesMarkedAsIncluded($l10ncfg['include'], $l10ncfg['exclude']);
+        $this->addPagesMarkedAsIncluded($l10ncfg['include'] ?? '', $l10ncfg['exclude'] ?? '');
         foreach ($this->includeIndex as $recId => $rec) {
             list($table, $uid) = explode(':', $recId);
             $row = BackendUtility::getRecordWSOL($table, $uid);
@@ -386,7 +392,7 @@ class L10nAccumulatedInformation
                     $flexFormDiff,
                     $previewLanguage
                 );
-                $this->_increaseInternalCounters($accum[-1]['items'][$table][$row['uid']]['fields']);
+                $this->_increaseInternalCounters($accum[-1]['items'][$table][$row['uid']]['fields'] ?? '');
             }
         }
         // debug($accum);
@@ -402,7 +408,7 @@ class L10nAccumulatedInformation
             $this->_fieldCount = $this->_fieldCount + count($fieldsArray);
             if (function_exists('str_word_count')) {
                 foreach ($fieldsArray as $v) {
-                    $this->_wordCount = $this->_wordCount + str_word_count($v['defaultValue']);
+                    $this->_wordCount = $this->_wordCount + str_word_count($v['defaultValue'] ?? '');
                 }
             }
         }
@@ -436,12 +442,12 @@ class L10nAccumulatedInformation
 
         if (!empty($explicitlyIncludedPages)) {
             foreach ($explicitlyIncludedPages as $page) {
-                if (!isset($this->excludeIndex['pages:' . $page['uid']]) && !in_array(
-                    $page['doktype'],
+                if (!isset($this->excludeIndex['pages:' . $page['uid'] ?? 0]) && !in_array(
+                    $page['doktype'] ?? '',
                     $this->disallowDoktypes
                 )
                 ) {
-                    $this->includeIndex['pages:' . $page['uid']] = 1;
+                    $this->includeIndex['pages:' . $page['uid'] ?? 0] = 1;
                 }
             }
         }
@@ -461,7 +467,7 @@ class L10nAccumulatedInformation
 
         if (!empty($includingParentPages)) {
             foreach ($includingParentPages as $parentPage) {
-                $this->addSubPagesRecursively($parentPage['uid']);
+                $this->addSubPagesRecursively($parentPage['uid'] ?? 0);
             }
         }
     }
@@ -493,11 +499,16 @@ class L10nAccumulatedInformation
 
             if (!empty($subPages)) {
                 foreach ($subPages as $page) {
-                    if ($page['l10nmgr_configuration'] === Constants::L10NMGR_CONFIGURATION_DEFAULT) {
-                        $this->includeIndex['pages:' . $page['uid']] = 1;
+                    if (isset($page['l10nmgr_configuration']) && $page['l10nmgr_configuration'] === Constants::L10NMGR_CONFIGURATION_DEFAULT) {
+                        $this->includeIndex['pages:' . $page['uid'] ?? 0] = 1;
                     }
-                    if ($page['l10nmgr_configuration_next_level'] === Constants::L10NMGR_CONFIGURATION_DEFAULT || $page['l10nmgr_configuration_next_level'] === Constants::L10NMGR_CONFIGURATION_INCLUDE) {
-                        $this->addSubPagesRecursively($page['uid'], $level);
+                    if (isset($page['l10nmgr_configuration_next_level']) &&
+                        (
+                            $page['l10nmgr_configuration_next_level'] === Constants::L10NMGR_CONFIGURATION_DEFAULT
+                            || $page['l10nmgr_configuration_next_level'] === Constants::L10NMGR_CONFIGURATION_INCLUDE
+                        )
+                    ) {
+                        $this->addSubPagesRecursively($page['uid'] ?? 0, $level);
                     }
                 }
             }

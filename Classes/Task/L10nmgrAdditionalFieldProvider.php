@@ -94,7 +94,7 @@ class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider imp
         $fieldName = 'tx_scheduler[l10nmgr_fileGarbageCollection_excludePattern]';
         $fieldId = 'task_fileGarbageCollection_excludePattern';
         $fieldValue = $taskInfo['l10nmgr_fileGarbageCollection_excludePattern'];
-        $fieldHtml = '<input type="text" name="' . $fieldName . '" id="' . $fieldId . '" value="' . htmlspecialchars($fieldValue) . '" size="30" />';
+        $fieldHtml = '<input type="text" name="' . $fieldName . '" id="' . $fieldId . '" value="' . htmlspecialchars((string)$fieldValue) . '" size="30" />';
         $additionalFields[$fieldId] = [
             'code' => $fieldHtml,
             'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/Task/locallang.xlf:fileGarbageCollection.excludePattern',
@@ -117,7 +117,12 @@ class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider imp
         $result = true;
         // Check if number of days is indeed a number and greater than 0
         // If not, fail validation and issue error message
-        if (!is_numeric($submittedData['l10nmgr_fileGarbageCollection_age']) || (int)$submittedData['l10nmgr_fileGarbageCollection_age'] <= 0) {
+        if (isset($submittedData['l10nmgr_fileGarbageCollection_age'])
+            && (
+                !is_numeric($submittedData['l10nmgr_fileGarbageCollection_age'])
+                || (int)$submittedData['l10nmgr_fileGarbageCollection_age'] <= 0
+            )
+        ) {
             $result = false;
             $this->addMessage(
                 $this->getLanguageService()->sL(
@@ -138,9 +143,9 @@ class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider imp
     {
         if (!$this->languageService instanceof LanguageService) {
             $this->languageService = GeneralUtility::makeInstance(LanguageService::class);
-        }
-        if ($this->getBackendUser()) {
-            $this->languageService->init($this->getBackendUser()->uc['lang']);
+            if ($this->getBackendUser()) {
+                $this->languageService->init($this->getBackendUser()->uc['lang'] ?? ($this->getBackendUser()->user['lang'] ?? 'en'));
+            }
         }
         return $this->languageService;
     }
@@ -155,6 +160,6 @@ class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider imp
     public function saveAdditionalFields(array $submittedData, AbstractTask $task)
     {
         /** @phpstan-ignore-next-line */
-        $task->age = (int)$submittedData['l10nmgr_fileGarbageCollection_age'];
+        $task->age = (int)($submittedData['l10nmgr_fileGarbageCollection_age'] ?? 0);
     }
 }

@@ -376,7 +376,7 @@ class L10nHtmlListView extends AbstractExportView
 
         // Set the UI language of the editor if not hard-coded by the existing configuration
         if (empty($configuration['language'])) {
-            $configuration['language'] = $this->getBackendUser()->uc['lang'] ?: ($this->getBackendUser()->user['lang'] ?: 'en');
+            $configuration['language'] = $this->getBackendUser()->uc['lang'] ?? ($this->getBackendUser()->user['lang'] ?? 'en');
         }
         $configuration['contentsLanguage'] = $languageIsoCode;
 

@@ -95,11 +95,9 @@ class L10nConfigurationDetailView
     {
         if (!$this->languageService instanceof LanguageService) {
             $this->languageService = GeneralUtility::makeInstance(LanguageService::class);
-        }
-        // TODO: Why init the language every time `getLanguageService()` is called?
-        // Can we move that snippet inside the if construct above?
-        if ($this->getBackendUser()) {
-            $this->languageService->init($this->getBackendUser()->uc['lang']);
+            if ($this->getBackendUser()) {
+                $this->languageService->init($this->getBackendUser()->uc['lang'] ?? ($this->getBackendUser()->user['lang'] ?? 'en'));
+            }
         }
         return $this->languageService;
     }

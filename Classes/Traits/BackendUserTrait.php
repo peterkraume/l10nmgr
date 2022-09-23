@@ -3,6 +3,7 @@
 namespace Localizationteam\L10nmgr\Traits;
 
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 trait BackendUserTrait
 {
@@ -11,6 +12,6 @@ trait BackendUserTrait
      */
     protected function getBackendUser(): BackendUserAuthentication
     {
-        return $GLOBALS['BE_USER'];
+        return $GLOBALS['BE_USER'] ?? GeneralUtility::makeInstance(BackendUserAuthentication::class);
     }
 }

@@ -120,8 +120,8 @@ class CatXmlImportManager
             $this->_errorMsg[] = $this->getLanguageService()->getLL('import.manager.error.parsing.xml2tree.message') . $this->xmlNodes . ' Content: ' . $fileContent;
             return false;
         }
-        $headerInformationNodes = $this->xmlNodes['TYPO3L10N'][0]['ch']['head'][0]['ch'];
-        if (!is_array($headerInformationNodes)) {
+        $headerInformationNodes = $this->xmlNodes['TYPO3L10N'][0]['ch']['head'][0]['ch'] ?? [];
+        if (empty($headerInformationNodes)) {
             $this->_errorMsg[] = $this->getLanguageService()->getLL('import.manager.error.missing.head.message');
             return false;
         }
@@ -141,9 +141,9 @@ class CatXmlImportManager
     {
         if (!$this->languageService instanceof LanguageService) {
             $this->languageService = GeneralUtility::makeInstance(LanguageService::class);
-        }
-        if ($this->getBackendUser()) {
-            $this->languageService->init($this->getBackendUser()->uc['lang']);
+            if ($this->getBackendUser()) {
+                $this->languageService->init($this->getBackendUser()->uc['lang'] ?? ($this->getBackendUser()->user['lang'] ?? 'en'));
+            }
         }
         return $this->languageService;
     }
@@ -153,13 +153,13 @@ class CatXmlImportManager
      */
     protected function _setHeaderData(array $headerInformationNodes): void
     {
-        if (!is_array($headerInformationNodes)) {
+        if (empty($headerInformationNodes)) {
             return;
         }
         foreach ($headerInformationNodes as $k => $v) {
             $this->headerData[$k] = '';
             if (is_array($v) && is_array($v[0]) && is_array($v[0]['values'])) {
-                $this->headerData[$k] = $v[0]['values'][0];
+                $this->headerData[$k] = $v[0]['values'][0] ?? '';
             }
         }
     }
@@ -173,23 +173,23 @@ class CatXmlImportManager
         if (!isset($this->headerData['t3_formatVersion']) || $this->headerData['t3_formatVersion'] != L10NMGR_FILEVERSION) {
             $error[] = sprintf(
                 $this->getLanguageService()->getLL('import.manager.error.version.message'),
-                $this->headerData['t3_formatVersion'],
+                $this->headerData['t3_formatVersion'] ?? '',
                 L10NMGR_FILEVERSION
             );
         }
         if (!isset($this->headerData['t3_workspaceId']) || $this->headerData['t3_workspaceId'] != $this->getBackendUser()->workspace) {
-            $this->getBackendUser()->workspace = $this->headerData['t3_workspaceId'];
+            $this->getBackendUser()->workspace = $this->headerData['t3_workspaceId'] ?? 0;
             $error[] = sprintf(
                 $this->getLanguageService()->getLL('import.manager.error.workspace.message'),
                 $this->getBackendUser()->workspace,
-                $this->headerData['t3_workspaceId']
+                $this->headerData['t3_workspaceId'] ?? 0
             );
         }
         if (!isset($this->headerData['t3_sysLang']) || $this->headerData['t3_sysLang'] != $this->sysLang) {
             $error[] = sprintf(
                 $this->getLanguageService()->getLL('import.manager.error.language.message'),
                 $this->sysLang,
-                $this->headerData['t3_sysLang']
+                $this->headerData['t3_sysLang'] ?? 0
             );
         }
         if (count($error) > 0) {
@@ -213,8 +213,8 @@ class CatXmlImportManager
             $this->_errorMsg[] = $this->getLanguageService()->getLL('import.manager.error.parsing.xml2tree.message') . $this->xmlNodes;
             return false;
         }
-        $headerInformationNodes = $this->xmlNodes['TYPO3L10N'][0]['ch']['head'][0]['ch'];
-        if (!is_array($headerInformationNodes)) {
+        $headerInformationNodes = $this->xmlNodes['TYPO3L10N'][0]['ch']['head'][0]['ch'] ?? [];
+        if (empty($headerInformationNodes)) {
             $this->_errorMsg[] = $this->getLanguageService()->getLL('import.manager.error.missing.head.message');
             return false;
         }
@@ -234,7 +234,7 @@ class CatXmlImportManager
         if (!isset($this->headerData['t3_formatVersion']) || $this->headerData['t3_formatVersion'] != L10NMGR_FILEVERSION) {
             $error[] = sprintf(
                 $this->getLanguageService()->getLL('import.manager.error.version.message'),
-                $this->headerData['t3_formatVersion'],
+                $this->headerData['t3_formatVersion'] ?? '',
                 L10NMGR_FILEVERSION
             );
         }
@@ -242,7 +242,7 @@ class CatXmlImportManager
             $error[] = sprintf(
                 $this->getLanguageService()->getLL('import.manager.error.workspace.message'),
                 $this->getBackendUser()->workspace,
-                $this->headerData['t3_workspaceId']
+                $this->headerData['t3_workspaceId'] ?? 0
             );
         }
         if (!isset($this->headerData['t3_sysLang'])) {
@@ -250,7 +250,7 @@ class CatXmlImportManager
             $error[] = sprintf(
                 $this->getLanguageService()->getLL('import.manager.error.language.message'),
                 $this->sysLang,
-                $this->headerData['t3_sysLang']
+                $this->headerData['t3_sysLang'] ?? 0
             );
         }
         if (count($error) > 0) {
@@ -286,9 +286,9 @@ class CatXmlImportManager
     public function getPidsFromCATXMLNodes(array $xmlNodes): array
     {
         $pids = [];
-        if (is_array($xmlNodes['TYPO3L10N'][0]['ch']['pageGrp'])) {
+        if (!empty($xmlNodes['TYPO3L10N'][0]['ch']['pageGrp'])) {
             foreach ($xmlNodes['TYPO3L10N'][0]['ch']['pageGrp'] as $pageGrp) {
-                $pids[] = $pageGrp['attrs']['id'];
+                $pids[] = $pageGrp['attrs']['id'] ?? 0;
             }
         }
         return $pids;
@@ -305,12 +305,12 @@ class CatXmlImportManager
     {
         //get L10Ns to be deleted before import
         $delL10NUids = [];
-        if (is_array($xmlNodes['TYPO3L10N'][0]['ch']['pageGrp'])) {
+        if (!empty($xmlNodes['TYPO3L10N'][0]['ch']['pageGrp'])) {
             foreach ($xmlNodes['TYPO3L10N'][0]['ch']['pageGrp'] as $pageGrp) {
-                if (is_array($pageGrp['ch']['data'])) {
+                if (!empty($pageGrp['ch']['data'])) {
                     foreach ($pageGrp['ch']['data'] as $row) {
-                        if (preg_match('/NEW/', $row['attrs']['key'])) {
-                            $delL10NUids[] = $row['attrs']['table'] . ':' . $row['attrs']['elementUid'];
+                        if (preg_match('/NEW/', $row['attrs']['key'] ?? '')) {
+                            $delL10NUids[] = ($row['attrs']['table'] ?? '') . ':' . ($row['attrs']['elementUid'] ?? '');
                         }
                     }
                 }
@@ -350,12 +350,12 @@ class CatXmlImportManager
                 ->from($table)
                 ->where(
                     $queryBuilder->expr()->eq(
-                        $GLOBALS['TCA'][$table]['ctrl']['languageField'],
-                        $queryBuilder->createNamedParameter($this->headerData['t3_sysLang'], PDO::PARAM_INT)
+                        $GLOBALS['TCA'][$table]['ctrl']['languageField'] ?? 'sys_language_uid',
+                        $queryBuilder->createNamedParameter($this->headerData['t3_sysLang'] ?? 0, PDO::PARAM_INT)
                     )
                 );
 
-            if ($GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField']) {
+            if (!empty($GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'])) {
                 $queryBuilder->andWhere(
                     $queryBuilder->expr()->eq(
                         $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'],
@@ -364,7 +364,7 @@ class CatXmlImportManager
                 );
             }
 
-            if ($GLOBALS['TCA'][$table]['ctrl']['versioningWS']) {
+            if (!empty($GLOBALS['TCA'][$table]['ctrl']['versioningWS'])) {
                 $queryBuilder->andWhere(
                     $queryBuilder->expr()->eq(
                         't3ver_wsid',
@@ -377,7 +377,7 @@ class CatXmlImportManager
 
             if (!empty($delDataQuery)) {
                 foreach ($delDataQuery as $row) {
-                    $dataHandler->deleteAction($table, $row['uid']);
+                    $dataHandler->deleteAction($table, $row['uid'] ?? 0);
                 }
             }
             $cmdCount++;
