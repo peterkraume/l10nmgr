@@ -56,11 +56,11 @@ class Tcemain
      *
      * @param string $status
      * @param string $table
-     * @param int $id
+     * @param string $id
      * @param array $fieldArray
      * @param DataHandler $pObj
      */
-    public function processDatamap_afterDatabaseOperations(string $status, string $table, int $id, array $fieldArray, DataHandler $pObj): void
+    public function processDatamap_afterDatabaseOperations(string $status, string $table, string $id, array $fieldArray, DataHandler $pObj): void
     {
         // Check if
         // debug(array($status, $table, $id));
@@ -156,14 +156,14 @@ class Tcemain
                 ),
                 $queryBuilder->expr()->eq(
                     'recuid',
-                    $queryBuilder->createNamedParameter((int)$p[1] ?? 0, PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter((int)($p[1] ?? 0), PDO::PARAM_INT)
                 )
             );
         } else {
             $queryBuilder->andWhere(
                 $queryBuilder->expr()->eq(
                     'recpid',
-                    $queryBuilder->createNamedParameter((int)$p[1] ?? 0, PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter((int)($p[1] ?? 0), PDO::PARAM_INT)
                 )
             );
         }

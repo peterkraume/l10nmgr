@@ -244,14 +244,14 @@ class Import extends L10nCommand
         // Find l10n configuration record
         /** @var L10nConfiguration $l10ncfgObj */
         $l10ncfgObj = GeneralUtility::makeInstance(L10nConfiguration::class);
-        $l10ncfgObj->load((int)$importManager->headerData['t3_l10ncfg'] ?? 0);
+        $l10ncfgObj->load((int)($importManager->headerData['t3_l10ncfg'] ?? 0));
         $l10ncfgObj->setSourcePid((int)$callParameters['sourcePid']);
         $status = $l10ncfgObj->isLoaded();
         if ($status === false) {
             throw new Exception('l10ncfg not loaded! Exiting...');
         }
         //Do import...
-        $this->sysLanguage = (int)$importManager->headerData['t3_sysLang'] ?? 0; //set import language to t3_sysLang from XML
+        $this->sysLanguage = (int)($importManager->headerData['t3_sysLang'] ?? 0); //set import language to t3_sysLang from XML
         if (!empty($importManager->headerData['t3_sourceLang']) && !empty($importManager->headerData['t3_targetLang'])
             && $importManager->headerData['t3_sourceLang'] === $importManager->headerData['t3_targetLang']) {
             $this->previewLanguage = $this->sysLanguage;
@@ -272,12 +272,12 @@ class Import extends L10nCommand
                 /** @var MkPreviewLinkService $mkPreviewLinks */
                 $mkPreviewLinks = GeneralUtility::makeInstance(
                     MkPreviewLinkService::class,
-                    (int)$importManager->headerData['t3_workspaceId'] ?? 0,
-                    (int)$importManager->headerData['t3_sysLang'] ?? 0,
+                    (int)($importManager->headerData['t3_workspaceId'] ?? 0),
+                    (int)($importManager->headerData['t3_sysLang'] ?? 0),
                     $pageIds
                 );
                 $previewLink = $mkPreviewLinks->mkSinglePreviewLink(
-                    (string)$importManager->headerData['t3_baseURL'] ?? '',
+                    (string)($importManager->headerData['t3_baseURL'] ?? ''),
                     (string)$callParameters['server']
                 );
                 $out .= $previewLink;
@@ -324,12 +324,12 @@ class Import extends L10nCommand
         /** @var MkPreviewLinkService $mkPreviewLinks */
         $mkPreviewLinks = GeneralUtility::makeInstance(
             MkPreviewLinkService::class,
-            (int)$importManager->headerData['t3_workspaceId'] ?? 0,
-            (int)$importManager->headerData['t3_sysLang'] ?? 0,
+            (int)($importManager->headerData['t3_workspaceId'] ?? 0),
+            (int)($importManager->headerData['t3_sysLang'] ?? 0),
             $pageIds
         );
         //Only valid if source language = default language (id=0)
-        $previewLink = $mkPreviewLinks->mkSingleSrcPreviewLink((string)$importManager->headerData['t3_baseURL'], 0);
+        $previewLink = $mkPreviewLinks->mkSingleSrcPreviewLink((string)($importManager->headerData['t3_baseURL'] ?? ''), 0);
         $out .= $previewLink;
 
         // Output
@@ -408,12 +408,12 @@ class Import extends L10nCommand
                             /** @var MkPreviewLinkService $mkPreviewLinks */
                             $mkPreviewLinks = GeneralUtility::makeInstance(
                                 MkPreviewLinkService::class,
-                                (int)$importManager->headerData['t3_workspaceId'] ?? 0,
-                                (int)$importManager->headerData['t3_sysLang'] ?? 0,
+                                (int)($importManager->headerData['t3_workspaceId'] ?? 0),
+                                (int)($importManager->headerData['t3_sysLang'] ?? 0),
                                 $pageIds
                             );
                             $previewLink = $mkPreviewLinks->mkSinglePreviewLink(
-                                (string)$importManager->headerData['t3_baseURL'] ?? '',
+                                (string)($importManager->headerData['t3_baseURL'] ?? ''),
                                 (string)$callParameters['server']
                             );
                             $out .= $previewLink;
@@ -481,7 +481,7 @@ class Import extends L10nCommand
                 // Process extracted files if file type = xml => IMPORT
                 $files = $this->checkFileType($unzipResource['fileArr'] ?? [], 'xml');
                 // Store the temporary directory's path for later clean up
-                $this->directoryToCleanUp = (string)$unzipResource['tempDir'] ?? '';
+                $this->directoryToCleanUp = (string)($unzipResource['tempDir'] ?? '');
             } elseif ($fileInformation['extension'] === 'xml') {
                 $files[] = $file;
             }
@@ -551,7 +551,7 @@ class Import extends L10nCommand
                                     $archiveFiles = $this->checkFileType($unzipResource['fileArr'] ?? [], 'xml');
                                     $files = array_merge($files, $archiveFiles);
                                     // Store the temporary directory's path for later clean up
-                                    $this->directoryToCleanUp = (string)$unzipResource['tempDir'] ?? '';
+                                    $this->directoryToCleanUp = (string)($unzipResource['tempDir'] ?? '');
                                 }
                                 // Remove the file from the FTP server
                                 $result = ftp_delete($connection, $aFile);

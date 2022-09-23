@@ -198,7 +198,7 @@ class LocalizationManager extends BaseModule
     protected function mainNew()
     {
         // Get language to export/import
-        $this->sysLanguage = (int)$this->MOD_SETTINGS['lang'] ?? 0;
+        $this->sysLanguage = (int)($this->MOD_SETTINGS['lang'] ?? 0);
 
         // Javascript
         $this->moduleTemplate->addJavaScriptCode(
@@ -959,8 +959,8 @@ return false;
                     /** @var MkPreviewLinkService $mkPreviewLinks */
                     $mkPreviewLinks = GeneralUtility::makeInstance(
                         MkPreviewLinkService::class,
-                        $t3_workspaceId = $importManager->headerData['t3_workspaceId'] ?? 0,
-                        $t3_sysLang = $importManager->headerData['t3_sysLang'] ?? 0,
+                        $importManager->headerData['t3_workspaceId'] ?? 0,
+                        $importManager->headerData['t3_sysLang'] ?? 0,
                         $pageIds
                     );
                     $actionInfo .= $mkPreviewLinks->renderPreviewLinks($mkPreviewLinks->mkPreviewLinks());
@@ -1360,7 +1360,7 @@ return false;
             'noHidden' => '',
         ];
 
-        $configurationId = (int)$GLOBALS['TYPO3_REQUEST']->getQueryParams()['exportUID'] ?? 0;
+        $configurationId = (int)($GLOBALS['TYPO3_REQUEST']->getQueryParams()['exportUID'] ?? 0);
         $configuration = BackendUtility::getRecord('tx_l10nmgr_cfg', $configurationId);
         $targetLanguages = [];
         if (!empty($configuration['targetLanguages'])) {

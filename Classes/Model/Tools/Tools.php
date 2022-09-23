@@ -607,7 +607,7 @@ class Tools
      * @param string $table Table name
      * @param int $uid Record UID
      * @param int $languageID Language ID of the record
-     * @return mixed FALSE if the input record is not one that can be translated. Otherwise an array holding information about the status.
+     * @return array Empty if the input record is not one that can be translated. Otherwise an array holding information about the status.
      */
     public function indexDetailsRecord(string $table, int $uid, int $languageID = 0)
     {
@@ -638,7 +638,7 @@ class Tools
                 return $items;
             }
         }
-        return false;
+        return [];
     }
 
     /**
@@ -994,7 +994,7 @@ class Tools
                                         $flexObj = GeneralUtility::makeInstance(FlexFormTools::class);
                                         $this->_callBackParams_keyForTranslationDetails = $key;
                                         $this->_callBackParams_translationXMLArray = (array)GeneralUtility::xml2array(
-                                            $translationRecord[$field]
+                                            $translationRecord[$field] ?? ''
                                         );
                                         if (is_array($translationRecord)) {
                                             $diffsource = unserialize($translationRecord['l18n_diffsource'] ?? '');
@@ -1029,7 +1029,7 @@ class Tools
                                         $key,
                                         $cfg,
                                         (string)$row[$field],
-                                        (string)$translationRecord[$field] ?? '',
+                                        (string)($translationRecord[$field] ?? ''),
                                         $diffDefaultValue,
                                         $previewLanguageValues,
                                         $row
@@ -1081,9 +1081,9 @@ class Tools
         }
 
         $languageField = $GLOBALS['TCA'][$table]['ctrl']['languageField'] ?? 'sys_language_uid';
-        $languageValue = (int)$row[$languageField] ?? 0;
+        $languageValue = (int)($row[$languageField] ?? 0);
         $parentField = $GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'] ?? '';
-        $parentValue = (int)$row[$parentField] ?? 0;
+        $parentValue = (int)($row[$parentField] ?? 0);
         if ($languageValue > 0 && $languageValue !== $previewLanguage) {
             return 'Record "' . $table . '_' . $uid . '" seems to be a translation already (has a language value "'
                 . $languageValue . '", relation to record "'
@@ -1384,12 +1384,12 @@ class Tools
     {
         $record = [
             'tablename' => $fullDetails['translationInfo']['table'] ?? '',
-            'recuid' => (int)$fullDetails['translationInfo']['uid'] ?? 0,
+            'recuid' => (int)($fullDetails['translationInfo']['uid'] ?? 0),
             'recpid' => $pid,
-            'sys_language_uid' => (int)$fullDetails['translationInfo']['sys_language_uid'] ?? 0,
+            'sys_language_uid' => (int)($fullDetails['translationInfo']['sys_language_uid'] ?? 0),
             // can be zero (default) or -1 (international)
             'translation_lang' => $sys_lang,
-            'translation_recuid' => (int)$fullDetails['translationInfo']['translations'][$sys_lang]['uid'] ?? 0,
+            'translation_recuid' => (int)($fullDetails['translationInfo']['translations'][$sys_lang]['uid'] ?? 0),
             'workspace' => $this->getBackendUser()->workspace,
             'serializedDiff' => [],
             'flag_new' => 0,

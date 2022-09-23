@@ -101,9 +101,9 @@ class L10nConfiguration
      **/
     public function getData(string $key): string
     {
-        return $key === 'pid' && (int)$this->l10ncfg['depth'] === -1 && $this->sourcePid
+        return $key === 'pid' && !empty($this->l10ncfg['depth']) && (int)$this->l10ncfg['depth'] === -1 && $this->sourcePid
             ? (string)$this->sourcePid
-            : (string)$this->l10ncfg[$key];
+            : (string)($this->l10ncfg[$key] ?? '');
     }
 
     /**
@@ -113,7 +113,7 @@ class L10nConfiguration
     public function getL10nAccumulatedInformationsObjectForLanguage(int $sysLang): L10nAccumulatedInformation
     {
         $l10ncfg = $this->l10ncfg;
-        $depth = (int)$l10ncfg['depth'];
+        $depth = (int)($l10ncfg['depth'] ?? 0);
         $treeStartingRecords = [];
         // Showing the tree:
         // Initialize starting point of page tree:
@@ -124,7 +124,7 @@ class L10nConfiguration
             if ($depth === -2 && !empty($l10ncfg['pages'])) {
                 $treeStartingPoints = GeneralUtility::intExplode(',', $l10ncfg['pages']);
             } else {
-                $treeStartingPoints = [(int)$l10ncfg['pid']];
+                $treeStartingPoints = [(int)($l10ncfg['pid'] ?? 0)];
             }
         }
         /** @var PageTreeView $tree */
@@ -149,7 +149,7 @@ class L10nConfiguration
                 ];
                 // Create the tree from starting point or page list:
                 if ($depth > 0) {
-                    $tree->getTree($page['uid'], $depth);
+                    $tree->getTree($page['uid'] ?? 0, $depth);
                 } else {
                     if (!empty($treeStartingRecords)) {
                         foreach ($treeStartingRecords as $page) {
@@ -180,9 +180,12 @@ class L10nConfiguration
     public function updateFlexFormDiff(int $sysLang, array $flexFormDiffArray): void
     {
         $l10ncfg = $this->l10ncfg;
+        if (empty($l10ncfg['uid'])) {
+            return;
+        }
         // Updating diff-data:
         // First, unserialize/initialize:
-        $flexFormDiffForAllLanguages = unserialize($l10ncfg['flexformdiff']);
+        $flexFormDiffForAllLanguages = unserialize($l10ncfg['flexformdiff'] ?? '');
         if (!is_array($flexFormDiffForAllLanguages)) {
             $flexFormDiffForAllLanguages = [];
         }

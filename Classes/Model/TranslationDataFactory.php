@@ -72,15 +72,17 @@ class TranslationDataFactory implements LoggerAwareInterface
         /** @var XmlTools $xmlTool */
         $xmlTool = GeneralUtility::makeInstance(XmlTools::class);
         $translation = [];
-        if (is_array($xmlNodes['TYPO3L10N'][0]['ch']['pageGrp'])) {
+        if (!empty($xmlNodes['TYPO3L10N'][0]['ch']['pageGrp'])) {
             foreach ($xmlNodes['TYPO3L10N'][0]['ch']['pageGrp'] as $pageGrp) {
-                if (is_array($pageGrp['ch']['data'])) {
+                if (!empty($pageGrp['ch']['data'])) {
                     foreach ($pageGrp['ch']['data'] as $row) {
-                        $attrs = $row['attrs'];
+                        $attrs = $row['attrs'] ?? [];
                         if (($attrs['transformations'] ?? null) == '1') {
-                            $translationValue = $xmlTool->XML2RTE($row['XMLvalue']);
+                            $translationValue = $xmlTool->XML2RTE($row['XMLvalue'] ?? '');
                             $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = $translationValue;
                         } else {
+                            $row['XMLvalue'] = $row['XMLvalue'] ?? '';
+                            $row['values'][0] = $row['values'][0] ?? '';
                             $row['values'][0] = preg_replace(
                                 '/&(?!(amp|nbsp|quot|apos|lt|gt);)/',
                                 '&amp;',
@@ -105,8 +107,10 @@ class TranslationDataFactory implements LoggerAwareInterface
                             } else {
                                 $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': No TAG found in: ' . $row['XMLvalue']);
                             }
-                            $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = $row['XMLvalue'];
-                            $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': IMPORT: ' . $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']]);
+                            if (!empty($attrs['table']) && !empty($attrs['elementUid']) && !empty($attrs['key'])) {
+                                $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = $row['XMLvalue'];
+                                $this->logger->debug(__FILE__ . ': ' . __LINE__ . ': IMPORT: ' . $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']]);
+                            }
                         }
                         if (!empty($translation[$attrs['table']][$attrs['elementUid']][$attrs['key']])) {
                             $translation[$attrs['table']][$attrs['elementUid']][$attrs['key']] = htmlspecialchars_decode($translation[$attrs['table']][$attrs['elementUid']][$attrs['key']]);
@@ -167,7 +171,7 @@ class TranslationDataFactory implements LoggerAwareInterface
             $worksheetIdentifier = 'ss:Worksheet';
         }
         // OK, this method of parsing the XML really sucks, but it was 4:04 in the night and ... I have no clue to make it better on PHP4. Anyway, this will work for now. But is probably unstable in case a user puts formatting in the content of the translation! (since only the first CData chunk will be found!)
-        if (is_array($xmlNodes['Workbook'][0]['ch'][$worksheetIdentifier][0]['ch']['Table'][0]['ch']['Row'])) {
+        if (!empty($xmlNodes['Workbook'][0]['ch'][$worksheetIdentifier][0]['ch']['Table'][0]['ch']['Row'])) {
             foreach ($xmlNodes['Workbook'][0]['ch'][$worksheetIdentifier][0]['ch']['Table'][0]['ch']['Row'] as $row) {
                 if (!isset($row['ch']['Cell'][0]['attrs']['ss:Index'])) {
                     list($Ttable, $Tuid, $Tkey) = explode(
