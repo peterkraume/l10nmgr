@@ -198,7 +198,7 @@ class LocalizationManager extends BaseModule
     protected function mainNew()
     {
         // Get language to export/import
-        $this->sysLanguage = (int)$this->MOD_SETTINGS['lang'];
+        $this->sysLanguage = (int)$this->MOD_SETTINGS['lang'] ?? 0;
 
         // Javascript
         $this->moduleTemplate->addJavaScriptCode(
@@ -224,15 +224,16 @@ return false;
             $this->pageinfo = BackendUtility::readPageAccess($this->id, $this->perms_clause);
             $access = is_array($this->pageinfo);
             if ($this->id && $access) {
-                $title = $this->MOD_MENU['action'][$this->MOD_SETTINGS['action']];
+                $action = (string)$this->MOD_SETTINGS['action'] ?? '';
+                $title = $this->MOD_MENU['action'][$action] ?? '';
 
                 $addParams = sprintf('&srcPID=%d&exportUID=%d', rawurlencode(GeneralUtility::_GET('srcPID')), $l10nConfiguration->getId());
                 $selectMenus = [];
                 $selectMenus[] = self::getFuncMenuNew(
                     $this->id,
                     'SET[action]',
-                    $this->MOD_SETTINGS['action'],
-                    $this->MOD_MENU['action'],
+                    $action,
+                    $this->MOD_MENU['action'] ?? [],
                     '',
                     $addParams,
                     $this->getLanguageService()->getLL('general.export.choose.action.title')
@@ -242,7 +243,7 @@ return false;
                     $this->id,
                     'SET[lang]',
                     (string)$this->sysLanguage,
-                    $this->MOD_MENU['lang'],
+                    $this->MOD_MENU['lang'] ?? [],
                     '',
                     $addParams,
                     $this->getLanguageService()->getLL('export.overview.targetlanguage.label')
@@ -269,7 +270,7 @@ return false;
                 );
 
                 // Render content:
-                $userCanEditTranslations = count($this->MOD_MENU['lang']) > 0;
+                $userCanEditTranslations = count($this->MOD_MENU['lang'] ?? []) > 0;
 
                 $moduleContent = [];
                 if ($userCanEditTranslations) {
@@ -285,7 +286,7 @@ return false;
                     'selectMenues' => $selectMenus,
                     'checkBoxes' => $checkBoxes,
                     'userCanEditTranslations' => $userCanEditTranslations,
-                    'moduleAction' => $this->MOD_SETTINGS['action'],
+                    'moduleAction' => $action,
                     'moduleContent' => $moduleContent,
                     'configurationTable' => $configurationTable,
                     'isRteInstalled' => ExtensionManagementUtility::isLoaded('rte_ckeditor'),
@@ -335,7 +336,8 @@ return false;
             $this->pageinfo = BackendUtility::readPageAccess($this->id, $this->perms_clause);
             $access = is_array($this->pageinfo);
             if ($this->id && $access) {
-                $title = $this->MOD_MENU['action'][$this->MOD_SETTINGS['action'] ?? ''];
+                $action = (string)$this->MOD_SETTINGS['action'] ?? '';
+                $title = $this->MOD_MENU['action'][$action];
 
                 $this->content .= '<div class="panel panel-default expanded">
     <div class="panel-heading" role="tab" id="headingL10nmgrPanel">
@@ -353,8 +355,8 @@ return false;
                     self::getFuncMenu(
                         $this->id,
                         'SET[action]',
-                        $this->MOD_SETTINGS['action'] ?? '',
-                        $this->MOD_MENU['action'],
+                        $action,
+                        $this->MOD_MENU['action'] ?? [],
                         '',
                         '&srcPID=' . rawurlencode(GeneralUtility::_GET('srcPID')) . '&exportUID=' . $L10nConfiguration->getId(),
                         $this->getLanguageService()->getLL('general.export.choose.action.title')
@@ -362,8 +364,8 @@ return false;
                     self::getFuncMenu(
                         $this->id,
                         'SET[lang]',
-                        $this->sysLanguage,
-                        $this->MOD_MENU['lang'],
+                        (string)$this->sysLanguage,
+                        $this->MOD_MENU['lang'] ?? [],
                         '',
                         '&srcPID=' . rawurlencode(GeneralUtility::_GET('srcPID')) . '&exportUID=' . $L10nConfiguration->getId(),
                         $this->getLanguageService()->getLL('export.overview.targetlanguage.label'),
@@ -638,19 +640,19 @@ return false;
     {
         $subcontentNew = [];
 
-        switch ($this->MOD_SETTINGS['action']) {
+        switch ($this->MOD_SETTINGS['action'] ?? '') {
             case 'inlineEdit':
             case 'link':
                 $subcontentNew = $this->linkOverviewAndOnlineTranslationAction($l10NConfiguration, $subcontentNew);
                 break;
             case 'export_excel':
-                $subcontent = $this->excelExportImportAction($l10NConfiguration) . '</div></div></div></div></div><div class="row">';
+                $subcontentNew = $this->excelExportImportAction($l10NConfiguration) . '</div></div></div></div></div><div class="row">';
                 break;
             case 'export_xml':
-                $subcontent = $this->exportImportXmlAction($l10NConfiguration) . '</div></div></div></div>';
+                $subcontentNew = $this->exportImportXmlAction($l10NConfiguration) . '</div></div></div></div>';
                 break;
             default:
-                $subcontent = '<input class="btn btn-default" type="submit" value="' . $this->getLanguageService()->getLL('general.action.refresh.button.title') . '" name="_" />';
+                $subcontentNew = '<input class="btn btn-default" type="submit" value="' . $this->getLanguageService()->getLL('general.action.refresh.button.title') . '" name="_" />';
                 break;
         }
 
@@ -753,7 +755,7 @@ return false;
             '<input class="btn btn-default btn-warning" type="submit" value="' . $this->getLanguageService()->getLL('general.action.import.xml.button.title') . '" name="import_excel" />
 </div></div></div>';
         // Read uploaded file:
-        if (GeneralUtility::_POST('import_excel') && $_FILES['uploaded_import_file']['tmp_name'] && is_uploaded_file($_FILES['uploaded_import_file']['tmp_name'])) {
+        if (GeneralUtility::_POST('import_excel') && !empty($_FILES['uploaded_import_file']['tmp_name']) && is_uploaded_file($_FILES['uploaded_import_file']['tmp_name'])) {
             $uploadedTempFile = GeneralUtility::upload_to_tempfile($_FILES['uploaded_import_file']['tmp_name']);
             /** @var TranslationDataFactory $factory */
             $factory = GeneralUtility::makeInstance(TranslationDataFactory::class);
@@ -922,7 +924,7 @@ return false;
         $info = $this->moduleTemplate->getDynamicTabMenu($menuItems, 'ddtabs');
         $actionInfo = '';
         // Read uploaded file:
-        if (GeneralUtility::_POST('import_xml') && $_FILES['uploaded_import_file']['tmp_name'] && is_uploaded_file($_FILES['uploaded_import_file']['tmp_name'])) {
+        if (GeneralUtility::_POST('import_xml') && !empty($_FILES['uploaded_import_file']['tmp_name']) && is_uploaded_file($_FILES['uploaded_import_file']['tmp_name'])) {
             $uploadedTempFile = GeneralUtility::upload_to_tempfile($_FILES['uploaded_import_file']['tmp_name']);
             /** @var TranslationDataFactory $factory */
             $factory = GeneralUtility::makeInstance(TranslationDataFactory::class);
@@ -957,13 +959,14 @@ return false;
                     /** @var MkPreviewLinkService $mkPreviewLinks */
                     $mkPreviewLinks = GeneralUtility::makeInstance(
                         MkPreviewLinkService::class,
-                        $t3_workspaceId = $importManager->headerData['t3_workspaceId'],
-                        $t3_sysLang = $importManager->headerData['t3_sysLang'],
+                        $t3_workspaceId = $importManager->headerData['t3_workspaceId'] ?? 0,
+                        $t3_sysLang = $importManager->headerData['t3_sysLang'] ?? 0,
                         $pageIds
                     );
                     $actionInfo .= $mkPreviewLinks->renderPreviewLinks($mkPreviewLinks->mkPreviewLinks());
                 }
-                if ($importManager->headerData['t3_sourceLang'] === $importManager->headerData['t3_targetLang']) {
+                if (!empty($importManager->headerData['t3_sourceLang']) && !empty($importManager->headerData['t3_targetLang'])
+                    && $importManager->headerData['t3_sourceLang'] === $importManager->headerData['t3_targetLang']) {
                     $this->previewLanguage = $this->sysLanguage;
                 }
                 $translationData = $factory->getTranslationDataFromCATXMLNodes($importManager->getXMLNodes());
@@ -1106,7 +1109,7 @@ return false;
     protected function getTabContentXmlExport(): string
     {
         $_selectOptions = ['0' => '-default-'];
-        $_selectOptions = $_selectOptions + $this->MOD_MENU['lang'];
+        $_selectOptions = $_selectOptions + ($this->MOD_MENU['lang'] ?? []);
         $tabContentXmlExport = '<div class="form-section">' .
             '<div class="form-group mb-2"><div class="checkbox"><label>' .
             '<input type="checkbox" value="1" name="check_exports" /> ' . $this->getLanguageService()->getLL('export.xml.check_exports.title') .
@@ -1206,7 +1209,7 @@ return false;
      */
     protected function getSetting(string $key): string
     {
-        return $this->settings[$key];
+        return $this->settings[$key] ?? '';
     }
 
     /**
@@ -1276,17 +1279,17 @@ return false;
             // Get source & target language ISO codes
             $sourceStaticLangArr = BackendUtility::getRecord(
                 'static_languages',
-                $l10nmgrCfgObj->l10ncfg['sourceLangStaticId'],
+                $l10nmgrCfgObj->l10ncfg['sourceLangStaticId'] ?? 0,
                 'lg_iso_2'
             );
             $targetStaticLang = BackendUtility::getRecord('sys_language', $tlang, 'static_lang_isocode');
             $targetStaticLangArr = BackendUtility::getRecord(
                 'static_languages',
-                $targetStaticLang['static_lang_isocode'],
+                $targetStaticLang['static_lang_isocode'] ?? 0,
                 'lg_iso_2'
             );
-            $sourceLang = $sourceStaticLangArr['lg_iso_2'];
-            $targetLang = $targetStaticLangArr['lg_iso_2'];
+            $sourceLang = $sourceStaticLangArr['lg_iso_2'] ?? 0;
+            $targetLang = $targetStaticLangArr['lg_iso_2'] ?? 0;
             // Collect mail data
             $fromMail = $this->emConfiguration->getEmailSender();
             $fromName = $this->emConfiguration->getEmailSenderName();
@@ -1294,7 +1297,7 @@ return false;
                 $this->getLanguageService()->getLL('email.suject.msg'),
                 $sourceLang,
                 $targetLang,
-                $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']
+                $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] ?? ''
             );
             // Assemble message body
             $message = [
@@ -1304,7 +1307,7 @@ return false;
                     $this->getLanguageService()->getLL('email.new_translation_job.msg'),
                     $sourceLang,
                     $targetLang,
-                    $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']
+                    $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] ?? ''
                 ),
                 'msg4' => $this->getLanguageService()->getLL('email.info.msg'),
                 'msg5' => $this->getLanguageService()->getLL('email.info.import.msg'),
@@ -1320,7 +1323,7 @@ return false;
                     $this->getLanguageService()->getLL('email.new_translation_job_attached.msg'),
                     $sourceLang,
                     $targetLang,
-                    $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']
+                    $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] ?? ''
                 );
             }
             $msg = implode(chr(10), $message);
@@ -1357,7 +1360,7 @@ return false;
             'noHidden' => '',
         ];
 
-        $configurationId = (int)$GLOBALS['TYPO3_REQUEST']->getQueryParams()['exportUID'];
+        $configurationId = (int)$GLOBALS['TYPO3_REQUEST']->getQueryParams()['exportUID'] ?? 0;
         $configuration = BackendUtility::getRecord('tx_l10nmgr_cfg', $configurationId);
         $targetLanguages = [];
         if (!empty($configuration['targetLanguages'])) {
@@ -1372,6 +1375,9 @@ return false;
         foreach ($sysL as $sL) {
             if (!empty($targetLanguages) && !isset($targetLanguages[$sL['uid']])) {
                 continue;
+            }
+            if (empty($this->MOD_MENU['lang'])) {
+                $this->MOD_MENU['lang'] = [];
             }
             if ($sL['uid'] > 0 && $this->getBackendUser()->checkLanguageAccess($sL['uid'])) {
                 if ($this->emConfiguration->isEnableHiddenLanguages()) {
@@ -1428,11 +1434,12 @@ return false;
             $l10NConfiguration,
             $this->sysLanguage
         );
-        if ($this->MOD_SETTINGS['action'] === 'inlineEdit') {
+        $action = $this->MOD_SETTINGS['action'] ?? '';
+        // Render the module content (for all modes):
+        if ($action === 'inlineEdit') {
             $result['inlineEdit'] = $this->inlineEditAction($l10NConfiguration);
             $htmlListView->setModeWithInlineEdit();
         }
-        // Render the module content (for all modes):
         //*******************************************
         if ($this->MOD_SETTINGS['onlyChangedContent'] ?? false) {
             $htmlListView->setModeOnlyChanged();
@@ -1440,7 +1447,7 @@ return false;
         if ($this->MOD_SETTINGS['noHidden'] ?? false) {
             $htmlListView->setModeNoHidden();
         }
-        if ($this->MOD_SETTINGS['action'] === 'link') {
+        if ($action === 'link') {
             $htmlListView->setModeShowEditLinks();
         }
 

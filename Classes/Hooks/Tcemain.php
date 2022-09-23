@@ -115,7 +115,8 @@ class Tcemain
      */
     public function stat(array $p, DataHandler $pObj): string
     {
-        if (strcmp($this->getBackendUser()->groupData['allowed_languages'], '')) {
+        if (!empty($this->getBackendUser()->groupData['allowed_languages'])
+            && strcmp($this->getBackendUser()->groupData['allowed_languages'], '')) {
             return $this->calcStat(
                 $p,
                 GeneralUtility::intExplode(',', $this->getBackendUser()->groupData['allowed_languages'], true)
@@ -147,22 +148,22 @@ class Tcemain
                 $queryBuilder->createNamedParameter($this->getBackendUser()->workspace, PDO::PARAM_INT)
             )
         );
-        if ($p[0] !== 'pages') {
+        if (!empty($p[0]) && $p[0] !== 'pages') {
             $queryBuilder->andWhere(
                 $queryBuilder->expr()->eq(
                     'tablename',
-                    $queryBuilder->createNamedParameter($p[0])
+                    $queryBuilder->createNamedParameter($p[0] ?? '')
                 ),
                 $queryBuilder->expr()->eq(
                     'recuid',
-                    $queryBuilder->createNamedParameter((int)$p[1], PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter((int)$p[1] ?? 0, PDO::PARAM_INT)
                 )
             );
         } else {
             $queryBuilder->andWhere(
                 $queryBuilder->expr()->eq(
                     'recpid',
-                    $queryBuilder->createNamedParameter((int)$p[1], PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter((int)$p[1] ?? 0, PDO::PARAM_INT)
                 )
             );
         }
@@ -175,6 +176,7 @@ class Tcemain
             $flags['noChange'] += $r['flag_noChange'];
         }
         if (count($records)) {
+            $backPath = ($GLOBALS['BACK_PATH'] ?? '');
             // Setting icon:
             $msg = '';
             if ($flags['new'] && !$flags['unknown'] && !$flags['noChange'] && !$flags['update']) {
@@ -189,32 +191,32 @@ class Tcemain
                 if ($flags['new']) {
                     $msg .= $flags['new'] . ' new elements found. ';
                 }
-                $output = '<img src="' . $GLOBALS['BACK_PATH']
+                $output = '<img src="' . $backPath
                     . $this->siteRelPath('l10nmgr')
                     . 'flags_update.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
             } elseif ($flags['unknown']) {
                 $msg .= 'Translation status is unknown for ' . $flags['unknown'] . ' elements. Please check and update. ';
-                $output = '<img src="' . $GLOBALS['BACK_PATH']
+                $output = '<img src="' . $backPath
                     . $this->siteRelPath('l10nmgr')
                     . 'flags_unknown.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
             } elseif ($flags['noChange']) {
                 $msg .= 'All ' . $flags['noChange'] . ' translations OK';
-                $output = '<img src="' . $GLOBALS['BACK_PATH']
+                $output = '<img src="' . $backPath
                     . $this->siteRelPath('l10nmgr')
                     . 'flags_ok.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
             } else {
                 $msg .= 'Nothing to do. ';
                 $msg .= '[n/?/u/ok=' . implode('/', $flags) . ']';
-                $output = '<img src="' . $GLOBALS['BACK_PATH']
+                $output = '<img src="' . $backPath
                     . $this->siteRelPath('l10nmgr')
                     . 'flags_none.png" hspace="2" width="10" height="16" alt="' . htmlspecialchars($msg) . '" title="' . htmlspecialchars($msg) . '" />';
             }
             $output = !$noLink
                 ? '<a href="#" onclick="'
                 . htmlspecialchars(
-                    'parent.list_frame.location.href="' . $GLOBALS['BACK_PATH']
+                    'parent.list_frame.location.href="' . $backPath
                     . $this->siteRelPath('l10nmgr')
-                    . 'cm2/index.php?table=' . $p[0] . '&uid=' . $p[1] . '&languageList=' . rawurlencode(implode(
+                    . 'cm2/index.php?table=' . ($p[0] ?? '') . '&uid=' . ($p[1] ?? 0) . '&languageList=' . rawurlencode(implode(
                         ',',
                         $languageList
                     ))

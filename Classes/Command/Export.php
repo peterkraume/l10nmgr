@@ -196,7 +196,7 @@ class Export extends L10nCommand
                     return 1;
                 }
                 try {
-                    $msg .= $this->exportXML($l10ncfg, $tlang, $format, $input, $output);
+                    $msg .= $this->exportXML((int)$l10ncfg, (int)$tlang, (string)$format, $input, $output);
                 } catch (Exception $e) {
                     $output->writeln('<error>' . $e->getMessage() . '</error>');
                     return 1;
@@ -359,17 +359,17 @@ class Export extends L10nCommand
             // Get source & target language ISO codes
             $sourceStaticLangArr = BackendUtility::getRecord(
                 'static_languages',
-                $l10nmgrCfgObj->l10ncfg['sourceLangStaticId'],
+                $l10nmgrCfgObj->l10ncfg['sourceLangStaticId'] ?? 0,
                 'lg_iso_2'
             );
             $targetStaticLang = BackendUtility::getRecord('sys_language', $tlang, 'static_lang_isocode');
             $targetStaticLangArr = BackendUtility::getRecord(
                 'static_languages',
-                $targetStaticLang['static_lang_isocode'],
+                $targetStaticLang['static_lang_isocode'] ?? 0,
                 'lg_iso_2'
             );
-            $sourceLang = $sourceStaticLangArr['lg_iso_2'];
-            $targetLang = $targetStaticLangArr['lg_iso_2'];
+            $sourceLang = $sourceStaticLangArr['lg_iso_2'] ?? 0;
+            $targetLang = $targetStaticLangArr['lg_iso_2'] ?? 0;
             // Collect mail data
             $fromMail = $this->getExtConf()->getEmailSender();
             $fromName = $this->getExtConf()->getEmailSenderName();
@@ -377,7 +377,7 @@ class Export extends L10nCommand
                 $this->getLanguageService()->getLL('email.suject.msg'),
                 $sourceLang,
                 $targetLang,
-                $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']
+                $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] ?? ''
             );
             // Assemble message body
             $message = [
@@ -387,7 +387,7 @@ class Export extends L10nCommand
                     $this->getLanguageService()->getLL('email.new_translation_job.msg'),
                     $sourceLang,
                     $targetLang,
-                    $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']
+                    $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] ?? ''
                 ),
                 'msg4' => $this->getLanguageService()->getLL('email.info.msg'),
                 'msg5' => $this->getLanguageService()->getLL('email.info.import.msg'),
@@ -403,7 +403,7 @@ class Export extends L10nCommand
                     $this->getLanguageService()->getLL('email.new_translation_job_attached.msg'),
                     $sourceLang,
                     $targetLang,
-                    $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']
+                    $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] ?? ''
                 );
             }
             $msg = implode(chr(10), $message);

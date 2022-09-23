@@ -328,7 +328,7 @@ class LanguageRestrictionCollection extends AbstractRecordCollection implements 
     public function hasItem(int $uid): bool
     {
         foreach ($this->storage as $item) {
-            if ($item['uid'] === $uid) {
+            if (!empty($item['uid']) && $item['uid'] === $uid) {
                 return true;
             }
         }

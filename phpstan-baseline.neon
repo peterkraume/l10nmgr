@@ -1,24 +1,9 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Call to protected method getLLL\\(\\) of class TYPO3\\\\CMS\\\\Core\\\\Localization\\\\LanguageService\\.$#"
-			count: 1
-			path: Classes/ClickMenu.php
-
-		-
 			message: "#^Constant LF not found\\.$#"
 			count: 4
 			path: Classes/Command/Export.php
-
-		-
-			message: "#^Access to an undefined property TYPO3\\\\CMS\\\\Backend\\\\Template\\\\DocumentTemplate\\:\\:\\$backPath\\.$#"
-			count: 4
-			path: Classes/Controller/Cm2.php
-
-		-
-			message: "#^Call to an undefined method TYPO3\\\\CMS\\\\Backend\\\\Configuration\\\\TranslationConfigurationProvider\\:\\:getTranslationTable\\(\\)\\.$#"
-			count: 1
-			path: Classes/Controller/Cm2.php
 
 		-
 			message: "#^Access to an undefined property TYPO3\\\\CMS\\\\Core\\\\Configuration\\\\FlexForm\\\\FlexFormTools\\:\\:\\$traverseFlexFormXMLData_Data\\.$#"

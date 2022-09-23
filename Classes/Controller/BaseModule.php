@@ -163,8 +163,8 @@ class BaseModule
     {
         $this->extObj = (object)[];
         // Name might be set from outside
-        if (!$this->MCONF['name']) {
-            $this->MCONF = $GLOBALS['MCONF'];
+        if (empty($this->MCONF['name'])) {
+            $this->MCONF = $GLOBALS['MCONF'] ?? [];
         }
         $this->id = (int)GeneralUtility::_GP('id');
         $this->CMD = (string)GeneralUtility::_GP('CMD');
@@ -220,16 +220,17 @@ class BaseModule
         $mergeArray = $GLOBALS['TBE_MODULES_EXT'][$modName]['MOD_MENU'][$menuKey] ?? null;
         if (is_array($mergeArray)) {
             foreach ($mergeArray as $k => $v) {
+                $vWS = $v['ws'] ?? '';
                 if (
                     (
-                        (string)$v['ws'] === ''
+                        (string)$vWS === ''
                         || $this->getBackendUser()->workspace === 0
-                        && GeneralUtility::inList($v['ws'], 'online')
+                        && GeneralUtility::inList($vWS, 'online')
                     )
-                    || $this->getBackendUser()->workspace === -1 && GeneralUtility::inList($v['ws'], 'offline')
-                    || $this->getBackendUser()->workspace > 0 && GeneralUtility::inList($v['ws'], 'custom')
+                    || $this->getBackendUser()->workspace === -1 && GeneralUtility::inList($vWS, 'offline')
+                    || $this->getBackendUser()->workspace > 0 && GeneralUtility::inList($vWS, 'custom')
                 ) {
-                    $menuArr[$k] = $this->getLanguageService()->sL($v['title']);
+                    $menuArr[$k] = $this->getLanguageService()->sL($v['title'] ?? '');
                 }
             }
         }
@@ -242,7 +243,7 @@ class BaseModule
      */
     protected function getLanguageService(): LanguageService
     {
-        return $GLOBALS['LANG'];
+        return $GLOBALS['LANG'] ?? GeneralUtility::makeInstance(LanguageService::class);
     }
 
     /**
@@ -257,7 +258,7 @@ class BaseModule
         if ($MS_value === null) {
             $MS_value = $this->MOD_SETTINGS[$MM_key];
         }
-        $this->extClassConf = $this->getExternalItemConfig($this->MCONF['name'], $MM_key, $MS_value);
+        $this->extClassConf = $this->getExternalItemConfig($this->MCONF['name'] ?? '', $MM_key, $MS_value);
     }
 
     /**
@@ -273,7 +274,10 @@ class BaseModule
     public function getExternalItemConfig(string $modName, string $menuKey, string $value = ''): array
     {
         if (isset($GLOBALS['TBE_MODULES_EXT'][$modName])) {
-            return $value !== '' ? $GLOBALS['TBE_MODULES_EXT'][$modName]['MOD_MENU'][$menuKey][$value] : $GLOBALS['TBE_MODULES_EXT'][$modName]['MOD_MENU'][$menuKey];
+            if ($value !== '') {
+                return $GLOBALS['TBE_MODULES_EXT'][$modName]['MOD_MENU'][$menuKey][$value] ?? [];
+            }
+            return $GLOBALS['TBE_MODULES_EXT'][$modName]['MOD_MENU'][$menuKey] ?? [];
         }
         return [];
     }
@@ -288,11 +292,11 @@ class BaseModule
      */
     public function checkExtObj(): void
     {
-        if (is_array($this->extClassConf) && $this->extClassConf['name']) {
+        if (is_array($this->extClassConf) && !empty($this->extClassConf['name'])) {
             $this->extObj = GeneralUtility::makeInstance($this->extClassConf['name']);
             $this->extObj->init();
             // Re-write:
-            $this->MOD_SETTINGS = BackendUtility::getModuleData($this->MOD_MENU, GeneralUtility::_GP('SET'), $this->MCONF['name'], $this->modMenu_type, $this->modMenu_dontValidateList, $this->modMenu_setDefaultList);
+            $this->MOD_SETTINGS = BackendUtility::getModuleData($this->MOD_MENU, GeneralUtility::_GP('SET'), $this->MCONF['name'] ?? '', $this->modMenu_type, $this->modMenu_dontValidateList, $this->modMenu_setDefaultList);
         }
     }
 

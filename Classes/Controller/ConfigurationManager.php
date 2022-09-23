@@ -177,12 +177,12 @@ class ConfigurationManager extends BaseModule
         $l10nConfigurations = $this->getAllConfigurations();
         foreach ($l10nConfigurations as $key => $l10nConfiguation) {
             $l10nConfigurations[$key]['link'] = (string)$this->uriBuilder->buildUriFromRoute('LocalizationManager', [
-                    'id' => $l10nConfiguation['pid'],
+                    'id' => $l10nConfiguation['pid'] ?? 0,
                     'srcPID' => $this->id,
-                    'exportUID' => $l10nConfiguation['uid'],
+                    'exportUID' => $l10nConfiguation['uid'] ?? 0,
                 ]);
-            $pagePath = BackendUtility::getRecordPath($l10nConfiguation['pid'], '1', 20, 50);
-            $l10nConfigurations[$key]['path'] = (is_array($pagePath)) ? $pagePath[1] : $pagePath;
+            $pagePath = BackendUtility::getRecordPath($l10nConfiguation['pid'] ?? 0, '1', 20, 50);
+            $l10nConfigurations[$key]['path'] = (is_array($pagePath)) ? ($pagePath[1] ?? '') : $pagePath;
         }
         $this->view->assign('configurations', $l10nConfigurations);
     }
@@ -223,39 +223,39 @@ class ConfigurationManager extends BaseModule
      */
     protected function renderConfigurationDetails(array $configuration): string
     {
-        $parentPageArray = $this->getPageDetails($configuration['pid']);
-        $languageArray = $this->getPageDetails($configuration['sourceLangStaticId']);
+        $parentPageArray = $this->getPageDetails($configuration['pid'] ?? 0);
+        $languageArray = $this->getPageDetails($configuration['sourceLangStaticId'] ?? 0);
         $details = '<table class="table table-striped table-hover" border="0" cellspacing="0" cellpadding="0">';
         $details .= '<tr>';
         $details .= '<td>' . $this->getLanguageService()->getLL('general.list.infodetail.pid.title') . '</td>';
-        $details .= '<td>' . $parentPageArray['title'] . ' (' . $parentPageArray['uid'] . ')</td>';
+        $details .= '<td>' . $parentPageArray['title'] ?? '' . ' (' . $parentPageArray['uid'] ?? 0 . ')</td>';
         $details .= '</tr><tr class="db_list_normal">';
         $details .= '<td>' . $this->getLanguageService()->getLL('general.list.infodetail.title.title') . '</td>';
-        $details .= '<td>' . $configuration['title'] . '</td>';
+        $details .= '<td>' . $configuration['title'] ?? '' . '</td>';
         $details .= '</tr><tr class="db_list_normal">';
         $details .= '<td>' . $this->getLanguageService()->getLL('general.list.infodetail.filenameprefix.title') . '</td>';
-        $details .= '<td>' . $configuration['filenameprefix'] . '</td>';
+        $details .= '<td>' . $configuration['filenameprefix'] ?? '' . '</td>';
         $details .= '</tr><tr class="db_list_normal">';
         $details .= '<td>' . $this->getLanguageService()->getLL('general.list.infodetail.depth.title') . '</td>';
-        $details .= '<td>' . $configuration['depth'] . '</td>';
+        $details .= '<td>' . $configuration['depth'] ?? '' . '</td>';
         $details .= '</tr><tr class="db_list_normal">';
         $details .= '<td>' . $this->getLanguageService()->getLL('general.list.infodetail.sourceLangStaticId.title') . '</td>';
         $details .= '<td>' . ((empty($languageArray['lg_name_en'])) ? $this->getLanguageService()->getLL('general.list.infodetail.default') : $languageArray['lg_name_en']) . '</td>';
         $details .= '</tr><tr class="db_list_normal">';
         $details .= '<td>' . $this->getLanguageService()->getLL('general.list.infodetail.tablelist.title') . '</td>';
-        $details .= '<td>' . $configuration['tablelist'] . '</td>';
+        $details .= '<td>' . $configuration['tablelist'] ?? '' . '</td>';
         $details .= '</tr><tr class="db_list_normal">';
         $details .= '<td>' . $this->getLanguageService()->getLL('general.list.infodetail.exclude.title') . '</td>';
-        $details .= '<td>' . $configuration['exclude'] . '</td>';
+        $details .= '<td>' . $configuration['exclude'] ?? '' . '</td>';
         $details .= '</tr><tr class="db_list_normal">';
         $details .= '<td>' . $this->getLanguageService()->getLL('general.list.infodetail.include.title') . '</td>';
-        $details .= '<td>' . $configuration['include'] . '</td>';
+        $details .= '<td>' . $configuration['include'] ?? '' . '</td>';
         $details .= '</tr><tr class="db_list_normal">';
         $details .= '<td>' . $this->getLanguageService()->getLL('general.list.infodetail.displaymode.title') . '</td>';
-        $details .= '<td>' . $configuration['displaymode'] . '</td>';
+        $details .= '<td>' . $configuration['displaymode'] ?? '' . '</td>';
         $details .= '</tr><tr class="db_list_normal">';
         $details .= '<td>' . $this->getLanguageService()->getLL('general.list.infodetail.incfcewithdefaultlanguage.title') . '</td>';
-        $details .= '<td>' . $configuration['incfcewithdefaultlanguage'] . '</td>';
+        $details .= '<td>' . $configuration['incfcewithdefaultlanguage'] ?? '' . '</td>';
         $details .= '</tr>';
         $details .= '</table>';
         return $details;
@@ -270,7 +270,6 @@ class ConfigurationManager extends BaseModule
      */
     protected function getPageDetails(int $uid): array
     {
-        $uid = (int)$uid;
         if (isset($this->pageDetails[$uid])) {
             $record = $this->pageDetails[$uid];
         } else {

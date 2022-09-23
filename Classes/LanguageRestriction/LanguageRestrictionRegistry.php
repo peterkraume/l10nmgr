@@ -88,7 +88,7 @@ class LanguageRestrictionRegistry implements SingletonInterface
     {
         $defaultTranslationRestrictableTables = GeneralUtility::trimExplode(
             ',',
-            $GLOBALS['TYPO3_CONF_VARS']['SYS']['defaultTranslationRestrictableTables'],
+            $GLOBALS['TYPO3_CONF_VARS']['SYS']['defaultTranslationRestrictableTables'] ?? '',
             true
         );
         foreach ($defaultTranslationRestrictableTables as $defaultTranslationRestrictedTable) {
@@ -154,7 +154,16 @@ class LanguageRestrictionRegistry implements SingletonInterface
         }
 
         if (!$this->isRegistered($tableName, $fieldName)) {
+            if (!isset($this->registry[$tableName])) {
+                $this->registry[$tableName] = [];
+            }
             $this->registry[$tableName][$fieldName] = $options;
+            if (!isset($this->extensions[$extensionKey])) {
+                $this->extensions[$extensionKey] = [];
+            }
+            if (!isset($this->extensions[$extensionKey][$tableName])) {
+                $this->extensions[$extensionKey][$tableName] = [];
+            }
             $this->extensions[$extensionKey][$tableName][$fieldName] = $fieldName;
 
             if (isset($GLOBALS['TCA'][$tableName]['columns'])) {
@@ -198,8 +207,8 @@ class LanguageRestrictionRegistry implements SingletonInterface
      */
     protected function applyTcaForTableAndField(string $tableName, string $fieldName)
     {
-        $this->addTcaColumn($tableName, $fieldName, $this->registry[$tableName][$fieldName]);
-        $this->addToAllTCAtypes($tableName, $this->registry[$tableName][$fieldName]);
+        $this->addTcaColumn($tableName, $fieldName, $this->registry[$tableName][$fieldName] ?? '');
+        $this->addToAllTCAtypes($tableName, $this->registry[$tableName][$fieldName] ?? '');
     }
 
     /**
@@ -403,6 +412,6 @@ class LanguageRestrictionRegistry implements SingletonInterface
      */
     protected function getLanguageService(): LanguageService
     {
-        return $GLOBALS['LANG'];
+        return $GLOBALS['LANG'] ?? GeneralUtility::makeInstance(LanguageService::class);
     }
 }
