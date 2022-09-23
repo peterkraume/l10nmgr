@@ -40,7 +40,7 @@ if (!defined('TYPO3_MODE')) {
 /**
  * Registers a Backend Module
  */
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule(
+/*\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule(
     'user',
     'txl10nmgrM2',
     'top',
@@ -52,7 +52,7 @@ if (!defined('TYPO3_MODE')) {
         'icon'        => 'EXT:l10nmgr/Resources/Public/Icons/module-l10nmgr.svg',
         'labels'      => 'LLL:EXT:l10nmgr/Resources/Private/Language/Modules/Module2/locallang_mod.xlf',
     ]
-);
+);*/
 
 /**
  * Registers a Backend Module

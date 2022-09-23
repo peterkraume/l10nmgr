@@ -90,7 +90,7 @@ class ClickMenu
                 $url = (string)$uri;
 
                 $localItems[] = $backRef->linkItem(
-                    $this->getLanguageService()->getLLL('cm1_title', $LL),
+                    $this->getLanguageService()->getLL('cm1_title'),
                     $backRef->excludeIcon('<img src="' . PathUtility::stripPathSitePrefix(ExtensionManagementUtility::extPath('l10nmgr')) . 'cm1/cm_icon.gif" width="15" height="12" border="0" align="top" />'),
                     $backRef->urlRefForCM($url),
                     1 // Disables the item in the top-bar. Set this to zero if you with the item to appear in the top bar!

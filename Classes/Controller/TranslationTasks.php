@@ -31,6 +31,7 @@ namespace Localizationteam\L10nmgr\Controller;
 use Localizationteam\L10nmgr\Hooks\Tcemain;
 use Localizationteam\L10nmgr\Model\Tools\Tools;
 use TYPO3\CMS\Backend\Template\DocumentTemplate;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -44,9 +45,9 @@ use TYPO3\CMS\Core\Utility\PathUtility;
 class TranslationTasks extends BaseModule
 {
     /**
-     * @var DocumentTemplate
+     * @var ModuleTemplate
      */
-    protected DocumentTemplate $module;
+    protected ModuleTemplate $module;
 
     /**
      * @var Tools
@@ -65,12 +66,13 @@ class TranslationTasks extends BaseModule
     public function mainAction(): HtmlResponse
     {
         $this->init();
-        $this->main();
+        // $this->main();
         return new HtmlResponse($this->getContent());
     }
 
     public function init(): void
     {
+        $this->module = GeneralUtility::makeInstance(ModuleTemplate::class);
         $this->MCONF['name'] = 'LocalizationManager_TranslationTasks';
         $this->getBackendUser()->modAccess($this->MCONF);
         $this->getLanguageService()->includeLLFile('EXT:l10nmgr/Resources/Private/Language/Modules/Module2/locallang.xlf');
@@ -259,7 +261,7 @@ class TranslationTasks extends BaseModule
      */
     protected function getContent(): string
     {
-        $this->content .= $this->module->endPage();
+        $this->content = '<h2>Currently deactivated. Will be refactored soon.</h2>';
         return $this->content;
     }
 
