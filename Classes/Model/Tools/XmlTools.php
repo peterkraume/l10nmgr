@@ -80,44 +80,46 @@ class XmlTools implements LoggerAwareInterface
         $startPoint = 0;
         $tagi = [];
         foreach ($vals as $key => $val) {
-            $type = $val['type'];
-            // open tag:
-            if ($type === 'open' || $type === 'complete') {
-                $stack[$stacktop++] = $tagi;
-                if ($depth == $stacktop) {
-                    $startPoint = $key;
-                }
-                $tagi = ['tag' => $val['tag']];
-                if (isset($val['attributes'])) {
-                    $tagi['attrs'] = $val['attributes'];
-                }
-                if (isset($val['value'])) {
-                    $tagi['values'][] = $val['value'];
-                }
-            }
-            // finish tag:
-            if ($type === 'complete' || $type === 'close') {
-                $oldtagi = $tagi;
-                $tagi = $stack[--$stacktop];
-                $oldtag = $oldtagi['tag'];
-                unset($oldtagi['tag']);
-                if ($depth == $stacktop + 1) {
-                    if ($key - $startPoint > 0) {
-                        $partArray = array_slice($vals, $startPoint + 1, $key - $startPoint - 1);
-                        $oldtagi['XMLvalue'] = self::xmlRecompileFromStructValArray($partArray);
-                    } else {
-                        $oldtagi['XMLvalue'] = $oldtagi['values'][0];
+            $type = $val['type'] ?? '';
+            if ($type && !empty($val['tag'])) {
+                // open tag:
+                if ($type === 'open' || $type === 'complete') {
+                    $stack[$stacktop++] = $tagi;
+                    if ($depth == $stacktop) {
+                        $startPoint = $key;
+                    }
+                    $tagi = ['tag' => $val['tag']];
+                    if (isset($val['attributes'])) {
+                        $tagi['attrs'] = $val['attributes'];
+                    }
+                    if (isset($val['value'])) {
+                        $tagi['values'][] = $val['value'];
                     }
                 }
-                $tagi['ch'][$oldtag][] = $oldtagi;
-                unset($oldtagi);
-            }
-            // cdata
-            if ($type === 'cdata') {
-                $tagi['values'][] = $val['value'];
+                // finish tag:
+                if ($type === 'complete' || $type === 'close') {
+                    $oldtagi = $tagi;
+                    $tagi = $stack[--$stacktop];
+                    $oldtag = $oldtagi['tag'];
+                    unset($oldtagi['tag']);
+                    if ($depth == $stacktop + 1) {
+                        if ($key - $startPoint > 0) {
+                            $partArray = array_slice($vals, $startPoint + 1, $key - $startPoint - 1);
+                            $oldtagi['XMLvalue'] = self::xmlRecompileFromStructValArray($partArray);
+                        } else {
+                            $oldtagi['XMLvalue'] = $oldtagi['values'][0] ?? '';
+                        }
+                    }
+                    $tagi['ch'][$oldtag][] = $oldtagi;
+                    unset($oldtagi);
+                }
+                // cdata
+                if ($type === 'cdata') {
+                    $tagi['values'][] = $val['value'] ?? '';
+                }
             }
         }
-        return $tagi['ch'];
+        return $tagi['ch'] ?? [];
     }
 
     /**
@@ -145,35 +147,37 @@ class XmlTools implements LoggerAwareInterface
             'source' => 1,
         ];
         foreach ($vals as $val) {
-            $type = $val['type'];
+            $type = $val['type'] ?? '';
             // Open tag:
-            if ($type === 'open' || $type === 'complete') {
-                $XMLcontent .= '<' . $val['tag'];
-                if (isset($val['attributes'])) {
-                    foreach ($val['attributes'] as $k => $v) {
-                        $XMLcontent .= ' ' . $k . '="' . htmlspecialchars($v) . '"';
+            if ($type && !empty($val['tag'])) {
+                if ($type === 'open' || $type === 'complete') {
+                    $XMLcontent .= '<' . $val['tag'];
+                    if (!empty($val['attributes'])) {
+                        foreach ($val['attributes'] as $k => $v) {
+                            $XMLcontent .= ' ' . $k . '="' . htmlspecialchars($v) . '"';
+                        }
                     }
-                }
-                if ($type === 'complete') {
-                    if (!isset($val['value']) && isset($selfClosingTags[$val['tag']])) {
-                        $XMLcontent .= ' />';
+                    if ($type === 'complete') {
+                        if (!isset($val['value']) && isset($selfClosingTags[$val['tag']])) {
+                            $XMLcontent .= ' />';
+                        } else {
+                            $XMLcontent .= '>' . htmlspecialchars($val['value']) . '</' . $val['tag'] . '>';
+                        }
                     } else {
-                        $XMLcontent .= '>' . htmlspecialchars($val['value']) . '</' . $val['tag'] . '>';
+                        $XMLcontent .= '>';
                     }
-                } else {
-                    $XMLcontent .= '>';
+                    if ($type === 'open' && isset($val['value'])) {
+                        $XMLcontent .= htmlspecialchars($val['value']);
+                    }
                 }
-                if ($type === 'open' && isset($val['value'])) {
+                // Finish tag:
+                if ($type === 'close') {
+                    $XMLcontent .= '</' . $val['tag'] . '>';
+                }
+                // Cdata
+                if ($type === 'cdata') {
                     $XMLcontent .= htmlspecialchars($val['value']);
                 }
-            }
-            // Finish tag:
-            if ($type === 'close') {
-                $XMLcontent .= '</' . $val['tag'] . '>';
-            }
-            // Cdata
-            if ($type === 'cdata') {
-                $XMLcontent .= htmlspecialchars($val['value']);
             }
         }
         return $XMLcontent;
@@ -195,7 +199,7 @@ class XmlTools implements LoggerAwareInterface
         //}
         //echo '###'.$withStripBadUTF8;
         // First call special transformations (registered using hooks)
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'])) {
+        if (!empty($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'] as $classReference) {
                 $processingObject = GeneralUtility::makeInstance($classReference);
                 $content = $processingObject->transform_rte($content, $this->parseHTML);
@@ -204,6 +208,7 @@ class XmlTools implements LoggerAwareInterface
         $content = str_replace(CR, '', $content);
         $pageTsConf = BackendUtility::getPagesTSconfig(0);
         $rteConfiguration = $pageTsConf['RTE.']['default.'] ?? [];
+        $rteConfiguration['mode'] = 'rte';
         $content = $this->parseHTML->transformTextForRichTextEditor($content, $rteConfiguration);
         //substitute & with &amp;
         //$content=str_replace('&','&amp;',$content); Changed by DZ 2011-05-11
@@ -265,8 +270,9 @@ class XmlTools implements LoggerAwareInterface
         //Writes debug information for CLI import.
         $this->logger->debug(__FILE__ . ': Before RTE transformation:' . LF . $xmlstring . LF);
         $pageTsConf = BackendUtility::getPagesTSconfig(0);
-        $rteConf = $pageTsConf['RTE.']['default.'] ?? [];
-        $content = $this->parseHTML->transformTextForPersistence($xmlstring, $rteConf);
+        $rteConfiguration = $pageTsConf['RTE.']['default.'] ?? [];
+        $rteConfiguration['mode'] = 'db';
+        $content = $this->parseHTML->transformTextForPersistence($xmlstring, $rteConfiguration);
         // Last call special transformations (registered using hooks)
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'] as $classReference) {
