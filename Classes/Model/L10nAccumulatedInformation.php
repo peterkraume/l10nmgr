@@ -188,7 +188,7 @@ class L10nAccumulatedInformation
         $flexFormDiff = [];
         if (!empty($l10ncfg['flexformdiff'])) {
             $flexFormDiff = unserialize($l10ncfg['flexformdiff']);
-            $flexFormDiff = $flexFormDiff[$sysLang] ?? '';
+            $flexFormDiff = $flexFormDiff[$sysLang] ?? [];
         }
         $this->excludeIndex = array_flip(GeneralUtility::trimExplode(',', $l10ncfg['exclude'] ?? '', true));
         // Init:

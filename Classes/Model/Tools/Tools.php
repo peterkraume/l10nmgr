@@ -48,6 +48,7 @@ use TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction;
 use TYPO3\CMS\Core\Database\Query\Restriction\WorkspaceRestriction;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
+use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Core\Utility\DiffUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -626,6 +627,7 @@ class Tools
                             $table,
                             $rec,
                             $r['uid'],
+                            [],
                             $languageID
                         );
                         $items['indexRecord'][$r['uid']] = $this->compileIndexRecord(
@@ -1030,7 +1032,7 @@ class Tools
                                         $cfg,
                                         (string)$row[$field],
                                         (string)($translationRecord[$field] ?? ''),
-                                        $diffDefaultValue,
+                                        (string)$diffDefaultValue,
                                         $previewLanguageValues,
                                         $row
                                     );
