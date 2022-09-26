@@ -198,15 +198,17 @@ abstract class AbstractExportView
             $field_values
         );
 
-        foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['exportView'] ?? [] as $classData) {
-            $postSaveProcessor = GeneralUtility::makeInstance($classData);
-            if ($postSaveProcessor instanceof PostSaveInterface) {
-                $postSaveProcessor->postExportAction(
-                    [
-                        'uid' => (int)$databaseConnection->lastInsertId('tx_l10nmgr_exportdata'),
-                        'data' => $field_values,
-                    ]
-                );
+        if (!empty($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['exportView'])) {
+            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['exportView'] as $classData) {
+                $postSaveProcessor = GeneralUtility::makeInstance($classData);
+                if ($postSaveProcessor instanceof PostSaveInterface) {
+                    $postSaveProcessor->postExportAction(
+                        [
+                            'uid' => (int)$databaseConnection->lastInsertId('tx_l10nmgr_exportdata'),
+                            'data' => $field_values,
+                        ]
+                    );
+                }
             }
         }
         return $res > 0;
@@ -492,7 +494,7 @@ abstract class AbstractExportView
             if (count($internalMessages) > 0) {
                 $messageBody = '';
                 foreach ($internalMessages as $messageInformation) {
-                    $messageBody .= $messageInformation['message'] ?? '' . ' (' . $messageInformation['key'] ?? '' . ')<br />';
+                    $messageBody .= ($messageInformation['message'] ?? '') . ' (' . ($messageInformation['key'] ?? '') . ')<br />';
                 }
                 /** @var FlashMessage $flashMessage */
                 $flashMessage = GeneralUtility::makeInstance(

@@ -274,7 +274,7 @@ class XmlTools implements LoggerAwareInterface
         $rteConfiguration['mode'] = 'db';
         $content = $this->parseHTML->transformTextForPersistence($xmlstring, $rteConfiguration);
         // Last call special transformations (registered using hooks)
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'])) {
+        if (!empty($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['transformation'] as $classReference) {
                 $processingObject = GeneralUtility::makeInstance($classReference);
                 $content = $processingObject->transform_db($content, $this->parseHTML);

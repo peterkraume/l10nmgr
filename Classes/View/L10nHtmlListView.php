@@ -115,7 +115,7 @@ class L10nHtmlListView extends AbstractExportView
         $sections = [];
         $showSingle = GeneralUtility::_GET('showSingle');
         $noAnalysis = false;
-        if ($l10ncfg !== null && $l10ncfg['displaymode'] > self::DISPLAY_MODE_RENDER_ALL_ITEMS) {
+        if ($l10ncfg !== null && !empty($l10ncfg['displaymode'])&& $l10ncfg['displaymode'] > self::DISPLAY_MODE_RENDER_ALL_ITEMS) {
             $showSingle = $showSingle ?: 'NONE';
             if ($l10ncfg['displaymode'] === self::DISPLAY_MODE_RENDER_OVERVIEW_WITH_NO_DETAILS) {
                 $noAnalysis = true;
@@ -124,12 +124,15 @@ class L10nHtmlListView extends AbstractExportView
 
         // Traverse the structure and generate HTML output:
         foreach ($accum as $pId => $page) {
-            $sections[$pId]['head']['icon'] = $page['header']['icon'];
-            $sections[$pId]['head']['title'] = htmlspecialchars($page['header']['title']) . ' [' . $pId . ']';
+            $sections[$pId]['head']['icon'] = $page['header']['icon'] ?? '';
+            $sections[$pId]['head']['title'] = htmlspecialchars($page['header']['title'] ?? '') . ' [' . $pId . ']';
             $tableRows = [];
+            if (empty($page['items'])) {
+                continue;
+            }
             foreach ($page['items'] as $table => $elements) {
                 foreach ($elements as $elementUid => $data) {
-                    if (is_array($data['fields'])) {
+                    if (!empty($data['fields']) && is_array($data['fields'])) {
                         $FtableRows = [];
                         $FtableRowsNew = [];
                         $flags = [];
@@ -139,51 +142,43 @@ class L10nHtmlListView extends AbstractExportView
                                     [, $uidString, $fieldName] = explode(':', $key);
                                     [$uidValue] = explode('/', $uidString);
                                     $noChangeFlag = !strcmp(
-                                        trim($tData['diffDefaultValue']),
-                                        trim($tData['defaultValue'])
+                                        trim($tData['diffDefaultValue'] ?? ''),
+                                        trim($tData['defaultValue'] ?? '')
                                     );
+                                    $flags['new'] = 0;
+                                    $flags['unknown'] = 0;
+                                    $flags['noChange'] = 0;
+                                    $flags['update'] = 0;
                                     if ($uidValue === 'NEW') {
                                         $diff = '<em>' . $this->getLanguageService()->getLL('render_overview.new.message') . '</em>';
-                                        if (!isset($flags['new'])) {
-                                            $flags['new'] = 0;
-                                        }
                                         $flags['new']++;
                                     } elseif (!isset($tData['diffDefaultValue'])) {
                                         $diff = '<em>' . $this->getLanguageService()->getLL('render_overview.nodiff.message') . '</em>';
-                                        if (!isset($flags['unknown'])) {
-                                            $flags['unknown'] = 0;
-                                        }
                                         $flags['unknown']++;
                                     } elseif ($noChangeFlag) {
                                         $diff = $this->getLanguageService()->getLL('render_overview.nochange.message');
-                                        if (!isset($flags['noChange'])) {
-                                            $flags['noChange'] = 0;
-                                        }
                                         $flags['noChange']++;
                                     } else {
-                                        $diff = $this->diffCMP($tData['diffDefaultValue'], $tData['defaultValue']);
-                                        if (!isset($flags['update'])) {
-                                            $flags['update'] = 0;
-                                        }
+                                        $diff = $this->diffCMP($tData['diffDefaultValue'] ?? '', $tData['defaultValue'] ?? '');
                                         $flags['update']++;
                                     }
                                     if (!$this->modeOnlyChanged || !$noChangeFlag) {
                                         $fieldCells = [];
-                                        $fieldCells[] = '<b>' . htmlspecialchars($fieldName) . '</b>' . ($tData['msg'] ? '<br /><em>' . htmlspecialchars($tData['msg']) . '</em>' : '');
-                                        $fieldCells[] = nl2br(htmlspecialchars($tData['defaultValue']));
+                                        $fieldCells[] = '<b>' . htmlspecialchars($fieldName) . '</b>' . (!empty($tData['msg']) ? '<br /><em>' . htmlspecialchars($tData['msg']) . '</em>' : '');
+                                        $fieldCells[] = nl2br(htmlspecialchars($tData['defaultValue'] ?? ''));
                                         if ($this->modeWithInlineEdit) {
                                             $name = htmlspecialchars('translation[' . $table . '][' . $elementUid . '][' . $key . ']');
-                                            $value = htmlspecialchars($tData['translationValue']);
+                                            $value = htmlspecialchars($tData['translationValue'] ?? '');
                                             if ($tData['fieldType'] === 'text') {
                                                 $id = md5($table . '_' . $elementUid . '_' . $key);
                                                 $value = LF . $value;
                                                 $cellContent = sprintf('<textarea id="%s" name="%s">%s</textarea>', $id, $name, $value);
-                                                if (ExtensionManagementUtility::isLoaded('rte_ckeditor') && $tData['isRTE']) {
+                                                if (ExtensionManagementUtility::isLoaded('rte_ckeditor') && !empty($tData['isRTE'])) {
                                                     /** @var Richtext $richtextConfigurationProvider */
                                                     $richtextConfigurationProvider = GeneralUtility::makeInstance(Richtext::class);
-                                                    $richtextConfiguration = $richtextConfigurationProvider->getConfiguration($table, $fieldName, $pId, 'text', $tData['TCEformsCfg']);
+                                                    $richtextConfiguration = $richtextConfigurationProvider->getConfiguration($table, $fieldName, $pId, 'text', $tData['TCEformsCfg'] ?? []);
 
-                                                    $configuration = $this->prepareConfigurationForEditor($richtextConfiguration['editor']['config'], (string)$data['ISOcode']);
+                                                    $configuration = $this->prepareConfigurationForEditor($richtextConfiguration['editor']['config'] ?? [], (string)($data['ISOcode'] ?? ''));
 
                                                     $externalPlugins = '';
                                                     $urlParameters = [
@@ -193,12 +188,12 @@ class L10nHtmlListView extends AbstractExportView
                                                             'fieldName' => $fieldName,
                                                             'recordType' => 'text',
                                                             'pid' => $pId,
-                                                            'richtextConfigurationName' => $richtextConfiguration['preset'],
+                                                            'richtextConfigurationName' => $richtextConfiguration['preset'] ?? '',
                                                         ],
                                                     ];
 
                                                     if (isset($richtextConfiguration['editor']['externalPlugins'])) {
-                                                        $configuration['extraPlugins'] = GeneralUtility::trimExplode(',', $configuration['extraPlugins']);
+                                                        $configuration['extraPlugins'] = GeneralUtility::trimExplode(',', $configuration['extraPlugins'] ?? '');
 
                                                         foreach ($this->getExtraPlugins($richtextConfiguration['editor']['externalPlugins'], $urlParameters) as $extraPluginName => $extraPluginConfig) {
                                                             $configName = $extraPluginConfig['configName'] ?? $extraPluginName;
@@ -216,7 +211,7 @@ class L10nHtmlListView extends AbstractExportView
 
                                                             $externalPlugins .= 'CKEDITOR.plugins.addExternal(';
                                                             $externalPlugins .= GeneralUtility::quoteJSvalue($extraPluginName) . ',';
-                                                            $externalPlugins .= GeneralUtility::quoteJSvalue($extraPluginConfig['resource']) . ',';
+                                                            $externalPlugins .= GeneralUtility::quoteJSvalue($extraPluginConfig['resource'] ?? '') . ',';
                                                             $externalPlugins .= '\'\');';
                                                         }
                                                     }
@@ -235,10 +230,10 @@ class L10nHtmlListView extends AbstractExportView
                                                 );
                                             }
                                         } else {
-                                            $fieldCells[] = nl2br(htmlspecialchars($tData['translationValue']));
+                                            $fieldCells[] = nl2br(htmlspecialchars($tData['translationValue'] ?? ''));
                                         }
                                         $fieldCells[] = $diff;
-                                        if ($page['header']['prevLang'] && is_array($tData['previewLanguageValues'])) {
+                                        if (!empty($page['header']['prevLang']) && !empty($tData['previewLanguageValues']) && is_array($tData['previewLanguageValues'])) {
                                             reset($tData['previewLanguageValues']);
                                             $fieldCells[] = nl2br(htmlspecialchars(current($tData['previewLanguageValues'])));
                                         }
@@ -268,7 +263,7 @@ class L10nHtmlListView extends AbstractExportView
                                                 <th style="width: 25%">Default</th>
                                                 <th style="width: 25%">Translation</th>
                                                 <th style="width: 25%">Diff</th>
-                                                ' . ($page['header']['prevLang'] ? '<th style="width: 25%">PrevLang</th>' : ''),
+                                                ' . (!empty($page['header']['prevLang']) ? '<th style="width: 25%">PrevLang</th>' : ''),
                                 ];
 
                                 $tableRows = array_merge($tableRows, $FtableRowsNew);
@@ -325,20 +320,21 @@ class L10nHtmlListView extends AbstractExportView
         }
 
         $uidString = '';
-        if (is_array($data['fields'])) {
+        if (!empty($data['fields']) && is_array($data['fields'])) {
             reset($data['fields']);
             [, $uidString] = explode(':', key($data['fields']));
         }
         if (!str_starts_with($uidString, 'NEW')) {
-            $editId = is_array($data['translationInfo']['translations'][$sysLang])
+            $editId = !empty($data['translationInfo']['translations'][$sysLang]) && is_array($data['translationInfo']['translations'][$sysLang])
                 ? $data['translationInfo']['translations'][$sysLang]['uid']
-                : $data['translationInfo']['uid'];
+                : ($data['translationInfo']['uid'] ?? 0);
 
             $linkText = '[' . $this->getLanguageService()->getLL('render_overview.clickedit.message') . ']';
             $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+            $translationTable = $data['translationInfo']['translation_table'] ?? '';
             $params = [
                 'edit' => [
-                    $data['translationInfo']['translation_table'] => [
+                    $translationTable => [
                         $editId => 'edit',
                     ],
                 ],
@@ -348,7 +344,7 @@ class L10nHtmlListView extends AbstractExportView
         } else {
             $linkText = '[' . $this->getLanguageService()->getLL('render_overview.clicklocalize.message') . ']';
             $href = htmlspecialchars(
-                BackendUtility::getLinkToDataHandlerAction('&cmd[' . $table . '][' . $data['translationInfo']['uid'] . '][localize]=' . $sysLang)
+                BackendUtility::getLinkToDataHandlerAction('&cmd[' . $table . '][' . ($data['translationInfo']['uid'] ?? 0) . '][localize]=' . $sysLang)
             );
         }
         $editLink = ' - <a href="' . $href . '"><em>' . $linkText . '</em></a>';
@@ -386,13 +382,13 @@ class L10nHtmlListView extends AbstractExportView
         $configuration = $this->replaceAbsolutePathsToRelativeResourcesPath($configuration);
 
         // there are some places where we define an array, but it needs to be a list in order to work
-        if (is_array($configuration['extraPlugins'])) {
+        if (!empty($configuration['extraPlugins']) && is_array($configuration['extraPlugins'])) {
             $configuration['extraPlugins'] = implode(',', $configuration['extraPlugins']);
         }
-        if (is_array($configuration['removePlugins'])) {
+        if (!empty($configuration['removePlugins']) && is_array($configuration['removePlugins'])) {
             $configuration['removePlugins'] = implode(',', $configuration['removePlugins']);
         }
-        if (is_array($configuration['removeButtons'])) {
+        if (!empty($configuration['removeButtons']) && is_array($configuration['removeButtons'])) {
             $configuration['removeButtons'] = implode(',', $configuration['removeButtons']);
         }
 
@@ -414,13 +410,13 @@ class L10nHtmlListView extends AbstractExportView
         foreach ($externalPlugins as $pluginName => $configuration) {
             $pluginConfiguration[$pluginName] = [
                 'configName' => $configuration['configName'] ?? $pluginName,
-                'resource' => $this->resolveUrlPath($configuration['resource']),
+                'resource' => $this->resolveUrlPath($configuration['resource'] ?? ''),
             ];
             unset($configuration['configName']);
             unset($configuration['resource']);
 
-            if ($configuration['route']) {
-                $configuration['routeUrl'] = (string)$uriBuilder->buildUriFromRoute($configuration['route'], $urlParameters);
+            if (!empty($configuration['route'])) {
+                $configuration['routeUrl'] = (string)$uriBuilder->buildUriFromRoute($configuration['route'] ?? '', $urlParameters);
             }
 
             $pluginConfiguration[$pluginName]['config'] = $configuration;

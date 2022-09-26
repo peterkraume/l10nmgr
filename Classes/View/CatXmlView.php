@@ -26,6 +26,7 @@ use Localizationteam\L10nmgr\Model\Tools\Utf8Tools;
 use Localizationteam\L10nmgr\Model\Tools\XmlTools;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -143,9 +144,12 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
             $output[] = "\t" . '</pageGrp>' . "\r";
         }
         // Provide a hook for specific manipulations before building the actual XML
-        foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['exportCatXmlPreProcess'] ?? [] as $classReference) {
-            $processingObject = GeneralUtility::makeInstance($classReference);
-            $output = $processingObject->processBeforeExportingCatXml($output, $this);
+
+        if (!empty($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['exportCatXmlPreProcess'])) {
+            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['exportCatXmlPreProcess'] as $classReference) {
+                $processingObject = GeneralUtility::makeInstance($classReference);
+                $output = $processingObject->processBeforeExportingCatXml($output, $this);
+            }
         }
         $XML = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $XML .= '<!DOCTYPE TYPO3L10N [ <!ENTITY nbsp " "> ]>' . "\n" . '<TYPO3L10N>' . "\n";
@@ -162,10 +166,16 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
             $XML .= "\t\t" . '<t3_sourceLang>' . $staticLangArr['lg_iso_2'] . '</t3_sourceLang>' . "\n";
             $XML .= "\t\t" . '<t3_targetLang>' . $targetIso . '</t3_targetLang>' . "\n";
         } else {
-            $sourceLanguageConfiguration = $this->site->getAvailableLanguages($this->getBackendUser())[0];
-            $sourceLang = $sourceLanguageConfiguration->getHreflang() ?: $sourceLanguageConfiguration->getTwoLetterIsoCode();
-            $targetLanguageConfiguration = $this->site->getAvailableLanguages($this->getBackendUser())[$this->sysLang];
-            $targetLang = $targetLanguageConfiguration->getHreflang() ?: $targetLanguageConfiguration->getTwoLetterIsoCode();
+            $sourceLang = '';
+            $sourceLanguageConfiguration = $this->site->getAvailableLanguages($this->getBackendUser())[0] ?? null;
+            if ($sourceLanguageConfiguration instanceof SiteLanguage) {
+                $sourceLang = $sourceLanguageConfiguration->getHreflang() ?: $sourceLanguageConfiguration->getTwoLetterIsoCode();
+            }
+            $targetLang = '';
+            $targetLanguageConfiguration = $this->site->getAvailableLanguages($this->getBackendUser())[$this->sysLang] ?? null;
+            if ($targetLanguageConfiguration instanceof SiteLanguage) {
+                $targetLang = $targetLanguageConfiguration->getHreflang() ?: $targetLanguageConfiguration->getTwoLetterIsoCode();
+            }
             $XML .= "\t\t" . '<t3_sourceLang>' . $sourceLang . '</t3_sourceLang>' . "\n";
             $XML .= "\t\t" . '<t3_targetLang>' . $targetLang . '</t3_targetLang>' . "\n";
         }
@@ -201,9 +211,9 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
     protected function getValueForXml(array $tData, string $key): ?string
     {
         if ($this->forcedSourceLanguage) {
-            $dataForTranslation = $tData['previewLanguageValues'][$this->forcedSourceLanguage];
+            $dataForTranslation = $tData['previewLanguageValues'][$this->forcedSourceLanguage] ?? '';
         } else {
-            $dataForTranslation = $tData['defaultValue'];
+            $dataForTranslation = $tData['defaultValue'] ?? '';
         }
         $xmlTool = GeneralUtility::makeInstance(XmlTools::class);
         $_isTransformedXML = false;
@@ -214,7 +224,7 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
         //echo $tData['fieldType'];
         //if (preg_match('/templavoila_flex/',$key)) { echo "1 -"; }
         //echo $key."\n";
-        if ($tData['fieldType'] == 'text' && $tData['isRTE']
+        if (!empty($tData['fieldType']) && $tData['fieldType'] === 'text' && !empty($tData['isRTE'])
             || (preg_match('/templavoila_flex/', $key))) {
             $dataForTranslationTransformed = $xmlTool->RTE2XML($dataForTranslation);
             if ($dataForTranslationTransformed !== false) {
@@ -259,13 +269,13 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
                 $this->overrideParams
             );
         }
-        if ($this->params['utf8']) {
+        if (!empty($this->params['utf8'])) {
             $dataForTranslation = Utf8Tools::utf8_bad_strip($dataForTranslation);
         }
         if ($xmlTool->isValidXMLString($dataForTranslation)) {
             return $dataForTranslation;
         }
-        if ($this->params['noxmlcheck']) {
+        if (!empty($this->params['noxmlcheck'])) {
             return '<![CDATA[' . $dataForTranslation . ']]>';
         }
         return null;
@@ -284,8 +294,8 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
                 $messages .= "\n\t";
             }
             $messages .= "\t\t" . '<t3_skippedItem>' . "\n\t\t\t\t"
-                . '<t3_description>' . $messageInformation['message'] . '</t3_description>' . "\n\t\t\t\t"
-                . '<t3_key>' . $messageInformation['key'] . '</t3_key>' . "\n\t\t\t"
+                . '<t3_description>' . ($messageInformation['message'] ?? ''). '</t3_description>' . "\n\t\t\t\t"
+                . '<t3_key>' . ($messageInformation['key'] ?? '') . '</t3_key>' . "\n\t\t\t"
                 . '</t3_skippedItem>' . "\r";
         }
         return $messages;

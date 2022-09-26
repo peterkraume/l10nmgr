@@ -440,9 +440,8 @@ class L10nBaseService implements LoggerAwareInterface
                 if (!empty($page['items'])) {
                     foreach ($page['items'] as $table => $elements) {
                         foreach ($elements as $elementUid => $data) {
-                            $hooks = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['beforeDataFieldsDefault'] ?? [];
-                            if (!empty($hooks)) {
-                                foreach ($hooks as $hookObj) {
+                            if (!empty($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['beforeDataFieldsDefault'])) {
+                                foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['beforeDataFieldsDefault'] as $hookObj) {
                                     $parameters = [
                                         'data' => $data,
                                     ];
@@ -493,9 +492,8 @@ class L10nBaseService implements LoggerAwareInterface
                                     unset($inputArray[$table][$elementUid]); // Unsetting so in the end we can see if $inputArray was fully processed.
                                 }
                             }
-                            $hooks = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['afterDataFieldsDefault'] ?? [];
-                            if (!empty($hooks)) {
-                                foreach ($hooks as $hookObj) {
+                            if (!empty($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['afterDataFieldsDefault'])) {
+                                foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['afterDataFieldsDefault'] as $hookObj) {
                                     $parameters = [
                                         'TCEmain_data' => $TCEmain_data,
                                     ];
@@ -574,9 +572,8 @@ class L10nBaseService implements LoggerAwareInterface
                     foreach ($page['items'] as $table => $elements) {
                         foreach ($elements as $elementUid => $data) {
                             $element = $this->getRawRecord((string)$table, (int)$elementUid);
-                            $hooks = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['beforeDataFieldsTranslated'] ?? [];
-                            if (!empty($hooks)) {
-                                foreach ($hooks as $hookObj) {
+                            if (!empty($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['beforeDataFieldsTranslated'])) {
+                                foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['beforeDataFieldsTranslated'] as $hookObj) {
                                     $parameters = [
                                         'data' => $data,
                                     ];
@@ -757,9 +754,8 @@ class L10nBaseService implements LoggerAwareInterface
                                                     }
                                                 }
                                             }
-                                            $hooks = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['importNewTceMainCmd'] ?? [];
-                                            if (!empty($hooks)) {
-                                                foreach ($hooks as $hookObj) {
+                                            if (!empty($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['importNewTceMainCmd'])) {
+                                                foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['importNewTceMainCmd'] as $hookObj) {
                                                     $parameters = [
                                                         'data' => $data,
                                                         'TCEmain_cmd' => $this->TCEmain_cmd,
@@ -800,9 +796,8 @@ class L10nBaseService implements LoggerAwareInterface
                                 }
                             }
 
-                            $hooks = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['afterDataFieldsTranslated'] ?? [];
-                            if (!empty($hooks)) {
-                                foreach ($hooks as $hookObj) {
+                            if (!empty($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['afterDataFieldsTranslated'])) {
+                                foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['afterDataFieldsTranslated'] as $hookObj) {
                                     $parameters = [
                                         'TCEmain_data' => $TCEmain_data,
                                         'TCEmain_cmd' => $this->TCEmain_cmd,

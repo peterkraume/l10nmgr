@@ -83,11 +83,11 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
             $output[] = '
 	<!-- Page header -->
 	<Row>
-	<Cell ss:Index="2" ss:StyleID="s35"><Data ss:Type="String">' . htmlspecialchars($page['header']['title'] . ' [' . $pId . ']') . '</Data></Cell>
+	<Cell ss:Index="2" ss:StyleID="s35"><Data ss:Type="String">' . htmlspecialchars(($page['header']['title'] ?? '') . ' [' . $pId . ']') . '</Data></Cell>
 	<Cell ss:StyleID="s35"></Cell>
 	<Cell ss:StyleID="s35"></Cell>
 	<Cell ss:StyleID="s35"></Cell>
-	' . ($page['header']['prevLang'] ? '<Cell ss:StyleID="s35"></Cell>' : '') . '
+	' . (!empty($page['header']['prevLang']) ? '<Cell ss:StyleID="s35"></Cell>' : '') . '
 	</Row>';
             $output[] = '
 	<!-- Field list header -->
@@ -100,7 +100,7 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
 	</Row>';
             foreach ($page['items'] as $table => $elements) {
                 foreach ($elements as $elementUid => $data) {
-                    if (is_array($data['fields'])) {
+                    if (!empty($data['fields']) && is_array($data['fields'])) {
                         $fieldsForRecord = [];
                         foreach ($data['fields'] as $key => $tData) {
                             $sourceColState = '';
@@ -119,17 +119,17 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
                                         $altSourceColState = 'ss:Hidden="1" ss:AutoFitWidth="0"';
                                     }
                                     $noChangeFlag = !strcmp(
-                                        trim($tData['diffDefaultValue']),
-                                        trim($tData['defaultValue'])
+                                        trim($tData['diffDefaultValue'] ?? ''),
+                                        trim($tData['defaultValue'] ?? '')
                                     );
                                     if ($uidValue === 'NEW') {
                                         $diff = htmlspecialchars('[New value]');
-                                    } elseif (!$tData['diffDefaultValue']) {
+                                    } elseif (empty($tData['diffDefaultValue'])) {
                                         $diff = htmlspecialchars('[No diff available]');
                                     } elseif ($noChangeFlag) {
                                         $diff = htmlspecialchars('[No change]');
                                     } else {
-                                        $diff = html_entity_decode($this->diffCMP($tData['diffDefaultValue'], $tData['defaultValue']));
+                                        $diff = html_entity_decode($this->diffCMP($tData['diffDefaultValue'], $tData['defaultValue'] ?? ''));
                                         $diff = str_replace(
                                             '<del>',
                                             '<Font ss:Color="#FF0000" xmlns="http://www.w3.org/TR/REC-html40">',
@@ -142,9 +142,9 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
                                         );
                                         $diff = str_replace(['</del>', '</ins>'], ['</Font>', '</Font>'], $diff);
                                     }
-                                    $diff .= ($tData['msg'] ? '[NOTE: ' . htmlspecialchars($tData['msg']) . ']' : '');
+                                    $diff .= (!empty($tData['msg']) ? '[NOTE: ' . htmlspecialchars($tData['msg']) . ']' : '');
                                     if (!$this->modeOnlyChanged || !$noChangeFlag) {
-                                        if (is_array($tData['previewLanguageValues'])) {
+                                        if (!empty($tData['previewLanguageValues']) && is_array($tData['previewLanguageValues'])) {
                                             reset($tData['previewLanguageValues']);
                                         }
                                         $fieldsForRecord[] = '
@@ -155,17 +155,17 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
 	<Cell ss:StyleID="s27"><Data ss:Type="String">' . str_replace(
                                             chr(10),
                                             '&#10;',
-                                            htmlspecialchars($tData['defaultValue'])
+                                            htmlspecialchars($tData['defaultValue'] ?? '')
                                         ) . '</Data></Cell>
 	<Cell ss:StyleID="s27"><Data ss:Type="String">' . str_replace(
                                             chr(10),
                                             '&#10;',
-                                            is_array($tData['previewLanguageValues']) ? htmlspecialchars(current($tData['previewLanguageValues'])) : ''
+                                            !empty($tData['previewLanguageValues']) && is_array($tData['previewLanguageValues']) ? htmlspecialchars(current($tData['previewLanguageValues'])) : ''
                                         ) . '</Data></Cell>
 	<Cell ss:StyleID="s39"><Data ss:Type="String">' . str_replace(
                                             chr(10),
                                             '&#10;',
-                                            htmlspecialchars($tData['translationValue'])
+                                            htmlspecialchars($tData['translationValue'] ?? '')
                                         ) . '</Data></Cell>
 	<Cell ss:StyleID="s27"><Data ss:Type="String">' . $diff . '</Data></Cell>
 	</Row>
@@ -183,7 +183,7 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
 ' . ($page['header']['prevLang'] ? '<Cell ss:StyleID="s27"><Data ss:Type="String">' . str_replace(
                                         chr(10),
                                         '&#10;',
-                                        is_array($tData['previewLanguageValues']) ? htmlspecialchars(current($tData['previewLanguageValues'])) : ''
+                                        !empty($tData['previewLanguageValues']) && is_array($tData['previewLanguageValues']) ? htmlspecialchars(current($tData['previewLanguageValues'])) : ''
                                     ) . '</Data></Cell>' : '') . '
 </Row>
 ';
@@ -214,9 +214,11 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
 	';
         }
         // Provide a hook for specific manipulations before building the actual XML
-        foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['exportExcelXmlPreProcess'] ?? [] as $classReference) {
-            $processingObject = GeneralUtility::makeInstance($classReference);
-            $output = $processingObject->processBeforeExportingExcelXml($output, $this);
+        if (!empty($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['exportExcelXmlPreProcess'])) {
+            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['exportExcelXmlPreProcess'] as $classReference) {
+                $processingObject = GeneralUtility::makeInstance($classReference);
+                $output = $processingObject->processBeforeExportingExcelXml($output, $this);
+            }
         }
         $excelXML = GeneralUtility::getUrl(ExtensionManagementUtility::extPath('l10nmgr') . 'Resources/Private/Templates/ExcelTemplate.xml');
         $excelXML = str_replace('###INSERT_ROWS###', implode('', $output), $excelXML);
@@ -237,8 +239,8 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
         $messages = '';
         foreach ($this->internalMessages as $messageInformation) {
             $messages .= "\n\t\t\t" . '<Row>' . "\n\t\t\t\t" . '<Cell ss:Index="1" ss:StyleID="s37"><Data ss:Type="String">Skipped item	</Data></Cell>' . "\n\t\t\t" . '</Row>';
-            $messages .= "\n\t\t\t" . '<Row>' . "\n\t\t\t\t" . '<Cell ss:Index="2" ss:StyleID="s26"><Data ss:Type="String">Description</Data></Cell>' . "\n\t\t\t\t" . '<Cell ss:StyleID="s27"><Data ss:Type="String">' . $messageInformation['message'] . '</Data></Cell>' . "\n\t\t\t" . '</Row>';
-            $messages .= "\n\t\t\t" . '<Row>' . "\n\t\t\t\t" . '<Cell ss:Index="2" ss:StyleID="s26"><Data ss:Type="String">Key</Data></Cell>' . "\n\t\t\t\t" . '<Cell ss:StyleID="s27"><Data ss:Type="String">' . $messageInformation['key'] . '</Data></Cell>' . "\n\t\t\t" . '</Row>';
+            $messages .= "\n\t\t\t" . '<Row>' . "\n\t\t\t\t" . '<Cell ss:Index="2" ss:StyleID="s26"><Data ss:Type="String">Description</Data></Cell>' . "\n\t\t\t\t" . '<Cell ss:StyleID="s27"><Data ss:Type="String">' . ($messageInformation['message'] ?? ''). '</Data></Cell>' . "\n\t\t\t" . '</Row>';
+            $messages .= "\n\t\t\t" . '<Row>' . "\n\t\t\t\t" . '<Cell ss:Index="2" ss:StyleID="s26"><Data ss:Type="String">Key</Data></Cell>' . "\n\t\t\t\t" . '<Cell ss:StyleID="s27"><Data ss:Type="String">' . ($messageInformation['key'] ?? '') . '</Data></Cell>' . "\n\t\t\t" . '</Row>';
         }
         return $messages;
     }
