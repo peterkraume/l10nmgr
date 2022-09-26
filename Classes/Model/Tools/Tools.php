@@ -48,7 +48,6 @@ use TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction;
 use TYPO3\CMS\Core\Database\Query\Restriction\WorkspaceRestriction;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
-use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Core\Utility\DiffUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -328,7 +327,9 @@ class Tools
                                 ) {
                                     // Checking that no translation value exists either; if a translation value is found it is considered that it should be translated
                                     // even if the default value is empty for some reason.
-                                    $this->detailsOutput['fields'] = [];
+                                    if (!isset($this->detailsOutput['fields'])) {
+                                        $this->detailsOutput['fields'] = [];
+                                    }
                                     if (empty($this->filters['noIntegers'])
                                         || !MathUtility::canBeInterpretedAsInteger($dataValue)
                                         || $bypassFilter && !empty($bypassFilter['noIntegers'])
@@ -390,7 +391,7 @@ class Tools
     {
         $isRTE = false;
         if (is_array($contentRow)) {
-            list($table, $uid, $field) = explode(':', $key);
+            list($table, , $field) = explode(':', $key);
             $TCAtype = BackendUtility::getTCAtypeValue($table, $contentRow);
             // Check if the RTE is explicitly declared in the defaultExtras configuration
             if (!empty($TCEformsCfg['config']['enableRichtext'])) {
@@ -967,16 +968,17 @@ class Tools
                             if (!in_array($field, $allowedFields)) {
                                 continue;
                             }
-                            $cfg['labelField'] = trim($GLOBALS['TCA'][$tInfo['translation_table']]['ctrl']['label'] ?? '');
-                            $languageField = $GLOBALS['TCA'][$tInfo['translation_table']]['ctrl']['languageField'] ?? '';
-                            $transOrigPointerField = $GLOBALS['TCA'][$tInfo['translation_table']]['ctrl']['transOrigPointerField'] ?? '';
-                            $transOrigDiffSourceField = $GLOBALS['TCA'][$tInfo['translation_table']]['ctrl']['transOrigDiffSourceField'] ?? '';
+                            $translationTable = $tInfo['translation_table'] ?? '';
+                            $cfg['labelField'] = trim($GLOBALS['TCA'][$translationTable]['ctrl']['label'] ?? '');
+                            $languageField = $GLOBALS['TCA'][$translationTable]['ctrl']['languageField'] ?? '';
+                            $transOrigPointerField = $GLOBALS['TCA'][$translationTable]['ctrl']['transOrigPointerField'] ?? '';
+                            $transOrigDiffSourceField = $GLOBALS['TCA'][$translationTable]['ctrl']['transOrigDiffSourceField'] ?? '';
                             if ($languageField !== $field
                                 && $transOrigPointerField !== $field
                                 && $transOrigDiffSourceField !== $field
                             ) {
-                                $key = ($tInfo['translation_table'] ?? '') . ':' . BackendUtility::wsMapId(
-                                    $tInfo['translation_table'] ?? '',
+                                $key = $translationTable . ':' . BackendUtility::wsMapId(
+                                    $translationTable,
                                     $translationUID
                                 ) . ':' . $field;
                                 if (!empty($cfg['config']['type']) && $cfg['config']['type'] === 'flex') {

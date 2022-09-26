@@ -294,12 +294,13 @@ class L10nAccumulatedInformation
                                     (bool)($l10ncfg['sortexports'] ?? false),
                                     $this->noHidden
                                 );
-                                if (!is_array($allRows)) {
+                                if (empty($allRows)) {
                                     continue;
                                 }
                                 // Now, for each record, look for localization:
                                 foreach ($allRows as $row) {
-                                    if (isset($this->excludeIndex[$table . ':' . $row['uid'] ?? 0])) {
+                                    $rowUid = (int)$row['uid'] ?? 0;
+                                    if (isset($this->excludeIndex[$table . ':' . $rowUid]) || $rowUid === 0) {
                                         continue;
                                     }
                                     if (!empty($row[Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME])) {
@@ -310,24 +311,24 @@ class L10nAccumulatedInformation
                                             $table,
                                             Constants::L10NMGR_LANGUAGE_RESTRICTION_FIELDNAME
                                         );
-                                        if ($languageIsRestricted->hasItem((int)($row['uid'] ?? 0))) {
-                                            $this->excludeIndex[$table . ':' . (int)$row['uid']] = 1;
+                                        if ($languageIsRestricted->hasItem($rowUid)) {
+                                            $this->excludeIndex[$table . ':' . $rowUid] = 1;
                                             continue;
                                         }
                                     }
                                     BackendUtility::workspaceOL($table, $row);
-                                    if (!is_array($row)) {
+                                    if (empty($row)) {
                                         continue;
                                     }
 
-                                    $accum[$pageId]['items'][$table][$row['uid'] ?? 0] = $t8Tools->translationDetails(
+                                    $accum[$pageId]['items'][$table][$rowUid] = $t8Tools->translationDetails(
                                         $table,
                                         $row,
                                         $sysLang,
                                         $flexFormDiff,
                                         $previewLanguage
                                     );
-                                    if (empty($accum[$pageId]['items'][$table][$row['uid'] ?? 0])) {
+                                    if (empty($accum[$pageId]['items'][$table][$rowUid])) {
                                         // if there is no record available anymore, skip to the next row
                                         // records might be disabled when onlyForcedSourceLanguage is set
                                         continue;
@@ -335,7 +336,7 @@ class L10nAccumulatedInformation
                                     if ($table === 'sys_file_reference' && isset($row['uid_local'])) {
                                         $fileList .= $fileList ? ',' . (int)$row['uid_local'] : (int)$row['uid_local'];
                                     }
-                                    $this->_increaseInternalCounters($accum[$pageId]['items'][$table][$row['uid']]['fields'] ?? '');
+                                    $this->_increaseInternalCounters($accum[$pageId]['items'][$table][$rowUid]['fields'] ?? []);
                                 }
                             }
                         }
@@ -384,15 +385,16 @@ class L10nAccumulatedInformation
         foreach ($this->includeIndex as $recId => $rec) {
             list($table, $uid) = explode(':', $recId);
             $row = BackendUtility::getRecordWSOL($table, $uid);
-            if ($row !== null && count($row)) {
-                $accum[-1]['items'][$table][$row['uid']] = $t8Tools->translationDetails(
+            if (!empty($row)) {
+                $rowUid = $row['uid'] ?? 0;
+                $accum[-1]['items'][$table][$rowUid] = $t8Tools->translationDetails(
                     $table,
                     $row,
                     $sysLang,
                     $flexFormDiff,
                     $previewLanguage
                 );
-                $this->_increaseInternalCounters($accum[-1]['items'][$table][$row['uid']]['fields'] ?? '');
+                $this->_increaseInternalCounters($accum[-1]['items'][$table][$rowUid]['fields'] ?? []);
             }
         }
         // debug($accum);
