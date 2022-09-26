@@ -115,7 +115,7 @@ class L10nHtmlListView extends AbstractExportView
         $sections = [];
         $showSingle = GeneralUtility::_GET('showSingle');
         $noAnalysis = false;
-        if ($l10ncfg !== null && !empty($l10ncfg['displaymode'])&& $l10ncfg['displaymode'] > self::DISPLAY_MODE_RENDER_ALL_ITEMS) {
+        if ($l10ncfg !== null && !empty($l10ncfg['displaymode']) && $l10ncfg['displaymode'] > self::DISPLAY_MODE_RENDER_ALL_ITEMS) {
             $showSingle = $showSingle ?: 'NONE';
             if ($l10ncfg['displaymode'] === self::DISPLAY_MODE_RENDER_OVERVIEW_WITH_NO_DETAILS) {
                 $noAnalysis = true;

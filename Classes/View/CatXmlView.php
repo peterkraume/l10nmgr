@@ -294,7 +294,7 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
                 $messages .= "\n\t";
             }
             $messages .= "\t\t" . '<t3_skippedItem>' . "\n\t\t\t\t"
-                . '<t3_description>' . ($messageInformation['message'] ?? ''). '</t3_description>' . "\n\t\t\t\t"
+                . '<t3_description>' . ($messageInformation['message'] ?? '') . '</t3_description>' . "\n\t\t\t\t"
                 . '<t3_key>' . ($messageInformation['key'] ?? '') . '</t3_key>' . "\n\t\t\t"
                 . '</t3_skippedItem>' . "\r";
         }

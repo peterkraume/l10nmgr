@@ -239,7 +239,7 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
         $messages = '';
         foreach ($this->internalMessages as $messageInformation) {
             $messages .= "\n\t\t\t" . '<Row>' . "\n\t\t\t\t" . '<Cell ss:Index="1" ss:StyleID="s37"><Data ss:Type="String">Skipped item	</Data></Cell>' . "\n\t\t\t" . '</Row>';
-            $messages .= "\n\t\t\t" . '<Row>' . "\n\t\t\t\t" . '<Cell ss:Index="2" ss:StyleID="s26"><Data ss:Type="String">Description</Data></Cell>' . "\n\t\t\t\t" . '<Cell ss:StyleID="s27"><Data ss:Type="String">' . ($messageInformation['message'] ?? ''). '</Data></Cell>' . "\n\t\t\t" . '</Row>';
+            $messages .= "\n\t\t\t" . '<Row>' . "\n\t\t\t\t" . '<Cell ss:Index="2" ss:StyleID="s26"><Data ss:Type="String">Description</Data></Cell>' . "\n\t\t\t\t" . '<Cell ss:StyleID="s27"><Data ss:Type="String">' . ($messageInformation['message'] ?? '') . '</Data></Cell>' . "\n\t\t\t" . '</Row>';
             $messages .= "\n\t\t\t" . '<Row>' . "\n\t\t\t\t" . '<Cell ss:Index="2" ss:StyleID="s26"><Data ss:Type="String">Key</Data></Cell>' . "\n\t\t\t\t" . '<Cell ss:StyleID="s27"><Data ss:Type="String">' . ($messageInformation['key'] ?? '') . '</Data></Cell>' . "\n\t\t\t" . '</Row>';
         }
         return $messages;
