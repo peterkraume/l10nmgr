@@ -48,9 +48,7 @@ class L10nCommand extends Command
      */
     protected function getExtConf(): EmConfiguration
     {
-        if (!$this->emConfiguration instanceof EmConfiguration) {
-            $this->emConfiguration = GeneralUtility::makeInstance(EmConfiguration::class);
-        }
+        $this->emConfiguration = GeneralUtility::makeInstance(EmConfiguration::class);
 
         return $this->emConfiguration;
     }
@@ -62,12 +60,10 @@ class L10nCommand extends Command
      */
     protected function getLanguageService(): LanguageService
     {
-        if (!$this->languageService instanceof LanguageService) {
-            $this->languageService = GeneralUtility::makeInstance(LanguageService::class);
-            $fileRef = 'EXT:l10nmgr/Resources/Private/Language/Cli/locallang.xlf';
-            $this->languageService->includeLLFile($fileRef);
-            $this->languageService->init('');
-        }
+        $this->languageService = GeneralUtility::makeInstance(LanguageService::class);
+        $fileRef = 'EXT:l10nmgr/Resources/Private/Language/Cli/locallang.xlf';
+        $this->languageService->includeLLFile($fileRef);
+        $this->languageService->init('');
 
         return $this->languageService;
     }
