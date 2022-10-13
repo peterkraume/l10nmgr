@@ -154,8 +154,8 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
         $XML = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $XML .= '<!DOCTYPE TYPO3L10N [ <!ENTITY nbsp " "> ]>' . "\n" . '<TYPO3L10N>' . "\n";
         $XML .= "\t" . '<head>' . "\n";
-        $XML .= "\t\t" . '<t3_l10ncfg>' . $this->l10ncfgObj->getData('uid') . '</t3_l10ncfg>' . "\n";
-        $XML .= "\t\t" . '<t3_sysLang>' . $sysLang . '</t3_sysLang>' . "\n";
+        $XML .= "\t\t" . '<t3_l10ncfg translate="no">' . $this->l10ncfgObj->getData('uid') . '</t3_l10ncfg>' . "\n";
+        $XML .= "\t\t" . '<t3_sysLang translate="no">' . $sysLang . '</t3_sysLang>' . "\n";
         // get ISO2L code for source language
         if ($this->l10ncfgObj->getData('sourceLangStaticId') && ExtensionManagementUtility::isLoaded('static_info_tables')) {
             $staticLangArr = BackendUtility::getRecord(
@@ -163,8 +163,8 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
                 $this->l10ncfgObj->getData('sourceLangStaticId'),
                 'lg_iso_2'
             );
-            $XML .= "\t\t" . '<t3_sourceLang>' . $staticLangArr['lg_iso_2'] . '</t3_sourceLang>' . "\n";
-            $XML .= "\t\t" . '<t3_targetLang>' . $targetIso . '</t3_targetLang>' . "\n";
+            $XML .= "\t\t" . '<t3_sourceLang translate="no">' . $staticLangArr['lg_iso_2'] . '</t3_sourceLang>' . "\n";
+            $XML .= "\t\t" . '<t3_targetLang translate="no">' . $targetIso . '</t3_targetLang>' . "\n";
         } else {
             $sourceLang = '';
             $sourceLanguageConfiguration = $this->site->getAvailableLanguages($this->getBackendUser())[0] ?? null;
@@ -176,26 +176,26 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
             if ($targetLanguageConfiguration instanceof SiteLanguage) {
                 $targetLang = $targetLanguageConfiguration->getHreflang() ?: $targetLanguageConfiguration->getTwoLetterIsoCode();
             }
-            $XML .= "\t\t" . '<t3_sourceLang>' . $sourceLang . '</t3_sourceLang>' . "\n";
-            $XML .= "\t\t" . '<t3_targetLang>' . $targetLang . '</t3_targetLang>' . "\n";
+            $XML .= "\t\t" . '<t3_sourceLang translate="no">' . $sourceLang . '</t3_sourceLang>' . "\n";
+            $XML .= "\t\t" . '<t3_targetLang translate="no">' . $targetLang . '</t3_targetLang>' . "\n";
         }
-        $XML .= "\t\t" . '<t3_baseURL>' . $this->baseUrl . '</t3_baseURL>' . "\n";
+        $XML .= "\t\t" . '<t3_baseURL translate="no">' . $this->baseUrl . '</t3_baseURL>' . "\n";
         if ($accumObj->getExtensionConfiguration()->isEnableCustomername()) {
             // Customer set by CLI parameter will override CLI backend user name for CLI based exports
             $customer = $this->customer ?: $this->getBackendUser()->user['realName'];
             if ($customer) {
-                $XML .= "\t\t" . '<t3_customer>' . $customer . '</t3_customer>' . "\n";
+                $XML .= "\t\t" . '<t3_customer translate="no">' . $customer . '</t3_customer>' . "\n";
             }
         }
-        $XML .= "\t\t" . '<t3_workspaceId>' . $this->getBackendUser()->workspace . '</t3_workspaceId>' . "\n";
-        $XML .= "\t\t" . '<t3_count>' . $accumObj->getFieldCount() . '</t3_count>' . "\n";
-        $XML .= "\t\t" . '<t3_wordCount>' . $accumObj->getWordCount() . '</t3_wordCount>' . "\n";
+        $XML .= "\t\t" . '<t3_workspaceId translate="no">' . $this->getBackendUser()->workspace . '</t3_workspaceId>' . "\n";
+        $XML .= "\t\t" . '<t3_count translate="no">' . $accumObj->getFieldCount() . '</t3_count>' . "\n";
+        $XML .= "\t\t" . '<t3_wordCount translate="no">' . $accumObj->getWordCount() . '</t3_wordCount>' . "\n";
         $internalMessages = trim($this->renderInternalMessage());
         if ($internalMessages) {
-            $XML .= "\t\t" . '<t3_internal>' . "\r\t" . $internalMessages . "\t\t" . '</t3_internal>' . "\n";
+            $XML .= "\t\t" . '<t3_internal translate="no">' . "\r\t" . $internalMessages . "\t\t" . '</t3_internal>' . "\n";
         }
-        $XML .= "\t\t" . '<t3_formatVersion>' . L10NMGR_FILEVERSION . '</t3_formatVersion>' . "\n";
-        $XML .= "\t\t" . '<t3_l10nmgrVersion>' . L10NMGR_VERSION . '</t3_l10nmgrVersion>' . "\n";
+        $XML .= "\t\t" . '<t3_formatVersion translate="no">' . L10NMGR_FILEVERSION . '</t3_formatVersion>' . "\n";
+        $XML .= "\t\t" . '<t3_l10nmgrVersion translate="no">' . L10NMGR_VERSION . '</t3_l10nmgrVersion>' . "\n";
         $XML .= $this->additionalHeaderData();
         $XML .= "\t" . '</head>' . "\n";
         $XML .= implode('', $output) . "\n";
