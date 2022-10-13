@@ -18,7 +18,6 @@ namespace Localizationteam\L10nmgr\Controller;
  */
 
 use Localizationteam\L10nmgr\Traits\BackendUserTrait;
-use TYPO3\CMS\Backend\Template\DocumentTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Exception;
 use TYPO3\CMS\Core\Localization\LanguageService;
@@ -135,11 +134,6 @@ class BaseModule
      * @var string
      */
     public string $content = '';
-
-    /**
-     * @var DocumentTemplate
-     */
-    public DocumentTemplate $doc;
 
     /**
      * May contain an instance of a 'Function menu module' which connects to this backend module.
