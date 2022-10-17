@@ -52,7 +52,7 @@ class Import extends L10nCommand
     /**
      * @var int ID of the forced source language being handled
      */
-    protected int $previewLanguage;
+    protected int $previewLanguage = 0;
 
     /**
      * @var string Path to temporary de-archiving directory, to be removed after import
@@ -174,7 +174,7 @@ class Import extends L10nCommand
         $callParameters['preview'] = $input->getOption('preview');
 
         // Get the XML string
-        $callParameters['string'] = stripslashes($input->getOption('string'));
+        $callParameters['string'] = stripslashes((string)$input->getOption('string'));
 
         // Get the path to XML or ZIP file
         $callParameters['file'] = $input->getOption('file');
@@ -359,7 +359,7 @@ class Import extends L10nCommand
                 $workspaceId = $xmlFileHead['t3_workspaceId'][0]['XMLvalue'] ?? 0;
                 $this->getBackendUser()->setWorkspace($workspaceId);
                 // Set import language to t3_sysLang from XML
-                $this->sysLanguage = $xmlFileHead['t3_sysLang'][0]['XMLvalue'] ?? 0;
+                $this->sysLanguage = (int)($xmlFileHead['t3_sysLang'][0]['XMLvalue'] ?? 0);
                 $sourceLanguage = $xmlFileHead['t3_sourceLang'][0]['XMLvalue'] ?? 0;
                 $targetLanguage = $xmlFileHead['t3_targetLang'][0]['XMLvalue'] ?? 0;
                 if ($sourceLanguage === $targetLanguage) {
@@ -386,7 +386,7 @@ class Import extends L10nCommand
                     // Find l10n configuration record
                     /** @var L10nConfiguration $l10ncfgObj */
                     $l10ncfgObj = GeneralUtility::makeInstance(L10nConfiguration::class);
-                    $l10ncfgObj->load($importManager->headerData['t3_l10ncfg'] ?? 0);
+                    $l10ncfgObj->load((int)($importManager->headerData['t3_l10ncfg'] ?? 0));
                     $l10ncfgObj->setSourcePid($callParameters['sourcePid'] ?? 0);
                     $status = $l10ncfgObj->isLoaded();
                     if ($status === false) {
