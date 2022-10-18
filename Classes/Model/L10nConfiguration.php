@@ -191,7 +191,7 @@ class L10nConfiguration
         }
         // Set the data
         $flexFormDiffForAllLanguages[$sysLang] = array_merge(
-            (array)$flexFormDiffForAllLanguages[$sysLang],
+            (array)($flexFormDiffForAllLanguages[$sysLang] ?? []),
             $flexFormDiffArray
         );
         // Serialize back and save it to record:
