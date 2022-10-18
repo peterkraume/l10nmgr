@@ -890,7 +890,7 @@ class Tools
     public function translationDetails(string $table, array $row, int $sysLang, array $flexFormDiff = [], int $previewLanguage = 0): array
     {
         // Initialize:
-        $tInfo = $this->translationInfo($table, $row['uid'] ?? 0, $sysLang, [], '', $previewLanguage);
+        $tInfo = $this->translationInfo($table, $row['uid'] ?? 0, $sysLang, null, '', $previewLanguage);
         $tvInstalled = ExtensionManagementUtility::isLoaded('templavoila');
         $this->detailsOutput = [];
         $this->flexFormDiff = $flexFormDiff;
@@ -1058,7 +1058,7 @@ class Tools
      * @param string $table Table name
      * @param int $uid Record uid
      * @param int $sys_language_uid Language uid. If zero, then all languages are selected.
-     * @param array $row The record to be translated
+     * @param array|null $row The record to be translated
      * @param string $selFieldList Select fields for the query which fetches the translations of the current record
      * @param int $previewLanguage
      * @return mixed Array with information. Errors will return string with message.
@@ -1069,7 +1069,7 @@ class Tools
         string $table,
         int $uid,
         int $sys_language_uid = 0,
-        array $row = [],
+        ?array $row = null,
         string $selFieldList = '',
         int $previewLanguage = 0
     ) {
@@ -1077,7 +1077,7 @@ class Tools
             return 'No table "' . $table . '" or no UID value';
         }
 
-        if ($row === []) {
+        if ($row === null) {
             $row = BackendUtility::getRecordWSOL($table, $uid);
         }
         if (!is_array($row)) {
