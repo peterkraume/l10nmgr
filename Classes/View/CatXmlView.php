@@ -234,7 +234,7 @@ class CatXmlView extends AbstractExportView implements ExportViewInterface
 
         // Substitute HTML entities with actual characters (we use UTF-8 anyway:-) but leave quotes untouched
         $dataForTranslation = html_entity_decode(
-            $dataForTranslation,
+            (string)$dataForTranslation,
             ENT_NOQUOTES,
             'UTF-8'
         );
