@@ -363,7 +363,7 @@ class L10nBaseService implements LoggerAwareInterface
                 foreach ($fields as $fieldKey => $translatedValue) {
                     // check if the record was marked as "new" but was translated already
                     [$Ttable, $TuidString, $Tfield, $Tpath] = array_replace(array_fill(0, 4, null), explode(':', $fieldKey));
-                    [$Tuid, $Tlang, $TdefRecord] = explode('/', $TuidString);
+                    [$Tuid, $Tlang, $TdefRecord] = array_replace(array_fill(0, 3, 0), explode('/', $TuidString));
                     if ($Tuid === 'NEW') {
                         $translatedRecord = BackendUtility::getRecordLocalization($Ttable, $TdefRecord, $Tlang);
                         if (!empty($translatedRecord)) {
