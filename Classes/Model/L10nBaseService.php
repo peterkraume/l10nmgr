@@ -501,7 +501,7 @@ class L10nBaseService implements LoggerAwareInterface
                                 }
                             }
                         }
-                        if (is_array($inputArray[$table]) && !count($inputArray[$table])) {
+                        if (isset($inputArray[$table]) && is_array($inputArray[$table]) && !count($inputArray[$table])) {
                             unset($inputArray[$table]); // Unsetting so in the end we can see if $inputArray was fully processed.
                         }
                     }
@@ -806,7 +806,7 @@ class L10nBaseService implements LoggerAwareInterface
                                 }
                             }
                         }
-                        if (is_array($inputArray[$table]) && !count($inputArray[$table])) {
+                        if (isset($inputArray[$table]) && is_array($inputArray[$table]) && !count($inputArray[$table])) {
                             unset($inputArray[$table]); // Unsetting so in the end we can see if $inputArray was fully processed.
                         }
                     }
