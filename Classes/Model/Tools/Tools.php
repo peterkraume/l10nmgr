@@ -1096,7 +1096,7 @@ class Tools
 
         if ($parentValue !== 0) {
             return 'Record "' . $table . '_' . $uid . '" seems to be a translation already (has a relation to record "'
-                . $$parentValue . '")';
+                . $parentValue . '")';
         }
 
         if (!empty($selFieldList)) {
