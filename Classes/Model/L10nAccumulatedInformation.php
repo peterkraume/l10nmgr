@@ -217,6 +217,7 @@ class L10nAccumulatedInformation
             $t8Tools->previewLanguages = [$previewLanguage];
         }
 
+        $fileList = [];
         // Traverse tree elements:
         foreach ($tree->tree as $treeElement) {
             $pageId = $treeElement['row']['uid'] ?? 0;
@@ -271,7 +272,6 @@ class L10nAccumulatedInformation
                 // Traverse tables:
                 if (!empty($GLOBALS['TCA'])) {
                     foreach ($GLOBALS['TCA'] as $table => $cfg) {
-                        $fileList = '';
                         // Only those tables we want to work on:
                         if (GeneralUtility::inList($l10ncfg['tablelist'] ?? '', $table)) {
                             if ($table === 'pages') {
@@ -334,50 +334,27 @@ class L10nAccumulatedInformation
                                         continue;
                                     }
                                     if ($table === 'sys_file_reference' && isset($row['uid_local'])) {
-                                        $fileList .= $fileList ? ',' . (int)$row['uid_local'] : (int)$row['uid_local'];
+                                        $fileList[] = (int)$row['uid_local'];
                                     }
                                     $this->_increaseInternalCounters($accum[$pageId]['items'][$table][$rowUid]['fields'] ?? []);
                                 }
                             }
                         }
-                        if ($table === 'sys_file_reference' && !empty($fileList) && GeneralUtility::inList(
-                            $l10ncfg['tablelist'] ?? '',
-                            'sys_file_metadata'
-                        )) {
-                            $fileList = implode(
-                                ',',
-                                array_keys(array_flip(GeneralUtility::intExplode(',', $fileList, true)))
-                            );
-                            if (!empty($fileList)) {
-                                /** @var QueryBuilder $queryBuilder */
-                                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_file_metadata');
-                                $metaData = $queryBuilder->select('uid')
-                                    ->from('sys_file_metadata')
-                                    ->where(
-                                        $queryBuilder->expr()->eq(
-                                            'sys_language_uid',
-                                            0
-                                        ),
-                                        $queryBuilder->expr()->in(
-                                            'file',
-                                            $fileList
-                                        )
-                                    )
-                                    ->orderBy('uid')
-                                    ->execute()
-                                    ->fetchAll();
-
-                                if (!empty($metaData)) {
-                                    $l10ncfg['include'] = [];
-                                    foreach ($metaData as $data) {
-                                        $l10ncfg['include'][] = 'sys_file_metadata:' . $data['uid'] ?? 0;
-                                    }
-                                    $l10ncfg['include'] = implode(',', $l10ncfg['include']);
-                                }
-                            }
-                        }
                     }
                 }
+            }
+        }
+
+        if (!empty($fileList) && GeneralUtility::inList($l10ncfg['tablelist'] ?? '', 'sys_file_metadata')) {
+            $metaDataUids = $this->getFileMetaDataUids($fileList);
+            if (!empty($metaDataUids)) {
+                if (!isset($l10ncfg['include'])) {
+                    $l10ncfg['include'] = '';
+                } elseif (!empty($l10ncfg['include'])) {
+                    $l10ncfg['include'] .= ',';
+                }
+                $metaDataIncludes = implode(',', array_map(fn (int $uid): string => 'sys_file_metadata:'  . $uid, $metaDataUids));
+                $l10ncfg['include'] .= $metaDataIncludes;
             }
         }
 
@@ -399,6 +376,33 @@ class L10nAccumulatedInformation
         }
         // debug($accum);
         $this->_accumulatedInformations = $accum;
+    }
+
+    /**
+     * @param int[] $fileUids List of file uids
+     * @return int[] List of metadata uids
+     */
+    protected function getFileMetaDataUids(array $fileUids): array
+    {
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_file_metadata');
+        $metaData = $queryBuilder->select('uid')
+            ->from('sys_file_metadata')
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'sys_language_uid',
+                    0
+                ),
+                $queryBuilder->expr()->in(
+                    'file',
+                    array_unique($fileUids)
+                )
+            )
+            ->orderBy('uid')
+            ->execute()
+            ->fetchAllAssociative();
+
+        return array_column($metaData, 'uid');
     }
 
     /**
