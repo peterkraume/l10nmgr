@@ -38,7 +38,6 @@ use TYPO3\CMS\Core\Configuration\FlexForm\Exception\InvalidParentRowLoopExceptio
 use TYPO3\CMS\Core\Configuration\FlexForm\Exception\InvalidParentRowRootException;
 use TYPO3\CMS\Core\Configuration\FlexForm\Exception\InvalidPointerFieldValueException;
 use TYPO3\CMS\Core\Configuration\FlexForm\Exception\InvalidTcaException;
-use TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
@@ -193,6 +192,7 @@ class Tools
      */
     public function translationDetails_flexFormCallBack(array $dsArr, string $dataValue, array $PA, string $structurePath, FlexFormTools $pObj): void
     {
+        $dsArr = $this->patchTceformsWrapper($dsArr);
         // Only take lead from default values (since this is "Inheritance" localization we parse for)
         if (str_ends_with($structurePath, '/vDEF')) {
             // So, find translated value:
@@ -508,6 +508,7 @@ class Tools
      */
     public function translationDetails_flexFormCallBackForOverlay(array $dsArr, string $dataValue, array $PA, string $structurePath, FlexFormTools $pObj): void
     {
+        $dsArr = $this->patchTceformsWrapper($dsArr);
         //echo $dataValue.'<hr>';
         $translValue = (string)$pObj->getArrayValueByPath($structurePath, $this->_callBackParams_translationXMLArray);
         $diffDefaultValue = (string)$pObj->getArrayValueByPath(
@@ -534,6 +535,28 @@ class Tools
             $this->_callBackParams_currentRow
         );
         unset($pObj);
+    }
+
+    /**
+     * Performs a duplication in data source, applying a wrapper
+     * around field configurations which require it for correct
+     * rendering in flex form containers.
+     *
+     * @param array $dataStructure
+     * @param null|string $parentIndex
+     * @return array
+     */
+    protected function patchTceformsWrapper(array $dataStructure, $parentIndex = null)
+    {
+        foreach ($dataStructure as $index => $subStructure) {
+            if (is_array($subStructure)) {
+                $dataStructure[$index] = $this->patchTceformsWrapper($subStructure, $index);
+            }
+        }
+        if (isset($dataStructure['config']['type']) && $parentIndex !== 'TCEforms') {
+            $dataStructure = ['TCEforms' => $dataStructure];
+        }
+        return $dataStructure;
     }
 
     /**
