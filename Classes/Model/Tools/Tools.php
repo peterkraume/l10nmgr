@@ -1214,7 +1214,7 @@ class Tools
      */
     protected function getSystemLanguages(): array
     {
-        if (is_null(self::$systemLanguages)) {
+        if (empty(self::$systemLanguages)) {
             self::$systemLanguages = $this->t8Tools->getSystemLanguages();
         }
         return self::$systemLanguages;
