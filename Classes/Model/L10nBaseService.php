@@ -233,6 +233,15 @@ class L10nBaseService implements LoggerAwareInterface
                 'AND sys_language_uid=0 AND tx_gridelements_container!=0',
                 'colPos, sorting'
             );
+        } elseif (ExtensionManagementUtility::isLoaded('container')) {
+            // do not try to translate container children
+            $recordsInOriginalLanguage = $this->getRecordsByField(
+                'tt_content',
+                'pid',
+                (string)$pageUid,
+                'AND sys_language_uid=0 AND tx_container_parent=0',
+                'colPos, sorting'
+            );
         } else {
             // find all tt_content elements in the default language of this page
             $recordsInOriginalLanguage = $this->getRecordsByField(
@@ -719,7 +728,17 @@ class L10nBaseService implements LoggerAwareInterface
                                                 if (isset($this->TCEmain_cmd[$table][$elementUid])) {
                                                     unset($this->TCEmain_cmd[$table][$elementUid]);
                                                 }
-                                                $this->TCEmain_cmd[$table][$elementUid]['localize'] = $Tlang;
+
+                                                //START add container support
+                                                if (ExtensionManagementUtility::isLoaded('container') && $table === 'tt_content' && $element['tx_container_parent'] > 0) {
+                                                    // localization is done by EXT:container, when container is localized, so localize cmd is not required
+                                                    // but mapping is required
+                                                    $this->childMappingArray[$table][$elementUid] = true;
+                                                } else {
+                                                    $this->TCEmain_cmd[$table][$elementUid]['localize'] = $Tlang;
+                                                }
+                                                //END add container support
+                                                
                                                 if (!empty($GLOBALS['TCA'][$table]['columns'][$Tfield])) {
                                                     $configuration = $GLOBALS['TCA'][$table]['columns'][$Tfield]['config'] ?? [];
 
