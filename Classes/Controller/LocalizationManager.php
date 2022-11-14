@@ -1359,6 +1359,12 @@ return false;
             'check_exports' => 1,
             'noHidden' => '',
         ];
+        
+        $this->MOD_SETTINGS = [
+            'onlyChangedContent' => '',
+            'check_exports' => 1,
+            'noHidden' => '',
+        ];
 
         $configurationId = (int)($GLOBALS['TYPO3_REQUEST']->getQueryParams()['exportUID'] ?? 0);
         $configuration = BackendUtility::getRecord('tx_l10nmgr_cfg', $configurationId);
