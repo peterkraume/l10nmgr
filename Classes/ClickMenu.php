@@ -53,6 +53,11 @@ class ClickMenu
      */
     protected LanguageService $languageService;
 
+    public function __construct()
+    {
+        $this->languageService = GeneralUtility::makeInstance(LanguageService::class);
+    }
+
     /**
      * Main function
      *
@@ -162,11 +167,8 @@ class ClickMenu
      */
     protected function getLanguageService(): LanguageService
     {
-        if (!$this->languageService instanceof LanguageService) {
-            $this->languageService = GeneralUtility::makeInstance(LanguageService::class);
-            if ($this->getBackendUser()) {
-                $this->languageService->init($this->getBackendUser()->uc['lang'] ?? ($this->getBackendUser()->user['lang'] ?? 'en'));
-            }
+        if ($this->getBackendUser()) {
+            $this->languageService->init($this->getBackendUser()->uc['lang'] ?? ($this->getBackendUser()->user['lang'] ?? 'en'));
         }
         return $this->languageService;
     }

@@ -57,7 +57,7 @@ class TranslationTasks extends BaseModule
     /**
      * @var array
      */
-    protected array $sysLanguages;
+    protected array $sysLanguages = [];
 
     /**
      * main action to be registered in ext_tables.php

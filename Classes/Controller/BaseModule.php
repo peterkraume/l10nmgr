@@ -126,7 +126,7 @@ class BaseModule
      * @see handleExternalFunctionValue()
      * @var array
      */
-    public array $extClassConf;
+    public array $extClassConf = [];
 
     /**
      * Generally used for accumulating the output content of backend modules

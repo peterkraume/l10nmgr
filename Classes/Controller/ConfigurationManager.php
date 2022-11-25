@@ -53,7 +53,7 @@ class ConfigurationManager extends BaseModule
     /**
      * @var array
      */
-    public array $pageinfo;
+    public array $pageinfo = [];
 
     /**
      * @var array Cache of the page details already fetched from the database

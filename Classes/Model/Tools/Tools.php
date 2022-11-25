@@ -146,27 +146,27 @@ class Tools
     /**
      * @var array
      */
-    protected array $_callBackParams_translationDiffsourceXMLArray;
+    protected array $_callBackParams_translationDiffsourceXMLArray = [];
 
     /**
      * @var array
      */
-    protected array $_callBackParams_translationXMLArray;
+    protected array $_callBackParams_translationXMLArray = [];
 
     /**
      * @var array
      */
-    protected array $_callBackParams_previewLanguageXMLArrays;
+    protected array $_callBackParams_previewLanguageXMLArrays = [];
 
     /**
      * @var string
      */
-    protected string $_callBackParams_keyForTranslationDetails;
+    protected string $_callBackParams_keyForTranslationDetails = '';
 
     /**
      * @var array
      */
-    protected array $_callBackParams_currentRow;
+    protected array $_callBackParams_currentRow = [];
 
     /**
      * Constructor

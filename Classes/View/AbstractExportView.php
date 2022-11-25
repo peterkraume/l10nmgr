@@ -95,12 +95,12 @@ abstract class AbstractExportView
     /**
      * @var string
      */
-    protected string $customer;
+    protected string $customer = '';
 
     /**
      * @var int
      */
-    protected int $exportType;
+    protected int $exportType = 0;
 
     /**
      * @var LanguageService
@@ -115,7 +115,7 @@ abstract class AbstractExportView
     /**
      * @var int
      */
-    protected int $forcedSourceLanguage;
+    protected int $forcedSourceLanguage = 0;
 
     /**
      * AbstractExportView constructor.

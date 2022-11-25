@@ -86,6 +86,7 @@ class CatXmlImportManager
     public function __construct(string $file, int $sysLang, string $xmlString)
     {
         $this->sysLang = $sysLang;
+        $this->languageService = GeneralUtility::makeInstance(LanguageService::class);
         if (!empty($file)) {
             $this->file = $file;
         }
@@ -139,11 +140,8 @@ class CatXmlImportManager
      */
     protected function getLanguageService(): LanguageService
     {
-        if (!$this->languageService instanceof LanguageService) {
-            $this->languageService = GeneralUtility::makeInstance(LanguageService::class);
-            if ($this->getBackendUser()) {
-                $this->languageService->init($this->getBackendUser()->uc['lang'] ?? ($this->getBackendUser()->user['lang'] ?? 'en'));
-            }
+        if ($this->getBackendUser()) {
+            $this->languageService->init($this->getBackendUser()->uc['lang'] ?? ($this->getBackendUser()->user['lang'] ?? 'en'));
         }
         return $this->languageService;
     }

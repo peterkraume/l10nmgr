@@ -55,6 +55,7 @@ class L10nConfigurationDetailView
     public function __construct(L10nConfiguration $l10ncfgObj)
     {
         $this->l10ncfgObj = $l10ncfgObj;
+        $this->languageService = GeneralUtility::makeInstance(LanguageService::class);
     }
 
     /**
@@ -93,11 +94,8 @@ class L10nConfigurationDetailView
      */
     protected function getLanguageService(): LanguageService
     {
-        if (!$this->languageService instanceof LanguageService) {
-            $this->languageService = GeneralUtility::makeInstance(LanguageService::class);
-            if ($this->getBackendUser()) {
-                $this->languageService->init($this->getBackendUser()->uc['lang'] ?? ($this->getBackendUser()->user['lang'] ?? 'en'));
-            }
+        if ($this->getBackendUser()) {
+            $this->languageService->init($this->getBackendUser()->uc['lang'] ?? ($this->getBackendUser()->user['lang'] ?? 'en'));
         }
         return $this->languageService;
     }

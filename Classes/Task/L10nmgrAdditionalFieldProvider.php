@@ -55,6 +55,11 @@ class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider imp
      */
     protected string $defaultPattern = '(index\.html|\.htaccess)';
 
+    public function __construct()
+    {
+        $this->languageService = GeneralUtility::makeInstance(LanguageService::class);
+    }
+
     /**
      * Gets additional fields to render in the form to add/edit a task
      *
@@ -141,11 +146,8 @@ class L10nmgrAdditionalFieldProvider extends AbstractAdditionalFieldProvider imp
      */
     protected function getLanguageService(): LanguageService
     {
-        if (!$this->languageService instanceof LanguageService) {
-            $this->languageService = GeneralUtility::makeInstance(LanguageService::class);
-            if ($this->getBackendUser()) {
-                $this->languageService->init($this->getBackendUser()->uc['lang'] ?? ($this->getBackendUser()->user['lang'] ?? 'en'));
-            }
+        if ($this->getBackendUser()) {
+            $this->languageService->init($this->getBackendUser()->uc['lang'] ?? ($this->getBackendUser()->user['lang'] ?? 'en'));
         }
         return $this->languageService;
     }
