@@ -158,20 +158,20 @@ class XmlTools implements LoggerAwareInterface
                     $XMLcontent .= '<' . $val['tag'];
                     if (!empty($val['attributes'])) {
                         foreach ($val['attributes'] as $k => $v) {
-                            $XMLcontent .= ' ' . $k . '="' . htmlspecialchars($v) . '"';
+                            $XMLcontent .= ' ' . $k . '="' . htmlspecialchars((string)$v) . '"';
                         }
                     }
                     if ($type === 'complete') {
                         if (!isset($val['value']) && isset($selfClosingTags[$val['tag']])) {
                             $XMLcontent .= ' />';
                         } else {
-                            $XMLcontent .= '>' . htmlspecialchars($val['value']) . '</' . $val['tag'] . '>';
+                            $XMLcontent .= '>' . htmlspecialchars((string)$val['value']) . '</' . $val['tag'] . '>';
                         }
                     } else {
                         $XMLcontent .= '>';
                     }
                     if ($type === 'open' && isset($val['value'])) {
-                        $XMLcontent .= htmlspecialchars($val['value']);
+                        $XMLcontent .= htmlspecialchars((string)$val['value']);
                     }
                 }
                 // Finish tag:
@@ -180,7 +180,7 @@ class XmlTools implements LoggerAwareInterface
                 }
                 // Cdata
                 if ($type === 'cdata') {
-                    $XMLcontent .= htmlspecialchars($val['value']);
+                    $XMLcontent .= htmlspecialchars((string)$val['value']);
                 }
             }
         }

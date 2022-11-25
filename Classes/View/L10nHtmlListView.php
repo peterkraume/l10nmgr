@@ -125,7 +125,7 @@ class L10nHtmlListView extends AbstractExportView
         // Traverse the structure and generate HTML output:
         foreach ($accum as $pId => $page) {
             $sections[$pId]['head']['icon'] = $page['header']['icon'] ?? '';
-            $sections[$pId]['head']['title'] = htmlspecialchars($page['header']['title'] ?? '') . ' [' . $pId . ']';
+            $sections[$pId]['head']['title'] = htmlspecialchars((string)$page['header']['title'] ?? '') . ' [' . $pId . ']';
             $tableRows = [];
             if (empty($page['items'])) {
                 continue;
@@ -164,11 +164,11 @@ class L10nHtmlListView extends AbstractExportView
                                     }
                                     if (!$this->modeOnlyChanged || !$noChangeFlag) {
                                         $fieldCells = [];
-                                        $fieldCells[] = '<b>' . htmlspecialchars($fieldName) . '</b>' . (!empty($tData['msg']) ? '<br /><em>' . htmlspecialchars($tData['msg']) . '</em>' : '');
-                                        $fieldCells[] = nl2br(htmlspecialchars($tData['defaultValue'] ?? ''));
+                                        $fieldCells[] = '<b>' . htmlspecialchars((string)$fieldName) . '</b>' . (!empty($tData['msg']) ? '<br /><em>' . htmlspecialchars((string)$tData['msg']) . '</em>' : '');
+                                        $fieldCells[] = nl2br(htmlspecialchars((string)$tData['defaultValue'] ?? ''));
                                         if ($this->modeWithInlineEdit) {
                                             $name = htmlspecialchars('translation[' . $table . '][' . $elementUid . '][' . $key . ']');
-                                            $value = htmlspecialchars($tData['translationValue'] ?? '');
+                                            $value = htmlspecialchars((string)$tData['translationValue'] ?? '');
                                             if ($tData['fieldType'] === 'text') {
                                                 $id = md5($table . '_' . $elementUid . '_' . $key);
                                                 $value = LF . $value;
@@ -230,12 +230,12 @@ class L10nHtmlListView extends AbstractExportView
                                                 );
                                             }
                                         } else {
-                                            $fieldCells[] = nl2br(htmlspecialchars($tData['translationValue'] ?? ''));
+                                            $fieldCells[] = nl2br(htmlspecialchars((string)$tData['translationValue'] ?? ''));
                                         }
                                         $fieldCells[] = $diff;
                                         if (!empty($page['header']['prevLang']) && !empty($tData['previewLanguageValues']) && is_array($tData['previewLanguageValues'])) {
                                             reset($tData['previewLanguageValues']);
-                                            $fieldCells[] = nl2br(htmlspecialchars(current($tData['previewLanguageValues'])));
+                                            $fieldCells[] = nl2br(htmlspecialchars((string)current($tData['previewLanguageValues'])));
                                         }
                                         $FtableRows[] = '<tr><td>' . implode('</td><td>', $fieldCells) . '</td></tr>';
                                         $FtableRowsNew[] = [

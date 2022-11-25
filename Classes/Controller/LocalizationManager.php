@@ -436,7 +436,7 @@ return false;
             $options[] = [
                 'value' => htmlspecialchars((string)$value),
                 'selected' => ($currentValue === (string)$value),
-                'label' => htmlspecialchars($text, ENT_COMPAT, 'UTF-8', false),
+                'label' => htmlspecialchars((string)$text, ENT_COMPAT, 'UTF-8', false),
             ];
         }
         $label = $label !== '' ? htmlspecialchars($label) : '';
@@ -859,7 +859,7 @@ return false;
                 $currentValue,
                 (string)$value
             ) ? ' selected="selected"' : '') . '>' . htmlspecialchars(
-                $label,
+                (string)$label,
                 ENT_COMPAT,
                 'UTF-8',
                 false
@@ -1359,7 +1359,7 @@ return false;
             'check_exports' => 1,
             'noHidden' => '',
         ];
-        
+
         $this->MOD_SETTINGS = [
             'onlyChangedContent' => '',
             'check_exports' => 1,

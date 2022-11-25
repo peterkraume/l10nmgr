@@ -136,7 +136,7 @@ class TranslationTasks extends BaseModule
                 $c++;
                 $tRows[] = '
 	<tr>
-	<td class="bgColor5"><strong>#' . ($c) . ': ' . htmlspecialchars($priorityRecord['title']) . '</strong><br />' . htmlspecialchars($priorityRecord['description']) . '</td>
+	<td class="bgColor5"><strong>#' . ($c) . ': ' . htmlspecialchars((string)$priorityRecord['title']) . '</strong><br />' . htmlspecialchars((string)$priorityRecord['description']) . '</td>
 	</tr>
 	<tr>
 	<td>' . $lTable . '</td>
@@ -170,7 +170,7 @@ class TranslationTasks extends BaseModule
             $cells = '<td class="bgColor2 tableheader">Element:</td>';
             foreach ($languages as $l) {
                 if ($l >= 1) {
-                    $baseRecordFlag = '<img src="' . htmlspecialchars($GLOBALS['BACK_PATH'] . $this->sysLanguages[$l]['flagIcon']) . '" alt="' . htmlspecialchars($this->sysLanguages[$l]['title']) . '" title="' . htmlspecialchars($this->sysLanguages[$l]['title']) . '" />';
+                    $baseRecordFlag = '<img src="' . htmlspecialchars($GLOBALS['BACK_PATH'] . $this->sysLanguages[$l]['flagIcon']) . '" alt="' . htmlspecialchars((string)$this->sysLanguages[$l]['title']) . '" title="' . htmlspecialchars((string)$this->sysLanguages[$l]['title']) . '" />';
                     $cells .= '<td class="bgColor2 tableheader">' . $baseRecordFlag . '</td>';
                 }
             }

@@ -142,7 +142,7 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
                                         );
                                         $diff = str_replace(['</del>', '</ins>'], ['</Font>', '</Font>'], $diff);
                                     }
-                                    $diff .= (!empty($tData['msg']) ? '[NOTE: ' . htmlspecialchars($tData['msg']) . ']' : '');
+                                    $diff .= (!empty($tData['msg']) ? '[NOTE: ' . htmlspecialchars((string)$tData['msg']) . ']' : '');
                                     if (!$this->modeOnlyChanged || !$noChangeFlag) {
                                         if (!empty($tData['previewLanguageValues']) && is_array($tData['previewLanguageValues'])) {
                                             reset($tData['previewLanguageValues']);
@@ -151,21 +151,21 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
 	<!-- Translation row: -->
 	<Row ss:StyleID="s25">
 	<Cell><Data ss:Type="String">' . htmlspecialchars('translation[' . $table . '][' . $elementUid . '][' . $key . ']') . '</Data></Cell>
-	<Cell ss:StyleID="s26"><Data ss:Type="String">' . htmlspecialchars($fieldName) . '</Data></Cell>
+	<Cell ss:StyleID="s26"><Data ss:Type="String">' . htmlspecialchars((string)$fieldName) . '</Data></Cell>
 	<Cell ss:StyleID="s27"><Data ss:Type="String">' . str_replace(
                                             chr(10),
                                             '&#10;',
-                                            htmlspecialchars($tData['defaultValue'] ?? '')
+                                            htmlspecialchars((string)$tData['defaultValue'] ?? '')
                                         ) . '</Data></Cell>
 	<Cell ss:StyleID="s27"><Data ss:Type="String">' . str_replace(
                                             chr(10),
                                             '&#10;',
-                                            !empty($tData['previewLanguageValues']) && is_array($tData['previewLanguageValues']) ? htmlspecialchars(current($tData['previewLanguageValues'])) : ''
+                                            !empty($tData['previewLanguageValues']) && is_array($tData['previewLanguageValues']) ? htmlspecialchars((string)current($tData['previewLanguageValues'])) : ''
                                         ) . '</Data></Cell>
 	<Cell ss:StyleID="s39"><Data ss:Type="String">' . str_replace(
                                             chr(10),
                                             '&#10;',
-                                            htmlspecialchars($tData['translationValue'] ?? '')
+                                            htmlspecialchars((string)$tData['translationValue'] ?? '')
                                         ) . '</Data></Cell>
 	<Cell ss:StyleID="s27"><Data ss:Type="String">' . $diff . '</Data></Cell>
 	</Row>
@@ -176,14 +176,14 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
 <!-- Translation row: -->
 <Row ss:StyleID="s25">
 <Cell><Data ss:Type="String">' . htmlspecialchars('translation[' . $table . '][' . $elementUid . '][' . $key . ']') . '</Data></Cell>
-<Cell ss:StyleID="s26"><Data ss:Type="String">' . htmlspecialchars($fieldName) . '</Data></Cell>
+<Cell ss:StyleID="s26"><Data ss:Type="String">' . htmlspecialchars((string)$fieldName) . '</Data></Cell>
 <Cell ss:StyleID="s40"><Data ss:Type="String">' . $this->getLanguageService()->getLL('export.process.error.empty.message') . '!</Data></Cell>
 <Cell ss:StyleID="s39"><Data ss:Type="String"></Data></Cell>
 <Cell ss:StyleID="s27"><Data ss:Type="String"></Data></Cell>
 ' . ($page['header']['prevLang'] ? '<Cell ss:StyleID="s27"><Data ss:Type="String">' . str_replace(
                                         chr(10),
                                         '&#10;',
-                                        !empty($tData['previewLanguageValues']) && is_array($tData['previewLanguageValues']) ? htmlspecialchars(current($tData['previewLanguageValues'])) : ''
+                                        !empty($tData['previewLanguageValues']) && is_array($tData['previewLanguageValues']) ? htmlspecialchars((string)current($tData['previewLanguageValues'])) : ''
                                     ) . '</Data></Cell>' : '') . '
 </Row>
 ';
