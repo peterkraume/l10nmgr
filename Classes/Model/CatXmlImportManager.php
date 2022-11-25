@@ -101,7 +101,7 @@ class CatXmlImportManager
     public function parseAndCheckXMLFile(): bool
     {
         $fileContent = GeneralUtility::getUrl($this->file);
-        $this->xmlNodes = XmlTools::xml2tree(
+        $xmlTree = XmlTools::xml2tree(
             str_replace(
                 '&nbsp;',
                 '&#160;',
@@ -110,6 +110,11 @@ class CatXmlImportManager
             3
         ); // For some reason PHP chokes on incoming &nbsp; in XML!
 
+        if (is_array($xmlTree)) {
+            $this->xmlNodes = $xmlTree;
+        } else {
+            $this->xmlNodes = [$xmlTree];
+        }
         $event = new XmlImportFileIsParsed($this->xmlNodes, $this->_errorMsg);
         /** @var EventDispatcher $eventDispatcher */
         $eventDispatcher = GeneralUtility::makeInstance(EventDispatcher::class);
@@ -117,8 +122,8 @@ class CatXmlImportManager
         $this->xmlNodes = $event->getXmlNodes();
         $this->_errorMsg = $event->getErrorMessages();
 
-        if (!is_array($this->xmlNodes)) {
-            $this->_errorMsg[] = $this->getLanguageService()->getLL('import.manager.error.parsing.xml2tree.message') . $this->xmlNodes . ' Content: ' . $fileContent;
+        if (!is_array($xmlTree)) {
+            $this->_errorMsg[] = $this->getLanguageService()->getLL('import.manager.error.parsing.xml2tree.message') . $this->xmlNodes[0] . ' Content: ' . $fileContent;
             return false;
         }
         $headerInformationNodes = $this->xmlNodes['TYPO3L10N'][0]['ch']['head'][0]['ch'] ?? [];
