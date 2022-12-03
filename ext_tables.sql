@@ -97,11 +97,11 @@ CREATE TABLE tx_l10nmgr_exportdata
     exportType       blob,
     filename         text,
 
-    PRIMARY KEY (uid),
+    PRIMARY KEY (uid)
 );
 
 #
-# Table structure for table 'pages'
+# Extend Table structure for table 'pages'
 #
 CREATE TABLE pages
 (
@@ -126,7 +126,7 @@ CREATE TABLE sys_language_l10nmgr_language_restricted_record_mm
 );
 
 #
-# Table structure for table 'sys_language'
+# Extend Table structure for table 'sys_language'
 #
 CREATE TABLE sys_language (
 	static_lang_isocode int(11) unsigned DEFAULT '0' NOT NULL
