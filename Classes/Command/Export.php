@@ -258,9 +258,9 @@ class Export extends L10nCommand
                 $forceLanguage = $this->getStaticLangUid((int)$l10nmgrCfgObj->getData('sourceLangStaticId'));
                 $l10nmgrGetXML->setForcedSourceLanguage($forceLanguage);
             }
-            $forceLanguage = $input->getOption('forcedSourceLanguage') ?? 0;
-            if ($forceLanguage) {
-                $l10nmgrGetXML->setForcedSourceLanguage($forceLanguage);
+            $forceLanguage = $input->getOption('forcedSourceLanguage');
+            if (is_string($forceLanguage)) {
+                $l10nmgrGetXML->setForcedSourceLanguage((int)$forceLanguage);
             }
             $onlyChanged = $input->getOption('updated');
             if ($onlyChanged) {
