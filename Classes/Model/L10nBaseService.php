@@ -592,7 +592,7 @@ class L10nBaseService implements LoggerAwareInterface
                             if (!empty($data['fields'])) {
                                 foreach ($data['fields'] as $key => $tData) {
                                     if (is_array($tData)
-                                        && is_array($inputArray[$table][$elementUid])
+                                        && is_array($inputArray[$table][$elementUid] ?? null)
                                         && array_key_exists($key, $inputArray[$table][$elementUid])
                                     ) {
                                         $explodedKey = explode(':', $key);
@@ -810,7 +810,7 @@ class L10nBaseService implements LoggerAwareInterface
                                     //debug($tData,'fields not set for: '.$elementUid.'-'.$key);
                                     //debug($inputArray[$table],'inputarray');
                                 }
-                                if (is_array($inputArray[$table][$elementUid]) && !count($inputArray[$table][$elementUid])) {
+                                if (is_array($inputArray[$table][$elementUid] ?? null) && !count($inputArray[$table][$elementUid])) {
                                     unset($inputArray[$table][$elementUid]); // Unsetting so in the end we can see if $inputArray was fully processed.
                                 }
                             }
