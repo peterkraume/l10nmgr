@@ -165,7 +165,7 @@ class XmlTools implements LoggerAwareInterface
                         if (!isset($val['value']) && isset($selfClosingTags[$val['tag']])) {
                             $XMLcontent .= ' />';
                         } else {
-                            $XMLcontent .= '>' . htmlspecialchars((string)$val['value']) . '</' . $val['tag'] . '>';
+                            $XMLcontent .= '>' . htmlspecialchars((string)($val['value'] ?? null)) . '</' . $val['tag'] . '>';
                         }
                     } else {
                         $XMLcontent .= '>';
