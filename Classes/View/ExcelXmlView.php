@@ -109,7 +109,7 @@ class ExcelXmlView extends AbstractExportView implements ExportViewInterface
                                 list(, $uidString, $fieldName) = explode(':', $key);
                                 list($uidValue) = explode('/', $uidString);
                                 //DZ
-                                if (($this->forcedSourceLanguage && isset($tData['previewLanguageValues'][$this->forcedSourceLanguage])) || $this->forcedSourceLanguage === false) {
+                                if (($this->forcedSourceLanguage && isset($tData['previewLanguageValues'][$this->forcedSourceLanguage])) || !$this->forcedSourceLanguage) {
                                     //DZ
                                     if ($this->forcedSourceLanguage) {
                                         $sourceColState = 'ss:Hidden="1" ss:AutoFitWidth="0"';
