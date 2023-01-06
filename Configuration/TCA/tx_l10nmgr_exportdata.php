@@ -1,9 +1,8 @@
 <?php
 
-$l10n = 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf';
 return [
     'ctrl' => [
-        'title' => $l10n . ':tx_l10nmgr_export',
+        'title' => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf:tx_l10nmgr_export',
         'label' => 'title',
         'l10ncfg_id' => 'l10ncfg_id',
         'tstamp' => 'tstamp',
@@ -21,7 +20,7 @@ return [
     'columns' => [
         'title' => [
             'exclude' => 1,
-            'label' => $l10n . ':tx_l10nmgr_cfg.title',
+            'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf:tx_l10nmgr_cfg.title',
             'config' => [
                 'type' => 'input',
                 'size' => 48,
@@ -31,7 +30,7 @@ return [
         ],
         'crdate' => [
             'exclude' => 1,
-            'label' => $l10n . ':tx_l10nmgr_cfg.crdate',
+            'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf:tx_l10nmgr_cfg.crdate',
             'config' => [
                 'type' => 'input',
                 'renderType' => 'inputDateTime',
@@ -42,7 +41,7 @@ return [
         ],
         'tablelist' => [
             'exclude' => 1,
-            'label' => $l10n . ':tx_l10nmgr_cfg.exporttablelist',
+            'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf:tx_l10nmgr_cfg.exporttablelist',
             'config' => [
                 'type' => 'input',
                 'size' => 48,
@@ -51,7 +50,7 @@ return [
         ],
         'translation_lang' => [
             'exclude' => 1,
-            'label' => $l10n . ':tx_l10nmgr_cfg.translationLang',
+            'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf:tx_l10nmgr_cfg.translationLang',
             'config' => [
                 'type' => 'input',
                 'size' => 48,
@@ -60,7 +59,7 @@ return [
         ],
         'source_lang' => [
             'exclude' => 1,
-            'label' => $l10n . ':tx_l10nmgr_cfg.sourceLang',
+            'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf:tx_l10nmgr_cfg.sourceLang',
             'config' => [
                 'type' => 'input',
                 'size' => 48,
@@ -69,7 +68,7 @@ return [
         ],
         'l10ncfg_id' => [
             'exclude' => 1,
-            'label' => $l10n . ':tx_l10nmgr_priorities.configuration',
+            'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf:tx_l10nmgr_priorities.configuration',
             'config' => [
                 'type' => 'group',
                 'internal_type' => 'db',
@@ -82,7 +81,7 @@ return [
         ],
         'filename' => [
             'exclude' => 1,
-            'label' => $l10n . ':tx_l10nmgr_cfg.filename',
+            'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf:tx_l10nmgr_cfg.filename',
             'config' => [
                 'type' => 'input',
                 'size' => 48,

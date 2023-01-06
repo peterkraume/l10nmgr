@@ -1,9 +1,8 @@
 <?php
 
-$l10n = 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf';
 return [
     'ctrl' => [
-        'title' => $l10n . ':tx_l10nmgr_priorities',
+        'title' => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf:tx_l10nmgr_priorities',
         'label' => 'title',
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
@@ -30,7 +29,7 @@ return [
         ],
         'title' => [
             'exclude' => 1,
-            'label' => $l10n . ':tx_l10nmgr_priorities.title',
+            'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf:tx_l10nmgr_priorities.title',
             'config' => [
                 'type' => 'input',
                 'size' => 30,
@@ -38,7 +37,7 @@ return [
         ],
         'description' => [
             'exclude' => 1,
-            'label' => $l10n . ':tx_l10nmgr_priorities.description',
+            'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf:tx_l10nmgr_priorities.description',
             'config' => [
                 'type' => 'text',
                 'cols' => 30,
@@ -47,7 +46,7 @@ return [
         ],
         'languages' => [
             'exclude' => 1,
-            'label' => $l10n . ':tx_l10nmgr_priorities.languages',
+            'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf:tx_l10nmgr_priorities.languages',
             'config' => [
                 'type' => 'select',
                 'renderType' => 'selectSingle',
@@ -60,7 +59,7 @@ return [
         ],
         'element' => [
             'exclude' => 1,
-            'label' => $l10n . ':tx_l10nmgr_priorities.element',
+            'label' => 'LLL:EXT:l10nmgr/Resources/Private/Language/locallang_db.xlf:tx_l10nmgr_priorities.element',
             'config' => [
                 'type' => 'group',
                 'internal_type' => 'db',
