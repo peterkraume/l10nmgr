@@ -336,7 +336,7 @@ return false;
             $this->pageinfo = BackendUtility::readPageAccess($this->id, $this->perms_clause);
             $access = is_array($this->pageinfo);
             if ($this->id && $access) {
-                $action = (string)$this->MOD_SETTINGS['action'] ?? '';
+                $action = $this->MOD_SETTINGS['action'] ? (string)$this->MOD_SETTINGS['action'] : '';
                 $title = $this->MOD_MENU['action'][$action];
 
                 $this->content .= '<div class="panel panel-default expanded">
